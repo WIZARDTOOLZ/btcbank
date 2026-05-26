@@ -820,6 +820,7 @@ footer{background:var(--bg3);border-top:1px solid var(--border);padding:48px cla
     <li><a href="#buy">How to Buy</a></li>
     <li><a href="#tiers">Tiers</a></li>
     <li><a href="#checker">Check Tier</a></li>
+    <li><a href="/paid-summary?transparent=1">Paid Summary</a></li>
     <li><a href="#proof">Proof</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#leaderboard">Leaderboard</a></li>
@@ -837,6 +838,7 @@ footer{background:var(--bg3);border-top:1px solid var(--border);padding:48px cla
   <a href="#buy" onclick="closeMobileNav()">How to Buy</a>
   <a href="#tiers" onclick="closeMobileNav()">Tier System</a>
   <a href="#checker" onclick="closeMobileNav()">Check Your Tier</a>
+  <a href="/paid-summary?transparent=1" onclick="closeMobileNav()">Paid Summary</a>
   <a href="#proof" onclick="closeMobileNav()">Proof Explorer</a>
   <a href="#roadmap" onclick="closeMobileNav()">Roadmap</a>
   <a href="#leaderboard" onclick="closeMobileNav()">Leaderboard</a>
@@ -1453,6 +1455,7 @@ ${renderHypeSection(minimumTokens, holderMint)}
         <li><a href="#buy">How to buy</a></li>
         <li><a href="#tiers">Tier system</a></li>
         <li><a href="#checker">Wallet checker</a></li>
+        <li><a href="/paid-summary?transparent=1">Paid summary</a></li>
         <li><a href="#leaderboard">Leaderboard</a></li>
         <li><a href="#roadmap">Roadmap</a></li>
         <li><a href="/brand-kit">Brand kit</a></li>

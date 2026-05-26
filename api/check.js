@@ -1,8 +1,13 @@
 import {
   buildWalletCheckResult,
   findHolderByWallet,
+  getHolderMultiplier,
+  getHolderShares,
   getLivePayload,
+  mapWalletPayment,
+  resolveBtcPrice,
   safeInteger,
+  safeNumber,
 } from "./_shared.js";
 
 async function buildDirectWalletCheck(wallet, minimumTokens, stats = {}) {
@@ -91,9 +96,58 @@ async function buildDirectWalletCheck(wallet, minimumTokens, stats = {}) {
     hasWbtcAccount,
     payableNow: hasWbtcAccount === null ? null : qualifiesNow && hasWbtcAccount,
     totalWbtcEarned: "0.00000000",
+    totalWbtcUsd: 0,
+    nextEstimatedWbtc: "0.00000000",
+    nextEstimatedUsd: 0,
+    payments: [],
     message: qualifiesNow
       ? "This wallet qualifies on-chain right now. Hold-time bonus details appear once the live tracker syncs it."
       : `This wallet is below the ${minimumTokens.toLocaleString("en-US")} BTCBANK reward line right now.`,
+  };
+}
+
+function findWalletPayments(payload, wallet, btcPrice) {
+  const normalized = String(wallet ?? "").trim().toLowerCase();
+  const paymentsByWallet = payload?.walletPayments ?? {};
+  const key = Object.keys(paymentsByWallet).find((entry) => entry.toLowerCase() === normalized);
+  let rows = key ? paymentsByWallet[key] : [];
+  if (!Array.isArray(rows) || rows.length === 0) {
+    rows = (payload?.txs ?? []).filter((tx) => String(tx?.wallet ?? "").trim().toLowerCase() === normalized);
+  }
+
+  return Array.isArray(rows)
+    ? rows.map((payment) => mapWalletPayment(payment, btcPrice)).sort((a, b) => b.timestamp - a.timestamp)
+    : [];
+}
+
+function attachPaymentDetails(result, payload, wallet) {
+  const stats = payload?.stats ?? {};
+  const btcPrice = resolveBtcPrice(stats);
+  const payments = findWalletPayments(payload, result?.wallet || wallet, btcPrice);
+  const totalWbtc = Number(result?.totalWbtcEarned ?? 0);
+  const totalWbtcUsd = Number(result?.totalWbtcUsd ?? 0) || totalWbtc * btcPrice;
+  let nextEstimatedWbtc = Number(result?.nextEstimatedWbtc ?? 0);
+  if (!nextEstimatedWbtc && result?.qualifiesNow) {
+    const minimumTokens = safeInteger(stats.holderMinTokens ?? 300000, 300000);
+    const totalRewardPower = (payload?.holders ?? []).reduce((sum, holder) => {
+      return sum + getHolderShares(holder, minimumTokens) * getHolderMultiplier(holder);
+    }, 0);
+    const holderRewardPower = safeNumber(result.rewardPower, 0);
+    const baselineRoundWbtc = safeNumber(stats.currentRoundWbtc || stats.biggestRoundWbtc || 0, 0);
+    nextEstimatedWbtc = totalRewardPower > 0 ? (baselineRoundWbtc * holderRewardPower) / totalRewardPower : 0;
+  }
+  const nextEstimatedUsd = Number(result?.nextEstimatedUsd ?? 0) || nextEstimatedWbtc * btcPrice;
+
+  return {
+    ...result,
+    totalWbtcUsd,
+    nextEstimatedWbtc: nextEstimatedWbtc.toFixed(8),
+    nextEstimatedUsd,
+    payments,
+    paymentCountShown: payments.length,
+    paymentNote: result?.payableNow === false && result?.qualifiesNow
+      ? "This wallet qualifies, but it needs the one-time WBTC account unlock before future payouts can land."
+      : "Next payment is an estimate based on the most recent paid round size and this wallet's current reward power.",
   };
 }
 
@@ -129,6 +183,7 @@ export default async function handler(req, res) {
         };
       }
     }
+    result = attachPaymentDetails(result, payload, wallet);
 
     res.statusCode = 200;
     res.end(JSON.stringify(result));

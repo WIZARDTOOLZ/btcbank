@@ -29,7 +29,7 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { stats, holders, txs } = body;
+  const { stats, holders, txs, walletPayments } = body;
   if (!stats || !holders || !txs) {
     res.statusCode = 400;
     res.end("Missing stats, holders, or txs");
@@ -40,6 +40,7 @@ export default async function handler(req, res) {
     stats,
     holders,
     txs,
+    walletPayments: walletPayments ?? {},
     updatedAt: Date.now(),
   };
 

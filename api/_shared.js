@@ -92,6 +92,23 @@ export function formatWbtc(value, digits = 8) {
   return safeNumber(value, 0).toFixed(digits);
 }
 
+export function mapWalletPayment(payment, btcPrice = 0) {
+  const wbtcAmount = safeNumber(payment?.wbtcAmount ?? payment?.amountWbtc ?? payment?.amount ?? 0, 0);
+  const wbtcUsd = payment?.wbtcUsd === undefined || payment?.wbtcUsd === null
+    ? wbtcAmount * safeNumber(btcPrice, 0)
+    : safeNumber(payment.wbtcUsd, 0);
+
+  return {
+    round: safeInteger(payment?.round ?? payment?.roundNumber ?? 0, 0),
+    roundId: payment?.roundId ?? "",
+    signature: payment?.signature ?? payment?.sig ?? "",
+    wbtcAmount,
+    wbtcUsd,
+    tier: payment?.tier ?? payment?.holdTier ?? "Holder",
+    timestamp: safeNumber(payment?.timestamp ?? payment?.time ?? Date.now(), Date.now()),
+  };
+}
+
 export function getHolderWallet(holder) {
   return holder?.wallet ?? holder?.owner ?? holder?.address ?? "";
 }
@@ -253,6 +270,9 @@ export function buildWalletCheckResult(holder, wallet, minimumTokens = 300000) {
   const wbtcReady = holder?.hasWbtcAccount ?? holder?.wbtcReady ?? holder?.hasRewardAccount ?? null;
   const payableNow = holder?.payableNow ?? (wbtcReady === null ? null : qualifies && Boolean(wbtcReady));
   const totalWbtcEarned = safeNumber(holder?.totalWbtcEarned ?? holder?.wbtcEarned ?? holder?.earnedWbtc ?? 0, 0);
+  const totalWbtcUsd = safeNumber(holder?.totalWbtcUsd ?? holder?.wbtcUsd ?? 0, 0);
+  const nextEstimatedWbtc = safeNumber(holder?.nextEstimatedWbtc ?? holder?.nextWbtc ?? 0, 0);
+  const nextEstimatedUsd = safeNumber(holder?.nextEstimatedUsd ?? 0, 0);
 
   return {
     found: true,
@@ -273,6 +293,9 @@ export function buildWalletCheckResult(holder, wallet, minimumTokens = 300000) {
     hasWbtcAccount: wbtcReady,
     payableNow,
     totalWbtcEarned: totalWbtcEarned.toFixed(8),
+    totalWbtcUsd,
+    nextEstimatedWbtc: nextEstimatedWbtc.toFixed(8),
+    nextEstimatedUsd,
     message: qualifies
       ? "This wallet qualifies right now. Stop jeeting. Stop selling. Let the Bitcoin side compound."
       : `This wallet is below the ${formatCount(minimumTokens)} BTCBANK reward line right now.`,

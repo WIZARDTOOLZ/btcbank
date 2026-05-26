@@ -1657,6 +1657,9 @@ type PublicSiteHolder = {
   hasWbtcAccount: boolean;
   payableNow: boolean;
   totalWbtcEarned: string;
+  totalWbtcUsd: number;
+  nextEstimatedWbtc: string;
+  nextEstimatedUsd: number;
   roundsQualified: number;
 };
 
@@ -1665,6 +1668,16 @@ type PublicSiteTx = {
   signature: string;
   round: number;
   wbtcAmount: string;
+  tier: string;
+  timestamp: number;
+};
+
+type PublicSiteWalletPayment = {
+  round: number;
+  roundId: string;
+  signature: string;
+  wbtcAmount: string;
+  wbtcUsd: number;
   tier: string;
   timestamp: number;
 };
@@ -1693,6 +1706,7 @@ type PublicSitePayload = {
   };
   holders: PublicSiteHolder[];
   txs: PublicSiteTx[];
+  walletPayments: Record<string, PublicSiteWalletPayment[]>;
 };
 
 async function getLedgerStatsFromState(state: { rounds: PayoutRoundState[] }): Promise<LedgerStats> {
@@ -1836,6 +1850,45 @@ function buildPublicSiteTransactions(rounds: PayoutRoundState[], rewardDecimals:
   return txs.sort((left, right) => right.timestamp - left.timestamp);
 }
 
+function buildPublicSiteWalletPayments(
+  rounds: PayoutRoundState[],
+  rewardDecimals: number,
+  btcPrice: number,
+  maxPerWallet = 8,
+): Record<string, PublicSiteWalletPayment[]> {
+  const roundNumbers = buildRoundSequenceMap(rounds);
+  const payments: Record<string, PublicSiteWalletPayment[]> = {};
+  const sortedRounds = [...rounds].sort((left, right) => right.createdAt.localeCompare(left.createdAt));
+
+  for (const round of sortedRounds) {
+    for (const recipient of round.recipients) {
+      if (recipient.status !== "paid" || !recipient.txSignature) {
+        continue;
+      }
+
+      const owner = recipient.owner;
+      const existing = payments[owner] ?? [];
+      if (existing.length >= maxPerWallet) {
+        continue;
+      }
+
+      const amount = Number(formatTokenAmount(BigInt(recipient.amountRaw), rewardDecimals));
+      existing.push({
+        round: roundNumbers.get(round.id) ?? 0,
+        roundId: round.id,
+        signature: recipient.txSignature,
+        wbtcAmount: amount.toFixed(rewardDecimals),
+        wbtcUsd: amount * btcPrice,
+        tier: recipient.holdTierLabel ?? "<24h",
+        timestamp: Date.parse(recipient.paidAt ?? round.completedAt ?? round.createdAt),
+      });
+      payments[owner] = existing;
+    }
+  }
+
+  return payments;
+}
+
 function getPaidRoundTotalRaw(round: PayoutRoundState): bigint {
   return round.recipients.reduce((roundTotal, recipient) => {
     if (recipient.status !== "paid") {
@@ -1886,6 +1939,9 @@ async function buildPublicSitePayload(): Promise<PublicSitePayload> {
   const latestRoundUsd = latestRound ? await getRoundRewardUsd(latestRound, rewardDecimals) : 0;
   const latestRoundRewardRaw = latestRound ? getPaidRoundTotalRaw(latestRound) : 0n;
   const btcPrice = await getCurrentBtcUsd(rewardDecimals);
+  const latestPaidRound = sortedRounds.find((round) => getPaidRoundTotalRaw(round) > 0n) ?? null;
+  const estimateRewardRaw = latestPaidRound ? getPaidRoundTotalRaw(latestPaidRound) : 0n;
+  const currentTotalWeightUnits = annotatedHolders.reduce((total, holder) => total + holder.weightUnits, 0n);
   let biggestRound = latestRound;
   let biggestRoundRewardRaw = latestRoundRewardRaw;
 
@@ -1901,6 +1957,11 @@ async function buildPublicSitePayload(): Promise<PublicSitePayload> {
     const owner = holder.owner.toBase58();
     const history = holderHistory.get(owner) ?? { totalPaidRaw: 0n, roundsQualified: 0 };
     const hasWbtcAccount = payability.payableOwners.has(owner);
+    const nextEstimatedRaw = currentTotalWeightUnits > 0n && estimateRewardRaw > 0n
+      ? (estimateRewardRaw * holder.weightUnits) / currentTotalWeightUnits
+      : 0n;
+    const nextEstimatedWbtc = Number(formatTokenAmount(nextEstimatedRaw, rewardDecimals));
+    const totalWbtcEarned = Number(formatTokenAmount(history.totalPaidRaw, rewardDecimals));
 
     return {
       wallet: owner,
@@ -1913,7 +1974,10 @@ async function buildPublicSitePayload(): Promise<PublicSitePayload> {
       eligibleSince: holder.eligibleSince,
       hasWbtcAccount,
       payableNow: hasWbtcAccount,
-      totalWbtcEarned: formatTokenAmount(history.totalPaidRaw, rewardDecimals),
+      totalWbtcEarned: totalWbtcEarned.toFixed(rewardDecimals),
+      totalWbtcUsd: totalWbtcEarned * btcPrice,
+      nextEstimatedWbtc: nextEstimatedWbtc.toFixed(rewardDecimals),
+      nextEstimatedUsd: nextEstimatedWbtc * btcPrice,
       roundsQualified: history.roundsQualified,
     };
   });
@@ -1942,6 +2006,7 @@ async function buildPublicSitePayload(): Promise<PublicSitePayload> {
     },
     holders,
     txs: buildPublicSiteTransactions(state.rounds, rewardDecimals),
+    walletPayments: buildPublicSiteWalletPayments(state.rounds, rewardDecimals, btcPrice),
   };
 }
 

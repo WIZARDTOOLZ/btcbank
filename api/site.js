@@ -12,6 +12,7 @@ import {
   getLivePayload,
   mapLeaderboardHolder,
   mapTransaction,
+  mapWalletPayment,
   resolveBtcPrice,
   safeInteger,
   safeNumber,
@@ -159,6 +160,19 @@ function renderCheckerResultHtml(result) {
     : result.payableNow
       ? "Yes"
       : "Not yet";
+  const paymentRows = Array.isArray(result.payments) && result.payments.length
+    ? result.payments.slice(0, 8).map((payment) => {
+        const signature = String(payment.signature ?? "");
+        const shortSig = signature ? `${signature.slice(0, 6)}...${signature.slice(-6)}` : "pending";
+        const href = signature ? `https://solscan.io/tx/${encodeURIComponent(signature)}` : "#";
+        return `<div class="wallet-payment-row">
+          <div><div class="wallet-payment-main">${escapeHtml(formatWbtc(payment.wbtcAmount, 8))} WBTC</div><div class="wallet-payment-sub">Round #${escapeHtml(formatCount(payment.round))} | ${escapeHtml(payment.tier ?? "Holder")}</div></div>
+          <div class="wallet-payment-usd">${escapeHtml(formatUsd(payment.wbtcUsd ?? 0, 2))}</div>
+          <a href="${href}" target="_blank" rel="noopener">${escapeHtml(shortSig)}</a>
+        </div>`;
+      }).join("")
+    : `<div class="wallet-payment-empty">No completed payments are published for this wallet yet. If it is qualified but no-WBTC, unlock WBTC once so future payouts can land.</div>`;
+  const paymentHtml = `<div class="wallet-payments"><div class="wallet-payments-title">Recent wallet payments</div>${paymentRows}<div class="checker-message">${escapeHtml(result.paymentNote ?? "Approx next payment is only an estimate and changes with round size, holder count, bag size, and hold tier.")}</div></div>`;
 
   return `<div class="checker-result checker-hit">
     <div class="checker-topline">
@@ -181,8 +195,12 @@ function renderCheckerResultHtml(result) {
       <div class="checker-metric"><span>Next tier ETA</span><strong>${escapeHtml(result.nextTierEta ?? "Reached")}</strong></div>
       <div class="checker-metric"><span>Need to qualify</span><strong>${escapeHtml(result.tokensNeeded)} BTCBANK</strong></div>
       <div class="checker-metric"><span>wBTC earned</span><strong>${escapeHtml(result.totalWbtcEarned)} WBTC</strong></div>
+      <div class="checker-metric"><span>wBTC earned USD</span><strong>${escapeHtml(formatUsd(result.totalWbtcUsd ?? 0, 2))}</strong></div>
+      <div class="checker-metric"><span>Approx next</span><strong>${escapeHtml(result.nextEstimatedWbtc ?? "0.00000000")} WBTC</strong></div>
+      <div class="checker-metric"><span>Approx next USD</span><strong>${escapeHtml(formatUsd(result.nextEstimatedUsd ?? 0, 2))}</strong></div>
     </div>
     <div class="checker-message">${escapeHtml(result.message)}</div>
+    ${paymentHtml}
   </div>`;
 }
 
@@ -306,9 +324,25 @@ function renderSite(data, wallet, dexSummary) {
     .sort((a, b) => b.totalWbtcEarned - a.totalWbtcEarned)
     .slice(0, 50);
   const initialTxs = txs.map(mapTransaction).slice(0, 30);
-  const walletResult = wallet
+  let walletResult = wallet
     ? buildWalletCheckResult(findHolderByWallet(holders, wallet), wallet, minimumTokens)
     : null;
+  if (walletResult) {
+    const walletPaymentKey = Object.keys(data?.walletPayments ?? {}).find((key) => key.toLowerCase() === String(walletResult.wallet || wallet).toLowerCase());
+    const walletPayments = walletPaymentKey ? data.walletPayments[walletPaymentKey] : [];
+    const nextEstimatedWbtc = safeNumber(walletResult.nextEstimatedWbtc, 0);
+    const totalWbtcEarned = safeNumber(walletResult.totalWbtcEarned, 0);
+    walletResult = {
+      ...walletResult,
+      totalWbtcUsd: safeNumber(walletResult.totalWbtcUsd, 0) || totalWbtcEarned * btcPrice,
+      nextEstimatedWbtc: nextEstimatedWbtc.toFixed(8),
+      nextEstimatedUsd: safeNumber(walletResult.nextEstimatedUsd, 0) || nextEstimatedWbtc * btcPrice,
+      payments: Array.isArray(walletPayments) ? walletPayments.map((payment) => mapWalletPayment(payment, btcPrice)) : [],
+      paymentNote: walletResult.payableNow === false && walletResult.qualifiesNow
+        ? "This wallet qualifies, but it needs the one-time WBTC account unlock before future payouts can land."
+        : "Next payment is an estimate based on the most recent paid round size and this wallet's current reward power.",
+    };
+  }
   const checkerHtml = renderCheckerResultHtml(walletResult);
   const updatedAt = data?.updatedAt ?? Date.now();
   const currentRoundPaid = safeInteger(stats.paidThisRound ?? 0, 0);
@@ -573,6 +607,14 @@ section{padding:clamp(60px,8vw,100px) clamp(16px,4vw,40px)}
 .checker-metric strong{display:block;font-family:var(--mono);font-size:14px;color:#fff}
 .checker-message{margin-top:14px;font-size:13px;line-height:1.7;color:#d9d9d9}
 .checker-miss .checker-message{color:#fca5a5}
+.wallet-payments{margin-top:16px;border-top:1px solid rgba(247,147,26,.16);padding-top:14px}
+.wallet-payments-title{font-size:11px;color:var(--btc);font-weight:800;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px}
+.wallet-payment-row{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;background:#0b0b0b;border:1px solid rgba(247,147,26,.13);border-radius:10px;padding:11px 12px;margin-top:8px}
+.wallet-payment-row a{color:#69d4ff;text-decoration:none;font-family:var(--mono);font-size:11px;font-weight:700}
+.wallet-payment-main{font-family:var(--mono);font-size:12px;color:#fff}
+.wallet-payment-sub{font-size:11px;color:#d4c6aa;margin-top:2px}
+.wallet-payment-usd{font-family:var(--mono);font-size:12px;color:#8dff57;font-weight:800;text-align:right}
+.wallet-payment-empty{font-size:12px;color:#d4c6aa;line-height:1.7;background:#0b0b0b;border:1px solid rgba(247,147,26,.13);border-radius:10px;padding:12px}
 .lb-section{background:var(--bg2)}
 .lb-controls{display:flex;gap:8px;margin:24px 0 16px;flex-wrap:wrap}
 .lb-btn{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:6px 14px;font-size:12px;color:var(--muted);cursor:pointer;transition:all .2s;font-family:var(--body)}
@@ -1629,6 +1671,19 @@ function renderCheckResult(result){
   }
   const readyText = result.hasWbtcAccount === null ? 'Live feed does not expose this yet' : (result.hasWbtcAccount ? 'Ready' : 'Needs one-time wBTC unlock');
   const payableText = result.payableNow === null ? 'Waiting on richer live feed' : (result.payableNow ? 'Yes' : 'Not yet');
+  const paymentRows = Array.isArray(result.payments) && result.payments.length
+    ? result.payments.slice(0,8).map(function(payment){
+        const sig=String(payment.signature||'');
+        const shortSig=sig ? sig.slice(0,6)+'...'+sig.slice(-6) : 'pending';
+        const href=sig ? 'https://solscan.io/tx/'+encodeURIComponent(sig) : '#';
+        return '<div class="wallet-payment-row">'
+          +'<div><div class="wallet-payment-main">'+Number(payment.wbtcAmount||0).toFixed(8)+' WBTC</div><div class="wallet-payment-sub">Round #'+fmt(payment.round||0,0)+' | '+esc(payment.tier||'Holder')+' | '+esc(timeAgo(payment.timestamp))+'</div></div>'
+          +'<div class="wallet-payment-usd">$'+fmt(payment.wbtcUsd||0,2)+'</div>'
+          +'<a href="'+href+'" target="_blank" rel="noopener">'+esc(shortSig)+'</a>'
+          +'</div>';
+      }).join('')
+    : '<div class="wallet-payment-empty">No completed payments are published for this wallet yet. If it is qualified but no-WBTC, unlock WBTC once so future payouts can land.</div>';
+  const paymentHtml = '<div class="wallet-payments"><div class="wallet-payments-title">Recent wallet payments</div>'+paymentRows+'<div class="checker-message">'+esc(result.paymentNote||'Approx next payment is only an estimate and changes with round size, holder count, bag size, and hold tier.')+'</div></div>';
   if(mount) mount.innerHTML=''
     +'<div class="checker-result checker-hit">'
     +'<div class="checker-topline"><div><div class="checker-state">Wallet found</div><div class="checker-wallet">'+esc(result.wallet)+'</div></div><div class="checker-tier-pill">'+esc(result.holdTier)+'</div></div>'
@@ -1645,7 +1700,10 @@ function renderCheckResult(result){
     +'<div class="checker-metric"><span>Next tier ETA</span><strong>'+esc(result.nextTierEta || 'Reached')+'</strong></div>'
     +'<div class="checker-metric"><span>Need to qualify</span><strong>'+esc(result.tokensNeeded)+' BTCBANK</strong></div>'
     +'<div class="checker-metric"><span>wBTC earned</span><strong>'+esc(result.totalWbtcEarned)+' WBTC</strong></div>'
-    +'</div><div class="checker-message">'+esc(result.message)+'</div></div>';
+    +'<div class="checker-metric"><span>wBTC earned USD</span><strong>$'+fmt(result.totalWbtcUsd||0,2)+'</strong></div>'
+    +'<div class="checker-metric"><span>Approx next</span><strong>'+Number(result.nextEstimatedWbtc||0).toFixed(8)+' WBTC</strong></div>'
+    +'<div class="checker-metric"><span>Approx next USD</span><strong>$'+fmt(result.nextEstimatedUsd||0,2)+'</strong></div>'
+    +'</div><div class="checker-message">'+esc(result.message)+'</div>'+paymentHtml+'</div>';
   if(heroMount) heroMount.innerHTML=''
     +'<div class="checker-result checker-hit">'
     +'<div class="checker-topline"><div><div class="checker-state">Instant answer</div><div class="checker-wallet">'+esc(result.wallet)+'</div></div><div class="checker-tier-pill">'+esc(result.holdTier)+'</div></div>'

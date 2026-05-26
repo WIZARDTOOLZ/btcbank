@@ -157,6 +157,304 @@ function renderPaidSummary(data, transparent) {
 </html>`;
 }
 
+function renderPaidSummaryPolished(data, transparent) {
+  const s = data?.stats ?? {};
+  const txs = Array.isArray(data?.txs) ? data.txs : [];
+  const updatedAt = data?.updatedAt;
+  const isLive = updatedAt && (Date.now() - updatedAt) < 120000;
+  const btcPrice = parseFloat(s.btcPrice || 0)
+    || (parseFloat(s.allTimeUsd || 0) / Math.max(parseFloat(s.allTimeWbtc || 0), 0.00000001));
+  const paidThisRound = parseInt(s.paidThisRound ?? 0, 10) || 0;
+  const qualifiedThisRound = parseInt(s.qualifiedThisRound ?? 0, 10) || 0;
+  const stillLeft = Math.max(0, qualifiedThisRound - paidThisRound);
+  const bg = transparent
+    ? "linear-gradient(135deg, rgba(8,8,8,.98), rgba(15,22,11,.96))"
+    : "linear-gradient(135deg, #050505, #10160c 58%, #090909)";
+
+  const recentTxRows = txs.slice(0, 14).map((tx) => {
+    const amount = parseFloat(tx.wbtcAmount ?? tx.amountWbtc ?? tx.amount ?? 0) || 0;
+    const signature = tx.signature ?? tx.sig ?? "";
+    const usd = tx.wbtcUsd ?? tx.amountUsd ?? amount * btcPrice;
+    const href = signature ? `https://solscan.io/tx/${signature}` : "#";
+    return `
+      <a class="tx-card" href="${href}" target="_blank" rel="noopener">
+        <span class="tx-dot"></span>
+        <span class="tx-main">
+          <strong>${fmtWbtc(amount)} WBTC</strong>
+          <small>${shortenAddr(tx.wallet)} | ${tx.tier ?? "Holder"} | Round #${fmtNum(tx.round)}</small>
+        </span>
+        <span class="tx-side">
+          <strong>${fmtUsd(usd)}</strong>
+          <small>${signature ? shortenAddr(signature) : "signature pending"}</small>
+        </span>
+      </a>`;
+  }).join("") || `<div class="empty">No payout transactions published yet.</div>`;
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Bitcoin Bank - $BTCBANK Paid Summary</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@500;700&family=Space+Grotesk:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --btc: #f7931a;
+    --gold: #ffd15a;
+    --green: #83ff3f;
+    --cyan: #69d4ff;
+    --text: #fff4d6;
+    --muted: #e6c98e;
+    --line: rgba(247,147,26,.24);
+    --mono: "JetBrains Mono", monospace;
+    --display: "Bebas Neue", sans-serif;
+    --body: "Space Grotesk", system-ui, sans-serif;
+  }
+  body {
+    min-height: 100vh;
+    background:
+      radial-gradient(circle at 10% 0%, rgba(247,147,26,.20), transparent 28%),
+      radial-gradient(circle at 100% 5%, rgba(131,255,63,.14), transparent 30%),
+      ${bg};
+    color: var(--text);
+    font-family: var(--body);
+    padding: clamp(16px, 2vw, 28px);
+  }
+  .shell { width: min(1500px, 100%); margin: 0 auto; }
+  .top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    border: 1px solid var(--line);
+    background: rgba(0,0,0,.45);
+    border-radius: 18px;
+    padding: 18px 22px;
+    margin-bottom: 18px;
+    box-shadow: 0 24px 80px rgba(0,0,0,.45);
+  }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .mark {
+    width: 48px; height: 48px; border-radius: 50%;
+    display: grid; place-items: center;
+    background: var(--btc); color: #000;
+    font-family: var(--mono); font-weight: 900; font-size: 24px;
+    box-shadow: 0 0 40px rgba(247,147,26,.32);
+  }
+  h1 {
+    font-family: var(--display);
+    font-size: clamp(34px, 4.2vw, 72px);
+    line-height: .9;
+    letter-spacing: .03em;
+  }
+  h1 span { color: var(--btc); }
+  .sub { color: var(--muted); font-size: clamp(15px, 1.5vw, 24px); margin-top: 6px; }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    font-family: var(--mono);
+    font-size: clamp(12px, 1vw, 16px);
+    font-weight: 800;
+    padding: 10px 14px;
+    border-radius: 999px;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    white-space: nowrap;
+  }
+  .badge.live { background: rgba(131,255,63,.12); color: var(--green); border: 1px solid rgba(131,255,63,.35); }
+  .badge.offline { background: rgba(255,80,80,.12); color: #ffaaaa; border: 1px solid rgba(255,80,80,.35); }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: currentColor; box-shadow: 0 0 18px currentColor; }
+  .hero { display: grid; grid-template-columns: 1.05fr .95fr; gap: 18px; }
+  .panel {
+    border: 1px solid var(--line);
+    background: linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.012));
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 24px 80px rgba(0,0,0,.32);
+  }
+  .total { padding: clamp(20px, 3vw, 34px); min-height: 350px; }
+  .eyebrow {
+    color: var(--green);
+    font-family: var(--mono);
+    font-size: clamp(13px, 1.2vw, 20px);
+    font-weight: 900;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .big {
+    font-family: var(--mono);
+    font-size: clamp(54px, 7vw, 132px);
+    color: #fff1c2;
+    line-height: .95;
+    letter-spacing: -.06em;
+    text-shadow: 0 0 34px rgba(255,209,90,.12);
+  }
+  .explainer {
+    max-width: 720px;
+    margin-top: 18px;
+    color: #ffe5aa;
+    font-size: clamp(18px, 1.9vw, 32px);
+    line-height: 1.35;
+  }
+  .stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding: 14px; }
+  .stat {
+    min-height: 116px;
+    border: 1px solid rgba(247,147,26,.16);
+    background: rgba(0,0,0,.33);
+    border-radius: 14px;
+    padding: 16px 18px;
+  }
+  .label {
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: clamp(12px, .95vw, 16px);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    margin-bottom: 8px;
+  }
+  .value {
+    color: #fff;
+    font-family: var(--mono);
+    font-size: clamp(24px, 2.6vw, 48px);
+    font-weight: 900;
+    line-height: 1.05;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .value.orange { color: #ffd15a; }
+  .value.green { color: var(--green); }
+  .value.cyan { color: var(--cyan); }
+  .wide { grid-column: 1 / -1; }
+  .tx-panel { margin-top: 18px; padding: 18px; }
+  .section-title {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    align-items: end;
+    margin-bottom: 14px;
+  }
+  .section-title h2 {
+    font-family: var(--display);
+    font-size: clamp(32px, 3.5vw, 62px);
+    letter-spacing: .035em;
+  }
+  .section-title h2 span { color: var(--btc); }
+  .section-title p { color: var(--muted); font-size: clamp(14px, 1.2vw, 20px); text-align: right; }
+  .tx-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .tx-card {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 12px;
+    align-items: center;
+    text-decoration: none;
+    color: inherit;
+    border: 1px solid rgba(247,147,26,.14);
+    background: rgba(0,0,0,.36);
+    border-radius: 14px;
+    padding: 14px 16px;
+    min-width: 0;
+  }
+  .tx-card:hover { border-color: rgba(247,147,26,.38); background: rgba(247,147,26,.06); }
+  .tx-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--green); box-shadow: 0 0 18px rgba(131,255,63,.58); }
+  .tx-main, .tx-side { min-width: 0; }
+  .tx-main strong, .tx-side strong {
+    display: block;
+    font-family: var(--mono);
+    font-size: clamp(15px, 1.3vw, 22px);
+    color: #fff4cf;
+  }
+  .tx-main small, .tx-side small {
+    display: block;
+    margin-top: 5px;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: clamp(11px, .85vw, 15px);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .tx-side { text-align: right; }
+  .tx-side strong { color: var(--green); }
+  .empty { color: var(--muted); border: 1px dashed var(--line); border-radius: 14px; padding: 20px; font-size: 18px; }
+  .footer {
+    margin-top: 14px;
+    color: var(--green);
+    font-family: var(--mono);
+    font-weight: 900;
+    font-size: clamp(13px, 1vw, 18px);
+    border: 1px solid rgba(131,255,63,.22);
+    background: rgba(131,255,63,.06);
+    border-radius: 14px;
+    padding: 14px 16px;
+  }
+  @media (max-width: 900px) {
+    .hero, .tx-list { grid-template-columns: 1fr; }
+    .top { align-items: flex-start; flex-direction: column; }
+    .section-title { align-items: flex-start; flex-direction: column; }
+    .section-title p { text-align: left; }
+    .stats { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="top">
+    <div class="brand">
+      <div class="mark">B</div>
+      <div>
+        <h1>BTCBANK <span>PAID SUMMARY</span></h1>
+        <div class="sub">Readable proof board for live wrapped Bitcoin payouts.</div>
+      </div>
+    </div>
+    <span class="badge ${isLive ? 'live' : 'offline'}"><span class="dot"></span>${isLive ? 'LIVE FEED' : 'FEED STALE'}</span>
+  </div>
+
+  <div class="hero">
+    <section class="panel total">
+      <div class="eyebrow">All-time holder value sent</div>
+      <div class="big">${fmtUsd(s.allTimeUsd)}</div>
+      <div class="explainer">This only moves when real payout transactions land on-chain. If this number rises, holders are getting paid in wrapped Bitcoin.</div>
+    </section>
+
+    <section class="panel stats">
+      <div class="stat"><div class="label">WBTC paid</div><div class="value orange">${fmtWbtc(s.allTimeWbtc)}</div></div>
+      <div class="stat"><div class="label">Holders paid</div><div class="value green">${fmtNum(s.holdersPaid)}</div></div>
+      <div class="stat"><div class="label">Rounds</div><div class="value cyan">${fmtNum(s.roundsCompleted)}</div></div>
+      <div class="stat"><div class="label">Current round</div><div class="value">${fmtNum(s.currentRound)}</div></div>
+      <div class="stat"><div class="label">This round paid</div><div class="value green">${fmtNum(paidThisRound)} / ${fmtNum(qualifiedThisRound)}</div></div>
+      <div class="stat"><div class="label">Still left</div><div class="value">${fmtNum(stillLeft)} wallets</div></div>
+      <div class="stat wide"><div class="label">Latest round value</div><div class="value orange">${fmtUsd(s.currentRoundUsd || s.latestRoundUsd || 0)} | ${fmtWbtc(s.currentRoundWbtc)} WBTC</div></div>
+    </section>
+  </div>
+
+  <section class="panel tx-panel">
+    <div class="section-title">
+      <h2>Recent <span>Payouts</span></h2>
+      <p>Each row links to Solscan. Clean payout proof, readable at a glance.</p>
+    </div>
+    <div class="tx-list">${recentTxRows}</div>
+  </section>
+
+  <div class="footer">SYNC ${isLive ? "OK" : "STALE"} | updated ${timeAgo(updatedAt)} | public site feed refreshes as the worker publishes</div>
+</div>
+<script>
+  function connect() {
+    const es = new EventSource('/api/stream');
+    es.onmessage = () => location.reload();
+    es.addEventListener('reconnect', () => { es.close(); setTimeout(connect, 2000); });
+    es.onerror = () => { es.close(); setTimeout(connect, 5000); };
+  }
+  connect();
+</script>
+</body>
+</html>`;
+}
+
 function renderHistory(data, transparent) {
   const s = data?.stats ?? {};
   const updatedAt = data?.updatedAt;
@@ -1227,7 +1525,7 @@ export default async function handler(req, res) {
 
   switch (page) {
     case "paid-summary":
-      res.end(renderPaidSummary(data, transparent));
+      res.end(renderPaidSummaryPolished(data, transparent));
       break;
     case "overlay":
       res.end(renderOverlay(data, transparent));

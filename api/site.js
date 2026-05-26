@@ -458,8 +458,10 @@ nav{position:sticky;top:0;z-index:100;background:rgba(8,8,8,0.95);backdrop-filte
 .hero h1{font-family:var(--display);font-size:clamp(52px,11vw,128px);line-height:.9;letter-spacing:2px;margin-bottom:20px;color:#fff}
 .hero h1 .orange{color:var(--btc)}
 .hero h1 .outline{-webkit-text-stroke:2px var(--btc);color:transparent}
-.hero-sub{font-size:clamp(15px,2vw,20px);color:var(--muted);max-width:620px;margin:0 auto 32px;font-weight:300;line-height:1.7}
-.hero-sub strong{color:var(--text);font-weight:500}
+.hero-token-pill{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,rgba(247,147,26,.18),rgba(255,255,255,.04));border:1px solid rgba(247,147,26,.35);border-radius:999px;padding:9px 18px;margin:0 auto 20px;color:#fff;font-size:14px;font-weight:800;letter-spacing:1px;text-transform:uppercase;box-shadow:0 0 28px rgba(247,147,26,.08)}
+.hero-token-pill span{font-family:var(--display);font-size:24px;letter-spacing:1.5px;color:var(--btc);line-height:1}
+.hero-sub{font-size:clamp(20px,2.35vw,28px);color:#d9d1c4;max-width:940px;margin:0 auto 34px;font-weight:400;line-height:1.55}
+.hero-sub strong{color:#fff;font-weight:800}
 .hero-stats{display:flex;gap:clamp(16px,4vw,40px);justify-content:center;margin-bottom:40px;flex-wrap:wrap}
 .hero-stat-val{font-family:var(--mono);font-size:clamp(20px,3vw,28px);font-weight:600;color:#fff}
 .hero-stat-val span{color:var(--btc)}
@@ -702,19 +704,20 @@ section{padding:clamp(60px,8vw,100px) clamp(16px,4vw,40px)}
 .why-point h4{font-size:14px;font-weight:600;color:#fff;margin-bottom:4px}
 .why-point p{font-size:13px;color:var(--muted);line-height:1.7}
 .why-ctas{display:flex;gap:10px;margin-top:24px;flex-wrap:wrap}
-.hero-live-strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;max-width:760px;width:100%;margin:0 auto 22px}
-.hero-live-card{background:rgba(17,17,17,.86);border:1px solid var(--border);border-radius:10px;padding:14px 16px;text-align:left}
-.hero-live-card span{display:block;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px}
-.hero-live-card strong{display:block;font-family:var(--mono);font-size:16px;color:#fff}
+.hero-live-strip{display:grid;grid-template-columns:1.15fr 1fr 1fr;gap:14px;max-width:900px;width:100%;margin:0 auto 24px}
+.hero-live-card{background:rgba(17,17,17,.9);border:1px solid rgba(247,147,26,.18);border-radius:12px;padding:16px 18px;text-align:left}
+.hero-live-card > span{display:block;font-size:12px;color:#cfc4aa;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:6px;font-weight:800}
+.hero-live-card strong{display:block;font-family:var(--mono);font-size:22px;line-height:1.15;color:#fff;white-space:nowrap}
+.hero-live-card.countdown strong{font-size:34px;letter-spacing:-1px}
 .hero-live-card strong.o{color:var(--btc)}
 .hero-qualify{max-width:860px;width:100%;margin:26px auto 0;display:grid;grid-template-columns:1.1fr .9fr;gap:14px;align-items:start}
 .hero-check-card,.hero-round-card{background:rgba(17,17,17,.92);border:1px solid var(--border);border-radius:14px;padding:18px 18px 16px;text-align:left}
-.hero-check-card h3,.hero-round-card h3{font-family:var(--display);font-size:26px;letter-spacing:1px;margin-bottom:6px}
-.hero-check-card p,.hero-round-card p{font-size:13px;color:var(--muted);line-height:1.7}
+.hero-check-card h3,.hero-round-card h3{font-family:var(--display);font-size:34px;line-height:1;letter-spacing:1px;margin-bottom:8px}
+.hero-check-card p,.hero-round-card p{font-size:16px;color:#d4c6aa;line-height:1.65}
 .hero-round-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
 .hero-round-pill{background:#0d0d0d;border:1px solid var(--border2);border-radius:10px;padding:12px}
-.hero-round-pill span{display:block;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
-.hero-round-pill strong{display:block;font-family:var(--mono);font-size:14px;color:#fff}
+.hero-round-pill > span{display:block;font-size:11px;color:#cfc4aa;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;font-weight:800}
+.hero-round-pill strong{display:block;font-family:var(--mono);font-size:16px;color:#fff}
 .chart-shell{background:var(--bg3);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-top:0}
 .chart-shell iframe{display:block;width:100%;height:520px;border:0;background:#000}
 .chart-shell-fallback{padding:26px}
@@ -926,9 +929,10 @@ footer{background:var(--bg3);border-top:1px solid var(--border);padding:48px cla
   <div class="hero-bg"></div><div class="hero-grid"></div>
   <div class="live-badge"><div class="live-dot"></div>Distribution running 24/7</div>
   <h1>BITCOIN<br><span class="orange">BANK.</span><br><span class="outline">REAL REWARDS.</span></h1>
-  <p class="hero-sub">SOL creator-fee flow in. <strong>Wrapped Bitcoin</strong> out. Creator rewards are claimed every <strong>5 minutes</strong>, converted to Bitcoin exposure, and routed to qualifying holders. <strong>Stop jeeting. Stop selling.</strong> Hold enough, hold long enough, and let the Bitcoin side build itself in the background.</p>
+  <div class="hero-token-pill"><span>$BTCBANK</span> Bitcoin rewards on Solana</div>
+  <p class="hero-sub"><strong>$BTCBANK</strong> takes SOL creator-fee flow in and sends <strong>Wrapped Bitcoin</strong> out. Rewards are claimed every <strong>5 minutes</strong>, converted to Bitcoin exposure, and routed to qualifying holders. <strong>Stop jeeting. Stop selling.</strong> Hold enough, hold long enough, and let the Bitcoin side build itself in the background.</p>
   <div class="hero-live-strip">
-    <div class="hero-live-card"><span>Live round countdown</span><strong class="o"><span id="hero-countdown-m">${Math.floor(nextCycleSeconds / 60)}</span>:<span id="hero-countdown-s">${String(nextCycleSeconds % 60).padStart(2, "0")}</span></strong></div>
+    <div class="hero-live-card countdown"><span>Next reward check</span><strong class="o"><span id="hero-countdown-m">${Math.floor(nextCycleSeconds / 60)}</span>:<span id="hero-countdown-s">${String(nextCycleSeconds % 60).padStart(2, "0")}</span></strong></div>
     <div class="hero-live-card"><span>Current round value</span><strong id="hero-round-value">${escapeHtml(formatUsd(currentRoundValue, 2))}</strong></div>
     <div class="hero-live-card"><span>Biggest round ever</span><strong id="hero-biggest-round">${escapeHtml(formatWbtc(biggestRoundWbtc, 6))} WBTC</strong></div>
   </div>

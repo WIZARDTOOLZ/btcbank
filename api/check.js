@@ -16,6 +16,12 @@ const TOKEN_PROGRAM_IDS = [
   "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
   "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
 ];
+const PUBLIC_RPC_FALLBACKS = [
+  "https://solana-rpc.publicnode.com",
+  "https://api.mainnet-beta.solana.com",
+  "https://solana.drpc.org",
+  "https://rpc.ankr.com/solana",
+];
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -28,7 +34,7 @@ async function buildDirectWalletCheck(wallet, minimumTokens, stats = {}) {
     .map((entry) => entry.trim())
       .filter(Boolean),
     process.env.SOLANA_RPC_URL?.trim(),
-    "https://api.mainnet-beta.solana.com",
+    ...PUBLIC_RPC_FALLBACKS,
   ].filter(Boolean);
   const holderMintRaw = process.env.HOLDER_MINT?.trim() || String(stats.holderMint ?? "").trim() || DEFAULT_HOLDER_MINT;
   const rewardMintRaw = process.env.REWARD_MINT?.trim() || String(stats.rewardMint ?? "").trim() || DEFAULT_REWARD_MINT;

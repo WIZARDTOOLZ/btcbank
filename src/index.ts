@@ -1463,6 +1463,11 @@ async function resumePendingRounds(maxBatchesToProcess = Number.POSITIVE_INFINIT
         });
 
         logger.success(`Paid ${deliveredRecipients.length} wallet(s)`);
+        for (const recipient of deliveredRecipients) {
+          logger.ops(
+            `paid ${formatTokenAmountPretty(BigInt(recipient.amountRaw), round.rewardTokenDecimals ?? 0)} WBTC to ${shorten(recipient.owner, 6, 6)}`,
+          );
+        }
         if (result.createdAtaCount > 0) {
           logger.ops(
             `created ${result.createdAtaCount} new WBTC account(s), rent ${formatSol(result.createdAtaRentLamports)} SOL`,

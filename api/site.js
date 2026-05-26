@@ -17,6 +17,25 @@ import {
   shortenAddress,
 } from "./_shared.js";
 
+const STORY_LOGO_URLS = {
+  btc: "https://cryptologos.cc/logos/bitcoin-btc-logo.png?v=040",
+  doge: "https://cryptologos.cc/logos/dogecoin-doge-logo.png?v=040",
+  shib: "https://cryptologos.cc/logos/shiba-inu-shib-logo.png?v=040",
+  bonk: "https://cryptologos.cc/logos/bonk-bonk-logo.png?v=040",
+};
+
+const SITE_URL = (process.env.SITE_URL ?? "https://www.btcbank.help").replace(/\/+$/, "");
+const COINGECKO_URL = "https://www.coingecko.com/en/coins/bitcoin-bank";
+
+const TIER_CALC_DEFS = [
+  { label: "Satoshi", minDays: 30, multiplier: 1.2 },
+  { label: "OG", minDays: 14, multiplier: 1.12 },
+  { label: "Veteran", minDays: 7, multiplier: 1.07 },
+  { label: "Miner", minDays: 3, multiplier: 1.03 },
+  { label: "Stacker", minDays: 1, multiplier: 1.01 },
+  { label: "Holder", minDays: 0, multiplier: 1.0 },
+];
+
 function timeAgo(ts) {
   if (!ts) return "just now";
   const diff = Math.floor((Date.now() - ts) / 1000);
@@ -24,6 +43,95 @@ function timeAgo(ts) {
   if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
   if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
   return `${Math.floor(diff / 86400)}d ago`;
+}
+
+function formatDuration(seconds) {
+  const total = Math.max(0, safeInteger(seconds, 0));
+  const days = Math.floor(total / 86400);
+  const hours = Math.floor((total % 86400) / 3600);
+  const minutes = Math.floor((total % 3600) / 60);
+  const secs = total % 60;
+  if (days > 0) return `${days}d ${hours}h`;
+  if (hours > 0) return `${hours}h ${minutes}m`;
+  if (minutes > 0) return `${minutes}m ${secs}s`;
+  return `${secs}s`;
+}
+
+function getTierByDays(days) {
+  const normalizedDays = Math.max(0, safeNumber(days, 0));
+  return TIER_CALC_DEFS.find((entry) => normalizedDays >= entry.minDays) ?? TIER_CALC_DEFS[TIER_CALC_DEFS.length - 1];
+}
+
+function getBagRewardPower(tokens, minimumTokens, daysHeld) {
+  const safeTokens = Math.max(0, safeNumber(tokens, 0));
+  const shareCount = Math.max(0, Math.floor(safeTokens / minimumTokens));
+  const tier = shareCount > 0 ? getTierByDays(daysHeld) : { label: "Locked", multiplier: 0 };
+  return {
+    shareCount,
+    tier: tier.label,
+    multiplier: tier.multiplier,
+    power: shareCount * tier.multiplier,
+  };
+}
+
+function renderProofRows(txs) {
+  if (!txs.length) {
+    return `<div class="proof-empty">No payout proofs yet. This fills itself as live rounds land on-chain.</div>`;
+  }
+
+  return txs.slice(0, 8).map((tx) => {
+    const signature = tx.signature || "";
+    const sigLabel = signature ? shortenAddress(signature, 6, 6) : "pending";
+    const solscanUrl = signature ? `https://solscan.io/tx/${encodeURIComponent(signature)}` : "#";
+    return `<div class="proof-row">
+      <div class="proof-main">
+        <div class="proof-wallet">${escapeHtml(tx.shortAddress)}</div>
+        <div class="proof-meta">Round ${escapeHtml(formatCount(tx.round))} · ${escapeHtml(tx.tier)}</div>
+      </div>
+      <div class="proof-amount">${escapeHtml(tx.wbtcAmount.toFixed(8))} WBTC</div>
+      <div class="proof-sig">${escapeHtml(sigLabel)}</div>
+      <a class="proof-link" href="${solscanUrl}" target="_blank" rel="noopener">Verify</a>
+    </div>`;
+  }).join("");
+}
+
+async function fetchDexScreenerSummary(tokenMint) {
+  if (!tokenMint) {
+    return null;
+  }
+
+  try {
+    const response = await fetch(`https://api.dexscreener.com/token-pairs/v1/solana/${encodeURIComponent(tokenMint)}`, {
+      headers: { Accept: "application/json" },
+      cache: "no-store",
+    });
+    if (!response.ok) {
+      return null;
+    }
+
+    const pairs = await response.json();
+    if (!Array.isArray(pairs) || !pairs.length) {
+      return null;
+    }
+
+    const bestPair = [...pairs].sort((left, right) => {
+      const rightLiq = safeNumber(right?.liquidity?.usd, 0);
+      const leftLiq = safeNumber(left?.liquidity?.usd, 0);
+      return rightLiq - leftLiq;
+    })[0];
+
+    return {
+      pairAddress: bestPair?.pairAddress ?? "",
+      url: bestPair?.url ?? "",
+      priceUsd: safeNumber(bestPair?.priceUsd, 0),
+      liquidityUsd: safeNumber(bestPair?.liquidity?.usd, 0),
+      volume24h: safeNumber(bestPair?.volume?.h24, 0),
+      fdv: safeNumber(bestPair?.fdv ?? bestPair?.marketCap, 0),
+      dexId: bestPair?.dexId ?? "dexscreener",
+    };
+  } catch {
+    return null;
+  }
 }
 
 function renderCheckerResultHtml(result) {
@@ -112,7 +220,7 @@ function renderInitialTxRows(txs) {
   return `<div class="tx-empty" id="txEmpty" style="display:none">Loading transactions...</div>${rows}`;
 }
 
-function renderSite(data, wallet) {
+function renderSite(data, wallet, dexSummary) {
   const stats = data?.stats ?? {};
   const holders = Array.isArray(data?.holders) ? data.holders : [];
   const txs = Array.isArray(data?.txs) ? data.txs : [];
@@ -125,6 +233,8 @@ function renderSite(data, wallet) {
   const qualifiedThisRound = safeInteger(stats.qualifiedThisRound, 0);
   const btcPrice = safeNumber(stats.btcPrice, 103240);
   const nextCycleSeconds = safeInteger(stats.nextCycleSeconds, 294);
+  const holderMint = String(stats.holderMint ?? process.env.HOLDER_MINT ?? "").trim();
+  const rewardMint = String(stats.rewardMint ?? process.env.REWARD_MINT ?? "").trim();
   const topHolders = holders
     .map((holder) => mapLeaderboardHolder(holder, minimumTokens))
     .filter((holder) => holder.qualified)
@@ -137,7 +247,23 @@ function renderSite(data, wallet) {
   const checkerHtml = renderCheckerResultHtml(walletResult);
   const updatedAt = data?.updatedAt ?? Date.now();
   const currentRoundPaid = safeInteger(stats.paidThisRound ?? 0, 0);
+  const currentRoundWbtc = safeNumber(stats.currentRoundWbtc ?? 0, 0);
   const currentRoundValue = safeNumber(stats.currentRoundUsd ?? stats.latestRoundUsd ?? 0, 0);
+  const biggestRoundNumber = safeInteger(stats.biggestRoundNumber, currentRound);
+  const biggestRoundPaid = safeInteger(stats.biggestRoundPaid, 0);
+  const biggestRoundWbtc = safeNumber(stats.biggestRoundWbtc, 0);
+  const biggestRoundUsdEstimate = biggestRoundWbtc * btcPrice;
+  const topEarner = topHolders[0] ?? null;
+  const totalRewardPower = holders.reduce((sum, holder) => {
+    const shareCount = safeInteger(holder?.shareCount ?? holder?.shares ?? 0, 0);
+    const multiplier = safeNumber(String(holder?.holdMultiplier ?? holder?.multiplier ?? "0").replace(/x$/i, ""), 0);
+    return sum + (shareCount * multiplier);
+  }, 0);
+  const proofTxs = txs.map(mapTransaction).filter((tx) => tx.signature).slice(0, 8);
+  const estimateExample = getBagRewardPower(minimumTokens * 2, minimumTokens, 7);
+  const dexCard = dexSummary && dexSummary.url ? dexSummary : null;
+  const shareDescription = `Every full ${formatCount(minimumTokens)} BTCBANK = 1 base share`;
+  const tierModelJson = JSON.stringify(TIER_CALC_DEFS);
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -145,6 +271,31 @@ function renderSite(data, wallet) {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>$BTCBANK - Bitcoin Bank. Real Rewards.</title>
+<meta name="description" content="Bitcoin Bank on Solana. Live creator-fee flow converts into wrapped Bitcoin for qualifying holders every cycle. Stop jeeting. Stop selling. Hold enough and hold long enough." />
+<meta name="keywords" content="BTCBANK, Bitcoin Bank, wrapped bitcoin rewards, Solana, wBTC, Bitcoin rewards token, crypto holder rewards" />
+<meta name="theme-color" content="#080808" />
+<meta name="robots" content="index,follow,max-image-preview:large" />
+<link rel="canonical" href="${SITE_URL}/" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="BTCBANK" />
+<meta property="og:title" content="BTCBANK | Bitcoin Bank. Real Rewards." />
+<meta property="og:description" content="The Bitcoin-bank thesis on Solana: creator-fee flow in, wrapped Bitcoin out. Live rounds, public proof, real holder tiers, and nonstop distribution." />
+<meta property="og:url" content="${SITE_URL}/" />
+<meta property="og:image" content="${SITE_URL}/api/og" />
+<meta property="og:image:alt" content="BTCBANK - Bitcoin Bank. Real Rewards." />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="BTCBANK | Bitcoin Bank. Real Rewards." />
+<meta name="twitter:description" content="Hold enough. Hold long enough. Creator-fee flow gets routed into wrapped Bitcoin for qualifying BTCBANK holders." />
+<meta name="twitter:image" content="${SITE_URL}/api/og" />
+<script type="application/ld+json">${JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "BTCBANK",
+  alternateName: "Bitcoin Bank",
+  url: SITE_URL,
+  description: "A Solana-based Bitcoin reward system routing creator-fee flow into wrapped Bitcoin for qualifying holders.",
+  sameAs: [COINGECKO_URL],
+})}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
@@ -213,17 +364,41 @@ section{padding:clamp(60px,8vw,100px) clamp(16px,4vw,40px)}
 .alert-warn{background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.2);color:var(--red)}
 .alert-ok{background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);color:var(--green)}
 .lore-section{background:var(--bg);position:relative;overflow:hidden}
-.timeline{margin-top:48px;display:flex;flex-direction:column;gap:0}
+.story-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:42px}
+.story-column{background:var(--bg3);border:1px solid var(--border);border-radius:16px;padding:26px;position:relative;overflow:hidden}
+.story-column::before{content:'';position:absolute;inset:0 0 auto 0;height:1px;background:linear-gradient(90deg,transparent,rgba(247,147,26,.55),transparent)}
+.story-column.memes::before{background:linear-gradient(90deg,transparent,rgba(34,197,94,.45),transparent)}
+.story-kicker{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--btc);margin-bottom:10px}
+.story-column.memes .story-kicker{color:var(--green)}
+.story-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:14px}
+.story-head h3{font-family:var(--display);font-size:34px;line-height:1;letter-spacing:1px;color:#fff}
+.story-head h3 span{color:var(--btc)}
+.story-column.memes .story-head h3 span{color:var(--green)}
+.story-lead{font-size:14px;color:var(--muted);line-height:1.8;font-weight:300;margin-bottom:18px}
+.story-logos{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.story-logo{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;font-weight:700;border:1px solid rgba(247,147,26,.3);background:rgba(247,147,26,.12);color:var(--btc);box-shadow:inset 0 0 18px rgba(247,147,26,.08)}
+.story-logo.memes{border-color:rgba(34,197,94,.25);background:rgba(34,197,94,.08);color:#b8ffcc}
+.story-logo img{width:24px;height:24px;object-fit:contain;display:block}
+.timeline{margin-top:6px;display:flex;flex-direction:column;gap:0}
 .tl-item{display:grid;grid-template-columns:100px 1fr;gap:32px;position:relative;padding-bottom:40px}
 .tl-item:last-child{padding-bottom:0}
 .tl-item::before{content:'';position:absolute;left:50px;top:28px;bottom:0;width:1px;background:linear-gradient(180deg,var(--btc),transparent)}
 .tl-item:last-child::before{display:none}
 .tl-year{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--btc);padding-top:4px;text-align:right}
 .tl-dot{position:absolute;left:44px;top:6px;width:14px;height:14px;background:var(--btc);border-radius:50%;border:3px solid var(--bg)}
+.story-column.memes .tl-item::before{background:linear-gradient(180deg,rgba(34,197,94,.75),transparent)}
+.story-column.memes .tl-year{color:var(--green)}
+.story-column.memes .tl-dot{background:var(--green)}
 .tl-content h3{font-family:var(--display);font-size:24px;letter-spacing:1px;color:#fff;margin-bottom:6px}
 .tl-content p{color:var(--muted);font-size:14px;line-height:1.8;font-weight:300}
 .price-tag{display:inline-block;background:rgba(247,147,26,.1);border:1px solid rgba(247,147,26,.25);border-radius:5px;padding:3px 10px;font-family:var(--mono);font-size:12px;color:var(--btc);margin-top:8px}
-.lore-quote{background:var(--bg3);border-left:3px solid var(--btc);border-radius:0 10px 10px 0;padding:24px 28px;margin-top:48px}
+.story-column.memes .price-tag{background:rgba(34,197,94,.08);border-color:rgba(34,197,94,.2);color:#9cf3b5}
+.story-note{background:rgba(247,147,26,.06);border:1px solid rgba(247,147,26,.18);border-radius:10px;padding:16px 18px;margin-top:16px;font-size:13px;color:#e5e5e5;line-height:1.7}
+.story-column.memes .story-note{background:rgba(34,197,94,.06);border-color:rgba(34,197,94,.18)}
+.story-sources{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.story-source{display:inline-flex;align-items:center;gap:6px;background:#0d0d0d;border:1px solid var(--border2);border-radius:999px;padding:6px 10px;font-size:11px;color:#c9c9c9;text-decoration:none}
+.story-source:hover{border-color:rgba(247,147,26,.35);color:#fff}
+.lore-quote{background:var(--bg3);border-left:3px solid var(--btc);border-radius:0 10px 10px 0;padding:24px 28px;margin-top:28px}
 .lore-quote p{font-size:18px;color:var(--text);line-height:1.7;font-weight:300;font-style:italic}
 .lore-quote span{display:block;margin-top:10px;font-size:12px;color:var(--muted);font-style:normal;font-family:var(--mono)}
 .wbtc-section{background:var(--bg2)}
@@ -289,11 +464,22 @@ section{padding:clamp(60px,8vw,100px) clamp(16px,4vw,40px)}
 .formula-item-val.orange{color:var(--btc)}
 .formula-item-val.red{color:var(--red)}
 .formula-item-val.green{color:var(--green)}
-.checker-section{background:var(--bg2)}
+.tier-check-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:24px;margin-top:24px;align-items:start}
+.tier-stack{display:flex;flex-direction:column;gap:16px}
+.tier-notes{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.tier-note{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:18px 20px}
+.tier-note h4{font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--btc);margin-bottom:8px}
+.tier-note p{font-size:13px;color:var(--muted);line-height:1.75}
+.checker-anchor{display:block;position:relative;top:-78px;visibility:hidden}
 .checker-shell{display:grid;grid-template-columns:1.05fr .95fr;gap:24px;margin-top:40px}
 .checker-card{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:24px}
 .checker-card h3{font-family:var(--display);font-size:28px;letter-spacing:1px;margin-bottom:10px}
 .checker-card p{font-size:14px;color:var(--muted);line-height:1.8}
+.checker-card.sticky{position:sticky;top:84px}
+.checker-card .checker-mini{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.checker-mini-card{background:#0d0d0d;border:1px solid var(--border2);border-radius:10px;padding:12px}
+.checker-mini-card span{display:block;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.checker-mini-card strong{display:block;font-family:var(--mono);font-size:13px;color:#fff}
 .checker-form{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
 .checker-form input{flex:1;min-width:240px;background:#0c0c0c;border:1px solid var(--border2);border-radius:8px;color:#fff;padding:14px 16px;font-size:14px;font-family:var(--mono)}
 .checker-form input:focus{outline:none;border-color:rgba(247,147,26,.6)}
@@ -378,7 +564,7 @@ footer{background:var(--bg3);border-top:1px solid var(--border);padding:48px cla
 .footer-disc{max-width:1100px;margin:12px auto 0;font-size:11px;color:var(--muted2);line-height:1.6}
 @media(max-width:768px){
   .nav-links{display:none}
-  .problem-grid,.wbtc-grid,.why-grid,.footer-grid,.checker-shell{grid-template-columns:1fr}
+  .problem-grid,.story-grid,.wbtc-grid,.why-grid,.footer-grid,.checker-shell,.tier-check-grid,.tier-notes{grid-template-columns:1fr}
   .loop-grid{grid-template-columns:1fr}
   .loop-arr{display:none}
   .stats-grid{grid-template-columns:1fr 1fr}
@@ -389,6 +575,7 @@ footer{background:var(--bg3);border-top:1px solid var(--border);padding:48px cla
   .buy-grid{grid-template-columns:1fr 1fr}
   .nav-mobile-menu{display:block}
   .checker-metrics{grid-template-columns:1fr 1fr}
+  .checker-card.sticky{position:static}
 }
 @media(max-width:480px){
   .hero h1{font-size:48px}
@@ -474,7 +661,7 @@ footer{background:var(--bg3);border-top:1px solid var(--border);padding:48px cla
   <div class="hero-bg"></div><div class="hero-grid"></div>
   <div class="live-badge"><div class="live-dot"></div>Distribution running 24/7</div>
   <h1>BITCOIN<br><span class="orange">BANK.</span><br><span class="outline">REAL REWARDS.</span></h1>
-  <p class="hero-sub">The only token turning creator fees into <strong>wrapped Bitcoin</strong> for real holders. Automatic. On-chain. Every few minutes. <strong>Stop jeeting. Stop selling.</strong> Hold long enough to let the Bitcoin side stack.</p>
+  <p class="hero-sub">The only token routing creator-fee flow into <strong>wrapped Bitcoin</strong> for real holders. No claiming. No staking. No babysitting every cycle. <strong>Stop jeeting. Stop selling.</strong> Hold the line and let the Bitcoin side stack for you.</p>
   <div class="hero-stats">
     <div class="hero-stat"><div class="hero-stat-val" id="h-paid"><span>$</span>${escapeHtml(formatCount(allTimeUsd))}</div><div class="hero-stat-label">Paid to holders</div></div>
     <div class="hero-stat"><div class="hero-stat-val" id="h-holders">${escapeHtml(formatCompactCount(holdersPaid))}<span></span></div><div class="hero-stat-label">Wallets paid</div></div>
@@ -517,18 +704,64 @@ footer{background:var(--bg3);border-top:1px solid var(--border);padding:48px cla
 
 <section class="lore-section" id="lore">
   <div class="container">
-    <div class="section-label">Bitcoin History</div>
-    <h2 class="section-title">They Laughed <span>Every Time.</span></h2>
-    <p class="section-desc">Bitcoin was not born respected. It was born ignored, then laughed at, then impossible to ignore. Every cycle translated patience into asymmetry.</p>
-    <div class="timeline">
-      <div class="tl-item"><div class="tl-year">2008</div><div class="tl-dot"></div><div class="tl-content"><h3>A Whitepaper and an Email</h3><p>On October 31, 2008, Satoshi Nakamoto sent the Bitcoin whitepaper to the cryptography mailing list. There was no launch campaign, no institutions, and almost no audience beyond a tiny technical circle. The idea entered the world as an engineering argument, not a branded product.</p><div class="price-tag">1 BTC ≈ $0.00</div></div></div>
-      <div class="tl-item"><div class="tl-year">2010</div><div class="tl-dot"></div><div class="tl-content"><h3>Free Bitcoin. Nobody Wanted It.</h3><p>Gavin Andresen's famous faucet gave away 5 BTC for solving a CAPTCHA because the problem was not price speculation yet — it was getting anyone to care enough to use the thing. The early users who held were not copying institutions. They were surviving without validation.</p><div class="price-tag">1 BTC ≈ $0.008</div></div></div>
-      <div class="tl-item"><div class="tl-year">2011–2017</div><div class="tl-dot"></div><div class="tl-content"><h3>"Worthless Internet Money"</h3><p>Once Bitcoin gained a real price, the ridicule got louder. It was called dead, fraudulent, impractical, and lucky in different eras. What mattered was that blocks kept arriving, supply stayed fixed, and believers kept accumulating through the part where it felt socially irrational.</p><div class="price-tag">1 BTC ≈ $1 → $10,000</div></div></div>
-      <div class="tl-item"><div class="tl-year">2024+</div><div class="tl-dot"></div><div class="tl-content"><h3>The Institutions Arrived Late</h3><p>BlackRock, Fidelity, and the spot-Bitcoin ETF era did not create Bitcoin's legitimacy. They acknowledged it after the network had already endured more than a decade of dismissal. That is the recurring pattern: first mockery, then resistance, then reluctant adoption.</p><div class="price-tag">1 BTC ≈ $100,000+</div></div></div>
+    <div class="section-label">The Story</div>
+    <h2 class="section-title">Bitcoin <span>vs Memecoins</span></h2>
+    <p class="section-desc">Memecoins proved the internet can move attention, identity, and capital frighteningly fast. Bitcoin proved what survives after the noise, the ridicule, and the cycle reset. BTCBANK was built around that difference.</p>
+    <div class="story-grid">
+      <div class="story-column memes">
+        <div class="story-kicker">Left side of the culture trade</div>
+        <div class="story-head">
+          <div>
+            <h3>Memecoins: <span>attention, distribution, identity</span></h3>
+            <p class="story-lead">The honest version is not "memes are fake." The honest version is that memes are real internet-native markets. They move because people recognize the character, the joke, the tribe, and the ticker before they read a whitepaper.</p>
+          </div>
+          <div class="story-logos">
+            <div class="story-logo memes"><img src="${STORY_LOGO_URLS.doge}" alt="Dogecoin logo" /></div>
+            <div class="story-logo memes"><img src="${STORY_LOGO_URLS.shib}" alt="Shiba Inu logo" /></div>
+            <div class="story-logo memes"><img src="${STORY_LOGO_URLS.bonk}" alt="Bonk logo" /></div>
+          </div>
+        </div>
+        <div class="timeline">
+          <div class="tl-item"><div class="tl-year">2013</div><div class="tl-dot"></div><div class="tl-content"><h3>Dogecoin made the joke liquid</h3><p>Dogecoin's own history page says it was created as a joke by Billy Markus and Jackson Palmer, launched on December 6, 2013, and rapidly became a tipping currency on Reddit. It also became a charity machine: the Jamaican bobsled team, Kenya water wells, and a long list of community-funded stunts proved that a meme could coordinate real money surprisingly fast.</p><div class="price-tag">Meme first, utility second</div></div></div>
+          <div class="tl-item"><div class="tl-year">2020</div><div class="tl-dot"></div><div class="tl-content"><h3>SHIB showed scale through community obsession</h3><p>Shiba Inu did not copy Bitcoin's thesis. It copied internet behavior. It spread through branding, speed, social identity, and an army mentality. Over time, the official SHIB ecosystem expanded into swaps, governance, identity, and Shibarium. That is what memecoins can become at their best: a huge distribution layer that tries to grow real utility after culture captures attention.</p><div class="price-tag">Culture can bootstrap an ecosystem</div></div></div>
+          <div class="tl-item"><div class="tl-year">2022</div><div class="tl-dot"></div><div class="tl-content"><h3>BONK was a morale reset on Solana</h3><p>BONK's own about page says it began after the market disruption of late 2022, launched on Christmas Day, and distributed more than half its supply to Solana developers and creators. That mattered because it did not feel like a sterile venture launch. It felt like a community gift in a damaged ecosystem, which is exactly the kind of moment where a meme can become a movement.</p><div class="price-tag">Distribution is the real product</div></div></div>
+          <div class="tl-item"><div class="tl-year">Lesson</div><div class="tl-dot"></div><div class="tl-content"><h3>What memes proved</h3><p>Memecoins proved that character, comedy, belonging, and distribution are not side issues. They are part of price discovery now. But most memes do not become the final place serious capital hides. They are usually the spark, not the reserve asset.</p><div class="price-tag">Fast attention, uneven permanence</div></div></div>
+        </div>
+        <div class="story-note">Memecoins are real because communities are real. But most meme cycles still end with one question: which asset do people rotate into when they stop gambling and start preserving?</div>
+      </div>
+      <div class="story-column">
+        <div class="story-kicker">Right side of the long game</div>
+        <div class="story-head">
+          <div>
+            <h3>Bitcoin: <span>ignored, mocked, then adopted</span></h3>
+            <p class="story-lead">Bitcoin did not win by being funny or fast-moving. It won by surviving every dismissal cycle long enough for the market to slowly admit what fixed supply, self-custody, and a global neutral asset actually mean.</p>
+          </div>
+          <div class="story-logos">
+            <div class="story-logo"><img src="${STORY_LOGO_URLS.btc}" alt="Bitcoin logo" /></div>
+            <div class="story-logo">2008</div>
+            <div class="story-logo">ETF</div>
+          </div>
+        </div>
+        <div class="timeline">
+          <div class="tl-item"><div class="tl-year">2008</div><div class="tl-dot"></div><div class="tl-content"><h3>A whitepaper and an email</h3><p>On October 31, 2008, Satoshi Nakamoto sent the Bitcoin paper to the cryptography mailing list. It entered the world as a technical proposal, not a marketed launch. Almost nobody cared. That is the pattern every early conviction trade shares: first invisibility, then ridicule, then the slow realization that something durable has been growing under the surface.</p><div class="price-tag">1 BTC approx. $0.00</div></div></div>
+          <div class="tl-item"><div class="tl-year">2010</div><div class="tl-dot"></div><div class="tl-content"><h3>Free Bitcoin. Almost no demand.</h3><p>Gavin Andresen's faucet handed out 5 BTC for solving a CAPTCHA because adoption was the problem, not valuation. In the same era, the famous pizza purchase proved Bitcoin could function as money, even when the world treated it like a toy. The key lesson is not the price hindsight. It is that the earliest holders had to act without social proof.</p><div class="price-tag">1 BTC approx. $0.008</div></div></div>
+          <div class="tl-item"><div class="tl-year">2011-2017</div><div class="tl-dot"></div><div class="tl-content"><h3>The network survived the ridicule stage</h3><p>Bitcoin spent years being called dead, useless, criminal, speculative, or "just lucky" after each new high. But blocks kept arriving, self-custody kept working, and more people kept discovering that an asset with a hard cap behaves differently from everything around it. By the time Bitcoin crossed into five figures, patience was being misread as luck.</p><div class="price-tag">1 BTC approx. $1 to $10,000</div></div></div>
+          <div class="tl-item"><div class="tl-year">2024</div><div class="tl-dot"></div><div class="tl-content"><h3>The institutions acknowledged it late</h3><p>On January 10, 2024, the SEC approved the listing and trading of spot Bitcoin exchange-traded products in the United States. That did not create Bitcoin's legitimacy. It formalized demand after more than a decade of resistance. Once the institutions arrived, they were not discovering Bitcoin early. They were buying what the patient had already endured long enough to own.</p><div class="price-tag">1 BTC approx. $100,000+</div></div></div>
+        </div>
+        <div class="story-note">Bitcoin's edge was never that everyone understood it immediately. Its edge was that it kept functioning until the doubters slowly became buyers.</div>
+      </div>
+    </div>
+    <div class="story-sources">
+      <a class="story-source" href="https://bitcoin.org/en/bitcoin-paper" target="_blank" rel="noopener">Bitcoin whitepaper</a>
+      <a class="story-source" href="https://satoshi.nakamotoinstitute.org/emails/cryptography/" target="_blank" rel="noopener">Satoshi mailing list post</a>
+      <a class="story-source" href="https://www.sec.gov/newsroom/speeches-statements/gensler-statement-spot-bitcoin-011023" target="_blank" rel="noopener">SEC Jan. 10, 2024 statement</a>
+      <a class="story-source" href="https://dogecoin.com/dogepedia/articles/history-of-dogecoin/" target="_blank" rel="noopener">Dogecoin history</a>
+      <a class="story-source" href="https://shib.io/tokens/shib" target="_blank" rel="noopener">SHIB official token page</a>
+      <a class="story-source" href="https://www.bonkcoin.com/about" target="_blank" rel="noopener">BONK about page</a>
     </div>
     <div class="lore-quote">
-      <p>"Every cycle people ask the same question after the move: why didn't I accumulate more earlier? $BTCBANK was built around that exact regret."</p>
-      <span>— The $BTCBANK thesis · deeper research at <a href="/history" style="color:var(--btc);text-decoration:none">Bitcoin vs Memes</a></span>
+      <p>"Every cycle the regret sounds the same: I should have accumulated the serious asset while everyone was distracted. BTCBANK was designed around that exact mistake."</p>
+      <span>- The BTCBANK thesis · deeper story page at <a href="/history" style="color:var(--btc);text-decoration:none">Bitcoin vs Memes</a></span>
     </div>
   </div>
 </section>
@@ -605,40 +838,42 @@ footer{background:var(--bg3);border-top:1px solid var(--border);padding:48px cla
     <div class="section-label">Hold More. Earn More.</div>
     <h2 class="section-title">The <span>Tier System</span></h2>
     <p class="section-desc">Your multiplier increases with time. The bag qualifies you. The clock boosts you. Selling below the line resets the timer.</p>
-    <div class="tiers-grid">
-      <div class="tier-card locked"><div class="tier-icon">🔒</div><div class="tier-name">Locked</div><div class="tier-hold">Under ${escapeHtml(formatCount(minimumTokens))} tokens</div><div class="tier-mult">No Rewards</div><div class="tier-mult-lbl">not eligible</div><div class="tier-min">Buy ${escapeHtml(formatCount(minimumTokens))}+ to qualify</div></div>
-      <div class="tier-card"><div class="tier-icon">🪙</div><div class="tier-name">Holder</div><div class="tier-hold">Just qualified</div><div class="tier-mult">1.00x</div><div class="tier-mult-lbl">base reward</div><div class="tier-min">${escapeHtml(formatCount(minimumTokens))} min</div></div>
-      <div class="tier-card"><div class="tier-icon">📦</div><div class="tier-name">Stacker</div><div class="tier-hold">24 hours+</div><div class="tier-mult">1.01x</div><div class="tier-mult-lbl">multiplier</div><div class="tier-min">Don't sell for 24h</div></div>
-      <div class="tier-card"><div class="tier-icon">⛏️</div><div class="tier-name">Miner</div><div class="tier-hold">72 hours+</div><div class="tier-mult">1.03x</div><div class="tier-mult-lbl">multiplier</div><div class="tier-min">3 days held</div></div>
-      <div class="tier-card"><div class="tier-icon">🧱</div><div class="tier-name">Veteran</div><div class="tier-hold">7 days+</div><div class="tier-mult">1.07x</div><div class="tier-mult-lbl">multiplier</div><div class="tier-min">One week strong</div></div>
-      <div class="tier-card"><div class="tier-icon">🏦</div><div class="tier-name">OG</div><div class="tier-hold">14 days+</div><div class="tier-mult">1.12x</div><div class="tier-mult-lbl">multiplier</div><div class="tier-min">Two weeks in</div></div>
-      <div class="tier-card featured"><div class="tier-icon">₿</div><div class="tier-name">Satoshi</div><div class="tier-hold">30 days+</div><div class="tier-mult">1.20x</div><div class="tier-mult-lbl">max multiplier</div><div class="tier-min">The true believers</div></div>
-    </div>
-    <div class="tiers-formula">
-      <div><div class="formula-item-lbl">Your reward power</div><div class="formula-item-val orange">Shares × Hold Multiplier</div></div>
-      <div><div class="formula-item-lbl">Sell below ${escapeHtml(formatCount(minimumTokens))}</div><div class="formula-item-val red">Hold timer resets to 0</div></div>
-      <div><div class="formula-item-lbl">Bigger bag means</div><div class="formula-item-val green">More shares = more wBTC</div></div>
-    </div>
-  </div>
-</section>
-
-<section class="checker-section" id="checker">
-  <div class="container">
-    <div class="section-label">Wallet Checker</div>
-    <h2 class="section-title">See Your <span>Tier Right Now</span></h2>
-    <p class="section-desc">Paste a wallet and get the current bag, qualification, shares, hold tier, bonus, and next step. This is the part that tells people whether they are compounding or resetting themselves.</p>
-    <div class="checker-shell">
-      <div class="checker-card">
-        <h3>Stop Jeeting. Stop Selling.</h3>
-        <p>Check whether the wallet is above the line, how many full shares it has, what hold tier it sits in, and how close it is to the next multiplier. If you sell below the minimum, the timer dies.</p>
+    <div class="tier-check-grid">
+      <div class="tier-stack">
+        <div class="tiers-grid">
+          <div class="tier-card locked"><div class="tier-icon">🔒</div><div class="tier-name">Locked</div><div class="tier-hold">Under ${escapeHtml(formatCount(minimumTokens))} tokens</div><div class="tier-mult">No Rewards</div><div class="tier-mult-lbl">not eligible</div><div class="tier-min">Buy ${escapeHtml(formatCount(minimumTokens))}+ to qualify</div></div>
+          <div class="tier-card"><div class="tier-icon">🪙</div><div class="tier-name">Holder</div><div class="tier-hold">Just qualified</div><div class="tier-mult">1.00x</div><div class="tier-mult-lbl">base reward</div><div class="tier-min">${escapeHtml(formatCount(minimumTokens))} min</div></div>
+          <div class="tier-card"><div class="tier-icon">📦</div><div class="tier-name">Stacker</div><div class="tier-hold">24 hours+</div><div class="tier-mult">1.01x</div><div class="tier-mult-lbl">multiplier</div><div class="tier-min">Don't sell for 24h</div></div>
+          <div class="tier-card"><div class="tier-icon">⛏️</div><div class="tier-name">Miner</div><div class="tier-hold">72 hours+</div><div class="tier-mult">1.03x</div><div class="tier-mult-lbl">multiplier</div><div class="tier-min">3 days held</div></div>
+          <div class="tier-card"><div class="tier-icon">🧱</div><div class="tier-name">Veteran</div><div class="tier-hold">7 days+</div><div class="tier-mult">1.07x</div><div class="tier-mult-lbl">multiplier</div><div class="tier-min">One week strong</div></div>
+          <div class="tier-card"><div class="tier-icon">🏦</div><div class="tier-name">OG</div><div class="tier-hold">14 days+</div><div class="tier-mult">1.12x</div><div class="tier-mult-lbl">multiplier</div><div class="tier-min">Two weeks in</div></div>
+          <div class="tier-card featured"><div class="tier-icon">₿</div><div class="tier-name">Satoshi</div><div class="tier-hold">30 days+</div><div class="tier-mult">1.20x</div><div class="tier-mult-lbl">max multiplier</div><div class="tier-min">The true believers</div></div>
+        </div>
+        <div class="tiers-formula">
+          <div><div class="formula-item-lbl">Your reward power</div><div class="formula-item-val orange">Shares x Hold Multiplier</div></div>
+          <div><div class="formula-item-lbl">Sell below ${escapeHtml(formatCount(minimumTokens))}</div><div class="formula-item-val red">Hold timer resets to 0</div></div>
+          <div><div class="formula-item-lbl">Bigger bag means</div><div class="formula-item-val green">More shares = more wBTC</div></div>
+        </div>
+        <div class="tier-notes">
+          <div class="tier-note"><h4>What counts as a share</h4><p>Every full ${escapeHtml(formatCount(minimumTokens))} BTCBANK equals one base share. If a wallet holds 900,000 BTCBANK, that wallet has three base shares before the hold bonus is applied.</p></div>
+          <div class="tier-note"><h4>What actually grows the payout</h4><p>Two things matter: bag size and hold time. Bigger bags create more shares. Longer holds raise the multiplier. BTCBANK is designed to punish panic-selling and reward the people who let the timer live.</p></div>
+        </div>
+      </div>
+      <div class="checker-card sticky">
+        <span class="checker-anchor" id="checker"></span>
+        <div class="section-label" style="margin-bottom:8px">Wallet Checker</div>
+        <h3>Check Your Tier Before You Jeet</h3>
+        <p>Paste a wallet and see the real answer: how much BTCBANK it holds, whether it qualifies, how many full shares it has, how old the hold is, what multiplier it gets, and whether it is WBTC-ready right now.</p>
+        <div class="checker-mini">
+          <div class="checker-mini-card"><span>Reward line</span><strong>${escapeHtml(formatCount(minimumTokens))} BTCBANK</strong></div>
+          <div class="checker-mini-card"><span>Max tier</span><strong>Satoshi at 30 days</strong></div>
+        </div>
         <form id="walletCheckerForm" class="checker-form">
           <input id="walletInput" type="text" name="wallet" placeholder="Enter Solana wallet address" value="${escapeHtml(wallet ?? "")}" autocomplete="off" spellcheck="false" />
           <button class="btn-primary" type="submit">Check Wallet</button>
         </form>
-        <div class="checker-helper">Reward line: ${escapeHtml(formatCount(minimumTokens))} BTCBANK. Bigger bag = more shares. Longer hold = bigger multiplier.</div>
-      </div>
-      <div class="checker-card">
-        <div id="checkerResult">${checkerHtml}</div>
+        <div class="checker-helper">It will tell people the exact thing they want to know: am I qualified, what tier am I in, how much longer until the next multiplier, and did I accidentally reset myself?</div>
+        <div id="checkerResult" style="margin-top:16px">${checkerHtml}</div>
       </div>
     </div>
   </div>

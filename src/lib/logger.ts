@@ -29,10 +29,19 @@ const BOX_MIN_WIDTH = 38;
 const BOX_MAX_WIDTH = 68;
 const BOX_LABEL_WIDTH = 16;
 const SUMMARY_REPEAT_COOLDOWN_MS = 60_000;
+const CALLOUT_REPEAT_COOLDOWN_MS = 30_000;
+const SUPPRESSED_SUMMARY_TITLES = new Set([
+  "Replay Queue",
+  "Replay Round",
+  "Swap Queue",
+  "Round Complete",
+  "Paid Summary",
+]);
 
 export class Logger {
   private readonly logPath: string;
   private readonly recentSummaryState = new Map<string, { signature: string; at: number }>();
+  private readonly recentCalloutState = new Map<string, number>();
 
   public constructor(baseDir = "data/logs") {
     this.logPath = join(baseDir, "runtime.jsonl");
@@ -103,6 +112,14 @@ export class Logger {
   }
 
   public callout(kind: CalloutKind, message: string): void {
+    const repeatKey = `${kind}:${message}`;
+    const now = Date.now();
+    const previousAt = this.recentCalloutState.get(repeatKey);
+    if (previousAt && now - previousAt < CALLOUT_REPEAT_COOLDOWN_MS) {
+      return;
+    }
+
+    this.recentCalloutState.set(repeatKey, now);
     console.log(calloutStyles[kind](` ${message} `));
     void this.persist("info", message, { kind: "callout", calloutKind: kind });
   }
@@ -131,7 +148,7 @@ export class Logger {
     const repeatKey = `${title}:${tone}`;
     const previous = this.recentSummaryState.get(repeatKey);
     const now = Date.now();
-    const suppressRepeats = title === "Replay Queue" || title === "Replay Round" || title === "Swap Queue";
+    const suppressRepeats = SUPPRESSED_SUMMARY_TITLES.has(title);
 
     if (suppressRepeats && previous && previous.signature === signature && now - previous.at < SUMMARY_REPEAT_COOLDOWN_MS) {
       return;

@@ -56,9 +56,16 @@ let lastGoodMissingPaidUsdCache: { raw: string; usd: number } | null = null;
 let eligibleOwnersCache: { fetchedAt: number; owners: Set<string> } | null = null;
 let workerLockHeld = false;
 let workerLockCleanupRegistered = false;
+let lastCycleStartedAt = 0;
+let publicSitePublishInFlight: Promise<void> | null = null;
+let lastPublicSitePayloadJson: string | null = null;
+let publicSitePublishReadyLogged = false;
+let lastPublicSitePublishError: string | null = null;
+let lastBtcUsdCache: number | null = null;
 
 const HOUR_MS = 60 * 60 * 1000;
 const DAY_MS = 24 * HOUR_MS;
+const PUBLIC_SITE_PUBLISH_INTERVAL_MS = Number(process.env.PUBLIC_SITE_PUBLISH_INTERVAL_MS ?? "30000");
 const HOLD_TIERS = [
   { label: "30d+", minMs: 30 * DAY_MS, multiplierBps: 12_000 },
   { label: "14d+", minMs: 14 * DAY_MS, multiplierBps: 11_200 },
@@ -107,6 +114,40 @@ type PendingRoundWithCount = {
   round: PayoutRoundState;
   pendingCount: number;
 };
+
+function getExcludedOwners(): Set<string> {
+  return new Set<string>([
+    creator.toBase58(),
+    treasury.toBase58(),
+    ...config.excludedHolderAddresses,
+  ]);
+}
+
+function getPublicSiteIngestUrl(): string | null {
+  const raw = process.env.VERCEL_URL?.trim();
+  if (!raw) {
+    return null;
+  }
+
+  try {
+    const url = new URL(raw.startsWith("http://") || raw.startsWith("https://") ? raw : `https://${raw}`);
+    url.pathname = "/api/ingest";
+    url.search = "";
+    url.hash = "";
+    return url.toString();
+  } catch {
+    return null;
+  }
+}
+
+function getNextCycleSeconds(): number {
+  if (lastCycleStartedAt <= 0) {
+    return Math.floor(config.pollIntervalMs / 1000);
+  }
+
+  const nextAt = lastCycleStartedAt + config.pollIntervalMs;
+  return Math.max(0, Math.ceil((nextAt - Date.now()) / 1000));
+}
 
 function logHoldMessage(message: string): void {
   const now = Date.now();
@@ -159,6 +200,10 @@ function logReplayHeartbeat(message: string): void {
   logger.ops(message);
   lastReplayHeartbeat = message;
   lastReplayHeartbeatAt = now;
+}
+
+function isReplayWindowTimeout(message: string): boolean {
+  return message.includes("timed out after 90s");
 }
 
 async function withTimeout<T>(label: string, promise: Promise<T>, timeoutMs: number): Promise<T> {
@@ -449,11 +494,19 @@ async function main(): Promise<void> {
     `main claim check runs every ${Math.floor(config.pollIntervalMs / 1000)}s; backlog catchup runs every ${REPLAY_CATCHUP_DELAY_MS >= 1000 ? `${Math.floor(REPLAY_CATCHUP_DELAY_MS / 1000)}s` : `${REPLAY_CATCHUP_DELAY_MS}ms`} while something is still waiting`,
   );
   logger.ops("payout crew now focuses the biggest payable round first so newer live rewards clear faster");
+  if (getPublicSiteIngestUrl() && process.env.INGEST_SECRET?.trim() && !config.dryRun) {
+    logger.ops(`public site publishing runs every ${Math.floor(PUBLIC_SITE_PUBLISH_INTERVAL_MS / 1000)}s for the Vercel site`);
+  }
 
+  await publishPublicSiteSnapshot(true);
   await runCycle();
+  await publishPublicSiteSnapshot(true);
   setInterval(() => {
     void runCycle();
   }, config.pollIntervalMs);
+  setInterval(() => {
+    void publishPublicSiteSnapshot();
+  }, PUBLIC_SITE_PUBLISH_INTERVAL_MS);
   scheduleReplayCatchup(2_000);
 }
 
@@ -465,6 +518,7 @@ async function runCycle(): Promise<void> {
   }
 
   cycleRunning = true;
+  lastCycleStartedAt = Date.now();
   try {
     await executeCycle();
   } catch (error) {
@@ -475,6 +529,7 @@ async function runCycle(): Promise<void> {
       logger.error(message);
     }
   } finally {
+    await publishPublicSiteSnapshot();
     cycleRunning = false;
     maybeRunQueuedClaimCycle();
   }
@@ -522,6 +577,8 @@ async function runReplayCatchup(): Promise<void> {
     const message = error instanceof Error ? error.message : String(error);
     if (message.startsWith("Swap held:")) {
       logHoldMessage(`${message} (background payouts)`);
+    } else if (isReplayWindowTimeout(message)) {
+      logger.warn("Background payout catch-up hit its 90s safety window and will continue on the next pass.");
     } else {
       logger.error(`Background replay failed: ${message}`);
     }
@@ -878,11 +935,22 @@ async function executeCycle(): Promise<void> {
   });
 
   logger.callout("queued", "Holder payout round saved to the ledger");
-  const pendingSummaryAfterEnqueue = await withTimeout(
-    "Immediate post-swap payout replay",
-    resumePendingRounds(MAX_REPLAY_BATCHES_PER_CYCLE),
-    REPLAY_PASS_TIMEOUT_MS,
-  );
+  let pendingSummaryAfterEnqueue: Awaited<ReturnType<typeof resumePendingRounds>>;
+  try {
+    pendingSummaryAfterEnqueue = await withTimeout(
+      "Immediate post-swap payout replay",
+      resumePendingRounds(MAX_REPLAY_BATCHES_PER_CYCLE),
+      REPLAY_PASS_TIMEOUT_MS,
+    );
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    if (isReplayWindowTimeout(message)) {
+      logger.warn("Post-swap payout catch-up hit its 90s safety window and will keep finishing in the background.");
+      scheduleReplayCatchup();
+      return;
+    }
+    throw error;
+  }
   if (pendingSummaryAfterEnqueue.pendingRecipients === 0) {
     const stats = await getLedgerStats();
     logger.callout("settled", "Round fully paid");
@@ -1577,6 +1645,56 @@ type LedgerStats = {
   totalPaidUsd: number | null;
 };
 
+type PublicSiteHolder = {
+  wallet: string;
+  balanceTokens: string;
+  qualified: boolean;
+  shareCount: string;
+  holdAge: string;
+  holdTier: string;
+  holdMultiplier: string;
+  eligibleSince: string | null;
+  hasWbtcAccount: boolean;
+  payableNow: boolean;
+  totalWbtcEarned: string;
+  roundsQualified: number;
+};
+
+type PublicSiteTx = {
+  wallet: string;
+  signature: string;
+  round: number;
+  wbtcAmount: string;
+  tier: string;
+  timestamp: number;
+};
+
+type PublicSitePayload = {
+  updatedAt: number;
+  stats: {
+    holderMinTokens: number;
+    holderMint: string;
+    rewardMint: string;
+    allTimeUsd: number;
+    allTimeWbtc: string;
+    holdersPaid: number;
+    roundsCompleted: number;
+    currentRound: number;
+    qualifiedThisRound: number;
+    paidThisRound: number;
+    currentRoundWbtc: string;
+    currentRoundUsd: number;
+    latestRoundUsd: number;
+    biggestRoundNumber: number;
+    biggestRoundPaid: number;
+    biggestRoundWbtc: string;
+    btcPrice: number;
+    nextCycleSeconds: number;
+  };
+  holders: PublicSiteHolder[];
+  txs: PublicSiteTx[];
+};
+
 async function getLedgerStatsFromState(state: { rounds: PayoutRoundState[] }): Promise<LedgerStats> {
   const totalRounds = state.rounds.length;
   const totalPaidRecipients = state.rounds.reduce(
@@ -1648,6 +1766,239 @@ async function getLedgerStatsFromState(state: { rounds: PayoutRoundState[] }): P
     totalPaidRewardRaw,
     totalPaidUsd,
   };
+}
+
+async function getRoundRewardUsd(round: PayoutRoundState, rewardDecimals: number): Promise<number> {
+  const storedUsd = fromUsdMicros(round.rewardUsdMicros ? BigInt(round.rewardUsdMicros) : null);
+  if (storedUsd !== null) {
+    return storedUsd;
+  }
+
+  const totalRewardRaw = BigInt(round.totalRewardRaw ?? "0");
+  if (totalRewardRaw <= 0n) {
+    return 0;
+  }
+
+  const quotedUsd = await quoteTokenToUsd(rewardMint, totalRewardRaw);
+  return quotedUsd ?? 0;
+}
+
+function buildRoundSequenceMap(rounds: PayoutRoundState[]): Map<string, number> {
+  const ordered = [...rounds].sort((left, right) => left.createdAt.localeCompare(right.createdAt));
+  return new Map(ordered.map((round, index) => [round.id, index + 1]));
+}
+
+function buildHolderHistory(
+  rounds: PayoutRoundState[],
+): Map<string, { totalPaidRaw: bigint; roundsQualified: number }> {
+  const byOwner = new Map<string, { totalPaidRaw: bigint; roundsQualified: number }>();
+
+  for (const round of rounds) {
+    for (const recipient of round.recipients) {
+      const current = byOwner.get(recipient.owner) ?? { totalPaidRaw: 0n, roundsQualified: 0 };
+      current.roundsQualified += 1;
+      if (recipient.status === "paid") {
+        current.totalPaidRaw += BigInt(recipient.amountRaw);
+      }
+      byOwner.set(recipient.owner, current);
+    }
+  }
+
+  return byOwner;
+}
+
+function buildPublicSiteTransactions(rounds: PayoutRoundState[], rewardDecimals: number): PublicSiteTx[] {
+  const roundNumbers = buildRoundSequenceMap(rounds);
+  const txs: PublicSiteTx[] = [];
+
+  const sortedRounds = [...rounds].sort((left, right) => right.createdAt.localeCompare(left.createdAt));
+  for (const round of sortedRounds) {
+    for (const recipient of round.recipients) {
+      if (recipient.status !== "paid" || !recipient.txSignature) {
+        continue;
+      }
+
+      txs.push({
+        wallet: recipient.owner,
+        signature: recipient.txSignature,
+        round: roundNumbers.get(round.id) ?? 0,
+        wbtcAmount: formatTokenAmount(BigInt(recipient.amountRaw), rewardDecimals),
+        tier: recipient.holdTierLabel ?? "<24h",
+        timestamp: Date.parse(recipient.paidAt ?? round.completedAt ?? round.createdAt),
+      });
+
+      if (txs.length >= 250) {
+        return txs.sort((left, right) => right.timestamp - left.timestamp);
+      }
+    }
+  }
+
+  return txs.sort((left, right) => right.timestamp - left.timestamp);
+}
+
+function getPaidRoundTotalRaw(round: PayoutRoundState): bigint {
+  return round.recipients.reduce((roundTotal, recipient) => {
+    if (recipient.status !== "paid") {
+      return roundTotal;
+    }
+    return roundTotal + BigInt(recipient.amountRaw);
+  }, 0n);
+}
+
+async function getCurrentBtcUsd(rewardDecimals: number): Promise<number> {
+  const oneBtcRaw = 10n ** BigInt(rewardDecimals);
+  const quotedUsd = await quoteTokenToUsd(rewardMint, oneBtcRaw);
+  if (quotedUsd !== null) {
+    lastBtcUsdCache = quotedUsd;
+    return quotedUsd;
+  }
+  return lastBtcUsdCache ?? 0;
+}
+
+async function buildPublicSitePayload(): Promise<PublicSitePayload> {
+  const state = await stateStore.read();
+  const ledgerStats = await getLedgerStatsFromState(state);
+  const rewardDecimals = await getRewardMintDecimals();
+  const excludedOwners = getExcludedOwners();
+  const holderSummary = await withTimeout(
+    "Public site holder scan",
+    rpcPool.withFailover((rpc) =>
+      getHolderSummary(
+        rpc,
+        holderMint,
+        config.holderMinTokens,
+        excludedOwners,
+        config.skipOffCurveOwners,
+      )
+    ),
+    HOLDER_SCAN_TIMEOUT_MS,
+  );
+  const annotatedHolders = await annotateEligibleHolders(holderSummary.eligible);
+  const payability = await withTimeout(
+    "Public site reward account scan",
+    rpcPool.withFailover((rpc) => getRewardAccountPayability(rpc, annotatedHolders.map((holder) => holder.owner))),
+    REWARD_ACCOUNT_SCAN_TIMEOUT_MS,
+  );
+  const holderHistory = buildHolderHistory(state.rounds);
+  const sortedRounds = [...state.rounds].sort((left, right) => right.createdAt.localeCompare(left.createdAt));
+  const roundNumbers = buildRoundSequenceMap(state.rounds);
+  const latestRound = sortedRounds[0] ?? null;
+  const latestRoundUsd = latestRound ? await getRoundRewardUsd(latestRound, rewardDecimals) : 0;
+  const latestRoundRewardRaw = latestRound ? getPaidRoundTotalRaw(latestRound) : 0n;
+  const btcPrice = await getCurrentBtcUsd(rewardDecimals);
+  let biggestRound = latestRound;
+  let biggestRoundRewardRaw = latestRoundRewardRaw;
+
+  for (const round of state.rounds) {
+    const paidRewardRaw = getPaidRoundTotalRaw(round);
+    if (paidRewardRaw > biggestRoundRewardRaw) {
+      biggestRound = round;
+      biggestRoundRewardRaw = paidRewardRaw;
+    }
+  }
+
+  const holders: PublicSiteHolder[] = annotatedHolders.map((holder) => {
+    const owner = holder.owner.toBase58();
+    const history = holderHistory.get(owner) ?? { totalPaidRaw: 0n, roundsQualified: 0 };
+    const hasWbtcAccount = payability.payableOwners.has(owner);
+
+    return {
+      wallet: owner,
+      balanceTokens: formatTokenAmount(holder.rawBalance, holderSummary.decimals),
+      qualified: true,
+      shareCount: holder.shareCount.toString(),
+      holdAge: formatHoldAge(holder.holdDurationMs),
+      holdTier: holder.holdTierLabel,
+      holdMultiplier: formatMultiplier(holder.holdMultiplierBps),
+      eligibleSince: holder.eligibleSince,
+      hasWbtcAccount,
+      payableNow: hasWbtcAccount,
+      totalWbtcEarned: formatTokenAmount(history.totalPaidRaw, rewardDecimals),
+      roundsQualified: history.roundsQualified,
+    };
+  });
+
+  return {
+    updatedAt: Date.now(),
+    stats: {
+      holderMinTokens: config.holderMinTokens,
+      holderMint: holderMint.toBase58(),
+      rewardMint: rewardMint.toBase58(),
+      allTimeUsd: ledgerStats.totalPaidUsd ?? 0,
+      allTimeWbtc: formatTokenAmount(ledgerStats.totalPaidRewardRaw, rewardDecimals),
+      holdersPaid: ledgerStats.totalPaidRecipients,
+      roundsCompleted: ledgerStats.totalRounds,
+      currentRound: ledgerStats.totalRounds,
+      qualifiedThisRound: latestRound?.eligibleHolderCount ?? holders.length,
+      paidThisRound: latestRound?.recipients.filter((recipient) => recipient.status === "paid").length ?? 0,
+      currentRoundWbtc: formatTokenAmount(latestRoundRewardRaw, rewardDecimals),
+      currentRoundUsd: latestRoundUsd,
+      latestRoundUsd,
+      biggestRoundNumber: biggestRound ? (roundNumbers.get(biggestRound.id) ?? ledgerStats.totalRounds) : ledgerStats.totalRounds,
+      biggestRoundPaid: biggestRound?.recipients.filter((recipient) => recipient.status === "paid").length ?? 0,
+      biggestRoundWbtc: formatTokenAmount(biggestRoundRewardRaw, rewardDecimals),
+      btcPrice,
+      nextCycleSeconds: getNextCycleSeconds(),
+    },
+    holders,
+    txs: buildPublicSiteTransactions(state.rounds, rewardDecimals),
+  };
+}
+
+async function publishPublicSiteSnapshot(force = false): Promise<void> {
+  const ingestUrl = getPublicSiteIngestUrl();
+  const ingestSecret = process.env.INGEST_SECRET?.trim() ?? "";
+
+  if (!ingestUrl || !ingestSecret || config.dryRun) {
+    return;
+  }
+
+  if (publicSitePublishInFlight) {
+    return publicSitePublishInFlight;
+  }
+
+  publicSitePublishInFlight = (async () => {
+    try {
+      const payload = await buildPublicSitePayload();
+      const payloadJson = JSON.stringify(payload);
+
+      if (!force && payloadJson === lastPublicSitePayloadJson) {
+        return;
+      }
+
+      const response = await fetch(ingestUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+          "x-btcbank-secret": ingestSecret,
+        },
+        body: payloadJson,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Public site ingest failed (${response.status})`);
+      }
+
+      lastPublicSitePayloadJson = payloadJson;
+      if (!publicSitePublishReadyLogged) {
+        logger.ops(`public site sync live: ${ingestUrl}`);
+        publicSitePublishReadyLogged = true;
+      } else if (lastPublicSitePublishError) {
+        logger.ops("public site sync recovered and is publishing again");
+      }
+      lastPublicSitePublishError = null;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (lastPublicSitePublishError !== message) {
+        logger.warn(`Public site sync paused: ${message}`);
+        lastPublicSitePublishError = message;
+      }
+    } finally {
+      publicSitePublishInFlight = null;
+    }
+  })();
+
+  return publicSitePublishInFlight;
 }
 
 function getRecipientShareCount(recipient: Pick<PayoutRecipientState, "shareCount">): bigint {

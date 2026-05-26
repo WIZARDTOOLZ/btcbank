@@ -1769,7 +1769,7 @@ function renderOverlayHtml(): string {
       --panel-2: rgba(11, 9, 7, 0.95);
       --line: rgba(255, 166, 0, 0.18);
       --text: #fff7e6;
-      --muted: #c5b8a0;
+      --muted: #f0d9ad;
       --green: #6de01f;
       --cyan: #69d4ff;
       --gold: #ffb11b;
@@ -2954,7 +2954,7 @@ function renderPaidSummaryHtml(): string {
     .sub {
       max-width: 520px;
       margin-top: 8px;
-      color: var(--muted);
+      color: #fff0cf;
       font-size: 24px;
       line-height: 1.34;
     }
@@ -3150,7 +3150,7 @@ function renderPaidSummaryHtml(): string {
     }
 
     .tiers-sub {
-      color: var(--muted);
+      color: #ffe1a3;
       font-size: 18px;
       text-align: right;
     }
@@ -3235,7 +3235,7 @@ function renderPaidSummaryHtml(): string {
     }
 
     .panel-sub {
-      color: var(--muted);
+      color: #ffe1a3;
       font-size: 18px;
       margin-top: 2px;
       line-height: 1.3;

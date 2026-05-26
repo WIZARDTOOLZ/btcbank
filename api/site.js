@@ -371,7 +371,7 @@ function renderSite(data, wallet, dexSummary) {
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
-:root{--btc:#f7931a;--btc-dark:#c76a00;--bg:#080808;--bg2:#0d0d0d;--bg3:#111;--border:#1e1e1e;--border2:#2a2a2a;--text:#f0f0f0;--muted:#666;--muted2:#444;--green:#22c55e;--red:#ef4444;--mono:'JetBrains Mono',monospace;--display:'Bebas Neue',sans-serif;--body:'Space Grotesk',sans-serif}
+:root{--btc:#f7931a;--btc-dark:#c76a00;--bg:#080808;--bg2:#0d0d0d;--bg3:#111;--border:#1e1e1e;--border2:#2a2a2a;--text:#f0f0f0;--muted:#96917f;--muted2:#706b5d;--green:#22c55e;--red:#ef4444;--mono:'JetBrains Mono',monospace;--display:'Bebas Neue',sans-serif;--body:'Space Grotesk',sans-serif}
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--text);font-family:var(--body);font-size:16px;line-height:1.6;overflow-x:hidden}
@@ -517,7 +517,7 @@ section{padding:clamp(60px,8vw,100px) clamp(16px,4vw,40px)}
 .buy-warning p span{color:var(--btc);font-weight:600}
 .tiers-section{background:var(--bg)}
 .tiers-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:40px}
-.tier-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:18px 14px;text-align:center;transition:all .3s;position:relative;overflow:hidden}
+.tier-card{background:linear-gradient(180deg,#17130f,#101010);border:1px solid rgba(247,147,26,.18);border-radius:10px;padding:18px 14px;text-align:center;transition:all .3s;position:relative;overflow:hidden}
 .tier-card:hover{border-color:rgba(247,147,26,.3);transform:translateY(-3px)}
 .tier-card.featured{border-color:rgba(247,147,26,.4);background:linear-gradient(135deg,rgba(247,147,26,.07) 0%,var(--bg3) 100%)}
 .tier-card.featured::after{content:'MAX';position:absolute;top:7px;right:7px;background:var(--btc);color:#000;font-size:8px;font-weight:700;padding:2px 5px;border-radius:3px;letter-spacing:1px}
@@ -525,11 +525,16 @@ section{padding:clamp(60px,8vw,100px) clamp(16px,4vw,40px)}
 .tier-icon{font-size:24px;margin-bottom:8px}
 .tier-name{font-family:var(--display);font-size:18px;letter-spacing:1px;color:#fff;margin-bottom:2px}
 .tier-card.locked .tier-name{color:var(--red)}
-.tier-hold{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
+.tier-hold{font-size:11px;color:#d8c9a9;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;font-weight:700}
 .tier-mult{font-family:var(--mono);font-size:20px;font-weight:600;color:var(--btc);margin-bottom:2px}
 .tier-card.locked .tier-mult{color:var(--red);font-size:14px}
-.tier-mult-lbl{font-size:9px;color:var(--muted2);text-transform:uppercase;letter-spacing:1px}
-.tier-min{font-size:10px;color:var(--muted2);margin-top:8px;padding-top:8px;border-top:1px solid var(--border)}
+.tier-mult-lbl{font-size:10px;color:#a89c84;text-transform:uppercase;letter-spacing:1px;font-weight:700}
+.tier-min{font-size:11px;color:#c9baa0;margin-top:8px;padding-top:8px;border-top:1px solid rgba(247,147,26,.14);font-weight:600}
+.bag-tier-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-top:16px}
+.bag-tier-card{background:linear-gradient(180deg,rgba(34,197,94,.08),#101010);border:1px solid rgba(34,197,94,.22);border-radius:10px;padding:16px 14px}
+.bag-tier-card .bag-name{font-family:var(--display);font-size:20px;letter-spacing:1px;color:#fff;margin-bottom:4px}
+.bag-tier-card .bag-range{font-family:var(--mono);font-size:13px;color:#8dff57;font-weight:800;margin-bottom:4px}
+.bag-tier-card .bag-note{font-size:12px;color:#d6dbc9;line-height:1.5}
 .tiers-formula{background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:20px 24px;margin-top:16px;display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
 .formula-item-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
 .formula-item-val{font-family:var(--mono);font-size:14px}
@@ -739,7 +744,7 @@ footer{background:var(--bg3);border-top:1px solid var(--border);padding:48px cla
   .loop-arr{display:none}
   .hero-live-strip,.proof-summary,.calc-grid,.roadmap-wrap{grid-template-columns:1fr}
   .stats-grid{grid-template-columns:1fr 1fr}
-  .tiers-grid{grid-template-columns:repeat(2,1fr)}
+  .tiers-grid,.bag-tier-grid{grid-template-columns:repeat(2,1fr)}
   .tiers-formula{grid-template-columns:1fr}
   .tx-row,.tx-header{grid-template-columns:1fr auto auto}
   .proof-head,.proof-row{grid-template-columns:1fr auto}
@@ -761,7 +766,7 @@ footer{background:var(--bg3);border-top:1px solid var(--border);padding:48px cla
   .checker-form .btn-primary{width:100%;text-align:center;border:0}
   .chart-shell iframe{height:300px}
   .stats-grid,.checker-metrics,.hero-live-strip,.proof-summary,.calc-grid,.roadmap-wrap,.calc-result-grid{grid-template-columns:1fr}
-  .tiers-grid{grid-template-columns:1fr 1fr}
+  .tiers-grid,.bag-tier-grid{grid-template-columns:1fr 1fr}
   .buy-grid{grid-template-columns:1fr}
 }
 .mobile-nav{display:none;position:fixed;inset:56px 0 0 0;background:rgba(8,8,8,.98);z-index:99;flex-direction:column;padding:24px 20px;gap:4px}
@@ -1081,6 +1086,13 @@ ${renderHypeSection(minimumTokens, holderMint)}
           <div><div class="formula-item-lbl">Your reward power</div><div class="formula-item-val orange">Shares x Hold Multiplier</div></div>
           <div><div class="formula-item-lbl">Sell below ${escapeHtml(formatCount(minimumTokens))}</div><div class="formula-item-val red">Hold timer resets to 0</div></div>
           <div><div class="formula-item-lbl">Bigger bag means</div><div class="formula-item-val green">More shares = more wBTC</div></div>
+        </div>
+        <div class="bag-tier-grid">
+          <div class="bag-tier-card"><div class="bag-name">Starter</div><div class="bag-range">${escapeHtml(formatCount(minimumTokens))}+</div><div class="bag-note">1 full base share. This is the reward line.</div></div>
+          <div class="bag-tier-card"><div class="bag-name">Double</div><div class="bag-range">${escapeHtml(formatCount(minimumTokens * 2))}+</div><div class="bag-note">2 base shares before hold-time bonus.</div></div>
+          <div class="bag-tier-card"><div class="bag-name">Builder</div><div class="bag-range">${escapeHtml(formatCount(minimumTokens * 5))}+</div><div class="bag-note">5 base shares. Bigger slice each round.</div></div>
+          <div class="bag-tier-card"><div class="bag-name">Vault</div><div class="bag-range">${escapeHtml(formatCount(minimumTokens * 10))}+</div><div class="bag-note">10 base shares. Bag size starts to matter hard.</div></div>
+          <div class="bag-tier-card"><div class="bag-name">Bank</div><div class="bag-range">${escapeHtml(formatCount(minimumTokens * 25))}+</div><div class="bag-note">25 base shares. Time multiplier applies on top.</div></div>
         </div>
         <div class="tier-notes">
           <div class="tier-note"><h4>What counts as a share</h4><p>Every full ${escapeHtml(formatCount(minimumTokens))} BTCBANK equals one base share. If a wallet holds 900,000 BTCBANK, that wallet has three base shares before the hold bonus is applied.</p></div>

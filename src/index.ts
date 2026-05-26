@@ -1666,6 +1666,11 @@ type PublicSiteHolder = {
   nextEstimatedWbtc: string;
   nextEstimatedUsd: number;
   roundsQualified: number;
+  paymentsReceived: number;
+  lastPaidAt: string | null;
+  lastPaidWbtc: string;
+  lastPaidUsd: number;
+  lastPaidTx: string | null;
 };
 
 type PublicSiteTx = {
@@ -1809,15 +1814,46 @@ function buildRoundSequenceMap(rounds: PayoutRoundState[]): Map<string, number> 
 
 function buildHolderHistory(
   rounds: PayoutRoundState[],
-): Map<string, { totalPaidRaw: bigint; roundsQualified: number }> {
-  const byOwner = new Map<string, { totalPaidRaw: bigint; roundsQualified: number }>();
+): Map<string, {
+  totalPaidRaw: bigint;
+  roundsQualified: number;
+  paymentsReceived: number;
+  lastPaidAt: string | null;
+  lastPaidRaw: bigint;
+  lastPaidTx: string | null;
+}> {
+  const byOwner = new Map<string, {
+    totalPaidRaw: bigint;
+    roundsQualified: number;
+    paymentsReceived: number;
+    lastPaidAt: string | null;
+    lastPaidRaw: bigint;
+    lastPaidTx: string | null;
+  }>();
 
   for (const round of rounds) {
     for (const recipient of round.recipients) {
-      const current = byOwner.get(recipient.owner) ?? { totalPaidRaw: 0n, roundsQualified: 0 };
+      const current = byOwner.get(recipient.owner) ?? {
+        totalPaidRaw: 0n,
+        roundsQualified: 0,
+        paymentsReceived: 0,
+        lastPaidAt: null,
+        lastPaidRaw: 0n,
+        lastPaidTx: null,
+      };
       current.roundsQualified += 1;
       if (recipient.status === "paid") {
-        current.totalPaidRaw += BigInt(recipient.amountRaw);
+        const amountRaw = BigInt(recipient.amountRaw);
+        const paidAt = recipient.paidAt ?? round.completedAt ?? round.createdAt;
+        const paidAtMs = Date.parse(paidAt);
+        const previousPaidAtMs = current.lastPaidAt ? Date.parse(current.lastPaidAt) : 0;
+        current.totalPaidRaw += amountRaw;
+        current.paymentsReceived += 1;
+        if (Number.isFinite(paidAtMs) && paidAtMs >= previousPaidAtMs) {
+          current.lastPaidAt = paidAt;
+          current.lastPaidRaw = amountRaw;
+          current.lastPaidTx = recipient.txSignature ?? null;
+        }
       }
       byOwner.set(recipient.owner, current);
     }
@@ -1960,13 +1996,21 @@ async function buildPublicSitePayload(): Promise<PublicSitePayload> {
 
   const holders: PublicSiteHolder[] = annotatedHolders.map((holder) => {
     const owner = holder.owner.toBase58();
-    const history = holderHistory.get(owner) ?? { totalPaidRaw: 0n, roundsQualified: 0 };
+    const history = holderHistory.get(owner) ?? {
+      totalPaidRaw: 0n,
+      roundsQualified: 0,
+      paymentsReceived: 0,
+      lastPaidAt: null,
+      lastPaidRaw: 0n,
+      lastPaidTx: null,
+    };
     const hasWbtcAccount = payability.payableOwners.has(owner);
     const nextEstimatedRaw = currentTotalWeightUnits > 0n && estimateRewardRaw > 0n
       ? (estimateRewardRaw * holder.weightUnits) / currentTotalWeightUnits
       : 0n;
     const nextEstimatedWbtc = Number(formatTokenAmount(nextEstimatedRaw, rewardDecimals));
     const totalWbtcEarned = Number(formatTokenAmount(history.totalPaidRaw, rewardDecimals));
+    const lastPaidWbtc = Number(formatTokenAmount(history.lastPaidRaw, rewardDecimals));
 
     return {
       wallet: owner,
@@ -1984,6 +2028,11 @@ async function buildPublicSitePayload(): Promise<PublicSitePayload> {
       nextEstimatedWbtc: nextEstimatedWbtc.toFixed(rewardDecimals),
       nextEstimatedUsd: nextEstimatedWbtc * btcPrice,
       roundsQualified: history.roundsQualified,
+      paymentsReceived: history.paymentsReceived,
+      lastPaidAt: history.lastPaidAt,
+      lastPaidWbtc: lastPaidWbtc.toFixed(rewardDecimals),
+      lastPaidUsd: lastPaidWbtc * btcPrice,
+      lastPaidTx: history.lastPaidTx,
     };
   });
 

@@ -273,6 +273,10 @@ export function buildWalletCheckResult(holder, wallet, minimumTokens = 300000) {
   const totalWbtcUsd = safeNumber(holder?.totalWbtcUsd ?? holder?.wbtcUsd ?? 0, 0);
   const nextEstimatedWbtc = safeNumber(holder?.nextEstimatedWbtc ?? holder?.nextWbtc ?? 0, 0);
   const nextEstimatedUsd = safeNumber(holder?.nextEstimatedUsd ?? 0, 0);
+  const paymentsReceived = safeInteger(holder?.paymentsReceived ?? holder?.paymentCount ?? holder?.paidCount ?? 0, 0);
+  const roundsQualified = safeInteger(holder?.roundsQualified ?? holder?.rounds ?? holder?.qualifiedRounds ?? 0, 0);
+  const lastPaidWbtc = safeNumber(holder?.lastPaidWbtc ?? 0, 0);
+  const lastPaidUsd = safeNumber(holder?.lastPaidUsd ?? 0, 0);
 
   return {
     found: true,
@@ -296,6 +300,12 @@ export function buildWalletCheckResult(holder, wallet, minimumTokens = 300000) {
     totalWbtcUsd,
     nextEstimatedWbtc: nextEstimatedWbtc.toFixed(8),
     nextEstimatedUsd,
+    paymentsReceived,
+    roundsQualified,
+    lastPaidAt: holder?.lastPaidAt ?? null,
+    lastPaidWbtc: lastPaidWbtc.toFixed(8),
+    lastPaidUsd,
+    lastPaidTx: holder?.lastPaidTx ?? null,
     message: qualifies
       ? "This wallet qualifies right now. Stop jeeting. Stop selling. Let the Bitcoin side compound."
       : `This wallet is below the ${formatCount(minimumTokens)} BTCBANK reward line right now.`,

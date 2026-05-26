@@ -99,6 +99,12 @@ async function buildDirectWalletCheck(wallet, minimumTokens, stats = {}) {
     totalWbtcUsd: 0,
     nextEstimatedWbtc: "0.00000000",
     nextEstimatedUsd: 0,
+    paymentsReceived: 0,
+    roundsQualified: 0,
+    lastPaidAt: null,
+    lastPaidWbtc: "0.00000000",
+    lastPaidUsd: 0,
+    lastPaidTx: null,
     payments: [],
     message: qualifiesNow
       ? "This wallet qualifies on-chain right now. Hold-time bonus details appear once the live tracker syncs it."
@@ -126,6 +132,11 @@ function attachPaymentDetails(result, payload, wallet) {
   const payments = findWalletPayments(payload, result?.wallet || wallet, btcPrice);
   const totalWbtc = Number(result?.totalWbtcEarned ?? 0);
   const totalWbtcUsd = Number(result?.totalWbtcUsd ?? 0) || totalWbtc * btcPrice;
+  const blockedNoWbtc = result?.qualifiesNow === true && result?.hasWbtcAccount === false;
+  const underLine = result?.qualifiesNow === false;
+  const paymentsReceived = Math.max(safeInteger(result?.paymentsReceived ?? 0, 0), payments.length);
+  const lastPayment = payments[0] ?? null;
+  const publishedLastPaidWbtc = Number(result?.lastPaidWbtc ?? 0);
   let nextEstimatedWbtc = Number(result?.nextEstimatedWbtc ?? 0);
   if (!nextEstimatedWbtc && result?.qualifiesNow) {
     const minimumTokens = safeInteger(stats.holderMinTokens ?? 300000, 300000);
@@ -137,17 +148,49 @@ function attachPaymentDetails(result, payload, wallet) {
     nextEstimatedWbtc = totalRewardPower > 0 ? (baselineRoundWbtc * holderRewardPower) / totalRewardPower : 0;
   }
   const nextEstimatedUsd = Number(result?.nextEstimatedUsd ?? 0) || nextEstimatedWbtc * btcPrice;
+  const paymentStatus = underLine ? "not-qualified" : blockedNoWbtc ? "blocked" : result?.payableNow ? "ready" : "waiting";
+  const paymentStatusTitle = underLine
+    ? "Not qualified yet"
+    : blockedNoWbtc
+      ? "Qualified, but WBTC unlock is needed"
+      : result?.payableNow
+        ? "Ready for automatic payouts"
+        : "Qualified, waiting for the next payable pass";
+  const paymentStatusCopy = underLine
+    ? "This wallet is below the reward line, so it cannot receive holder payouts yet."
+    : blockedNoWbtc
+      ? "The wallet has enough BTCBANK, but it has never opened/held WBTC. Unlock WBTC once, then future payouts can land automatically."
+      : result?.payableNow
+        ? "This wallet is eligible and WBTC-ready. If a round is large enough, it can receive the next automatic payout."
+        : "This wallet qualifies, but the live feed has not marked it payable yet. This usually updates on the next worker sync.";
 
   return {
     ...result,
+    message: blockedNoWbtc
+      ? "This wallet qualifies by BTCBANK balance, but it has not received payouts yet because WBTC is not unlocked in the wallet."
+      : underLine
+        ? result?.message
+        : result?.message,
     totalWbtcUsd,
     nextEstimatedWbtc: nextEstimatedWbtc.toFixed(8),
     nextEstimatedUsd,
+    paymentsReceived,
+    lastPaidAt: result?.lastPaidAt ?? (lastPayment?.timestamp ? new Date(lastPayment.timestamp).toISOString() : null),
+    lastPaidWbtc: publishedLastPaidWbtc > 0
+      ? publishedLastPaidWbtc.toFixed(8)
+      : (lastPayment ? Number(lastPayment.wbtcAmount || 0).toFixed(8) : "0.00000000"),
+    lastPaidUsd: Number(result?.lastPaidUsd ?? 0) || Number(lastPayment?.wbtcUsd ?? 0),
+    lastPaidTx: result?.lastPaidTx ?? lastPayment?.signature ?? null,
+    paymentStatus,
+    paymentStatusTitle,
+    paymentStatusCopy,
     payments,
     paymentCountShown: payments.length,
-    paymentNote: result?.payableNow === false && result?.qualifiesNow
-      ? "This wallet qualifies, but it needs the one-time WBTC account unlock before future payouts can land."
-      : "Next payment is an estimate based on the most recent paid round size and this wallet's current reward power.",
+    paymentNote: blockedNoWbtc
+      ? "No-WBTC wallets cannot receive SPL token payouts until the wallet has a WBTC token account. BTCBANK is not skipping this wallet; it is blocked by wallet setup."
+      : paymentsReceived === 0
+        ? "No completed payouts are published for this wallet yet. If it is WBTC-ready, it should be watched through the next qualifying round."
+        : "Recent payments below are real on-chain payout transactions. Approx next payment is an estimate and changes every round.",
   };
 }
 

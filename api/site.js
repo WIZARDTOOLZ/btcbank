@@ -150,6 +150,13 @@ function renderCheckerResultHtml(result) {
     </div>`;
   }
 
+  const statusClass = result.paymentStatus ?? (!result.qualifiesNow ? "not-qualified" : result.hasWbtcAccount === false ? "blocked" : result.payableNow ? "ready" : "waiting");
+  const statusTitle = result.paymentStatusTitle ?? (!result.qualifiesNow ? "Not qualified yet" : result.hasWbtcAccount === false ? "Qualified, but WBTC unlock is needed" : result.payableNow ? "Ready for automatic payouts" : "Waiting for next payout pass");
+  const statusCopy = result.paymentStatusCopy ?? (!result.qualifiesNow
+    ? "This wallet is below the reward line, so it cannot receive holder payouts yet."
+    : result.hasWbtcAccount === false
+      ? "The wallet has enough BTCBANK, but it has never opened/held WBTC. Unlock WBTC once, then future payouts can land automatically."
+      : "This wallet is eligible. Actual payouts depend on round size, WBTC readiness, and the live payout queue.");
   const readyText = result.hasWbtcAccount === null
     ? "Live feed does not expose this yet"
     : result.hasWbtcAccount
@@ -160,18 +167,24 @@ function renderCheckerResultHtml(result) {
     : result.payableNow
       ? "Yes"
       : "Not yet";
+  const lastPaidAt = result.lastPaidAt ? timeAgo(Date.parse(result.lastPaidAt)) : "Never";
+  const lastPaidTx = result.lastPaidTx ? `${String(result.lastPaidTx).slice(0, 6)}...${String(result.lastPaidTx).slice(-6)}` : "None";
+  const lastPaidHref = result.lastPaidTx ? `https://solscan.io/tx/${encodeURIComponent(result.lastPaidTx)}` : "#";
+  const qualificationGap = result.qualifiesNow ? "Qualified" : `${escapeHtml(result.tokensNeeded)} BTCBANK needed`;
+  const approxNextLabel = result.hasWbtcAccount === false ? "Approx next after unlock" : "Approx next";
   const paymentRows = Array.isArray(result.payments) && result.payments.length
     ? result.payments.slice(0, 8).map((payment) => {
         const signature = String(payment.signature ?? "");
         const shortSig = signature ? `${signature.slice(0, 6)}...${signature.slice(-6)}` : "pending";
         const href = signature ? `https://solscan.io/tx/${encodeURIComponent(signature)}` : "#";
+        const paidAgo = payment.timestamp ? timeAgo(Number(payment.timestamp)) : "just now";
         return `<div class="wallet-payment-row">
-          <div><div class="wallet-payment-main">${escapeHtml(formatWbtc(payment.wbtcAmount, 8))} WBTC</div><div class="wallet-payment-sub">Round #${escapeHtml(formatCount(payment.round))} | ${escapeHtml(payment.tier ?? "Holder")}</div></div>
+          <div><div class="wallet-payment-main">${escapeHtml(formatWbtc(payment.wbtcAmount, 8))} WBTC</div><div class="wallet-payment-sub">Round #${escapeHtml(formatCount(payment.round))} | ${escapeHtml(payment.tier ?? "Holder")} | ${escapeHtml(paidAgo)}</div></div>
           <div class="wallet-payment-usd">${escapeHtml(formatUsd(payment.wbtcUsd ?? 0, 2))}</div>
           <a href="${href}" target="_blank" rel="noopener">${escapeHtml(shortSig)}</a>
         </div>`;
       }).join("")
-    : `<div class="wallet-payment-empty">No completed payments are published for this wallet yet. If it is qualified but no-WBTC, unlock WBTC once so future payouts can land.</div>`;
+    : `<div class="wallet-payment-empty"><strong>0 completed payouts found.</strong> ${escapeHtml(result.paymentNote ?? "If this wallet is qualified but no-WBTC, unlock WBTC once so future payouts can land.")}</div>`;
   const paymentHtml = `<div class="wallet-payments"><div class="wallet-payments-title">Recent wallet payments</div>${paymentRows}<div class="checker-message">${escapeHtml(result.paymentNote ?? "Approx next payment is only an estimate and changes with round size, holder count, bag size, and hold tier.")}</div></div>`;
 
   return `<div class="checker-result checker-hit">
@@ -182,7 +195,17 @@ function renderCheckerResultHtml(result) {
       </div>
       <div class="checker-tier-pill">${escapeHtml(result.holdTier)}</div>
     </div>
+    <div class="checker-status ${escapeHtml(statusClass)}">
+      <div class="checker-status-title">${escapeHtml(statusTitle)}</div>
+      <div class="checker-status-copy">${escapeHtml(statusCopy)}</div>
+    </div>
     <div class="checker-metrics">
+      <div class="checker-metric checker-important"><span>Completed payouts</span><strong>${escapeHtml(formatCount(result.paymentsReceived ?? result.paymentCountShown ?? 0))}</strong></div>
+      <div class="checker-metric checker-important"><span>Total paid to wallet</span><strong>${escapeHtml(result.totalWbtcEarned)} WBTC</strong></div>
+      <div class="checker-metric checker-important"><span>Total paid USD</span><strong>${escapeHtml(formatUsd(result.totalWbtcUsd ?? 0, 2))}</strong></div>
+      <div class="checker-metric"><span>Last paid</span><strong>${escapeHtml(lastPaidAt)}</strong></div>
+      <div class="checker-metric"><span>Last amount</span><strong>${escapeHtml(result.lastPaidWbtc ?? "0.00000000")} WBTC</strong></div>
+      <div class="checker-metric"><span>Last TX</span><strong>${result.lastPaidTx ? `<a href="${lastPaidHref}" target="_blank" rel="noopener">${escapeHtml(lastPaidTx)}</a>` : "None"}</strong></div>
       <div class="checker-metric"><span>Balance</span><strong>${escapeHtml(result.balanceTokens)} BTCBANK</strong></div>
       <div class="checker-metric"><span>Qualified</span><strong>${result.qualifiesNow ? "YES" : "NO"}</strong></div>
       <div class="checker-metric"><span>Full shares</span><strong>${escapeHtml(String(result.shareCount))}</strong></div>
@@ -193,10 +216,8 @@ function renderCheckerResultHtml(result) {
       <div class="checker-metric"><span>Payable now</span><strong>${escapeHtml(payableText)}</strong></div>
       <div class="checker-metric"><span>Next tier</span><strong>${escapeHtml(result.nextTier ?? "Top tier")}</strong></div>
       <div class="checker-metric"><span>Next tier ETA</span><strong>${escapeHtml(result.nextTierEta ?? "Reached")}</strong></div>
-      <div class="checker-metric"><span>Need to qualify</span><strong>${escapeHtml(result.tokensNeeded)} BTCBANK</strong></div>
-      <div class="checker-metric"><span>wBTC earned</span><strong>${escapeHtml(result.totalWbtcEarned)} WBTC</strong></div>
-      <div class="checker-metric"><span>wBTC earned USD</span><strong>${escapeHtml(formatUsd(result.totalWbtcUsd ?? 0, 2))}</strong></div>
-      <div class="checker-metric"><span>Approx next</span><strong>${escapeHtml(result.nextEstimatedWbtc ?? "0.00000000")} WBTC</strong></div>
+      <div class="checker-metric"><span>Qualification gap</span><strong>${qualificationGap}</strong></div>
+      <div class="checker-metric"><span>${escapeHtml(approxNextLabel)}</span><strong>${escapeHtml(result.nextEstimatedWbtc ?? "0.00000000")} WBTC</strong></div>
       <div class="checker-metric"><span>Approx next USD</span><strong>${escapeHtml(formatUsd(result.nextEstimatedUsd ?? 0, 2))}</strong></div>
     </div>
     <div class="checker-message">${escapeHtml(result.message)}</div>
@@ -601,10 +622,18 @@ section{padding:clamp(60px,8vw,100px) clamp(16px,4vw,40px)}
 .checker-wallet{font-family:var(--mono);font-size:12px;color:#c7c7c7;word-break:break-all}
 .checker-topline{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:14px}
 .checker-tier-pill{background:rgba(247,147,26,.1);border:1px solid rgba(247,147,26,.25);border-radius:999px;padding:6px 12px;font-size:11px;color:var(--btc);font-weight:700;letter-spacing:1px;text-transform:uppercase}
+.checker-status{border:1px solid rgba(247,147,26,.22);border-radius:12px;padding:14px 15px;margin:0 0 14px;background:linear-gradient(135deg,rgba(247,147,26,.13),rgba(255,255,255,.03))}
+.checker-status.ready{border-color:rgba(0,255,102,.35);background:linear-gradient(135deg,rgba(0,255,102,.13),rgba(255,255,255,.03))}
+.checker-status.blocked{border-color:rgba(255,80,80,.42);background:linear-gradient(135deg,rgba(255,80,80,.13),rgba(247,147,26,.06))}
+.checker-status.not-qualified{border-color:rgba(255,80,80,.36);background:linear-gradient(135deg,rgba(255,80,80,.12),rgba(255,255,255,.02))}
+.checker-status-title{font-family:var(--display);font-size:20px;line-height:1.1;color:#fff;text-transform:uppercase;letter-spacing:.8px}
+.checker-status-copy{margin-top:6px;font-size:13px;line-height:1.65;color:#f4dec0}
 .checker-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
 .checker-metric{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px}
+.checker-metric.checker-important{border-color:rgba(247,147,26,.33);background:linear-gradient(135deg,rgba(247,147,26,.12),rgba(255,255,255,.03))}
 .checker-metric span{display:block;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px}
 .checker-metric strong{display:block;font-family:var(--mono);font-size:14px;color:#fff}
+.checker-metric strong a{color:#69d4ff;text-decoration:none}
 .checker-message{margin-top:14px;font-size:13px;line-height:1.7;color:#d9d9d9}
 .checker-miss .checker-message{color:#fca5a5}
 .wallet-payments{margin-top:16px;border-top:1px solid rgba(247,147,26,.16);padding-top:14px}
@@ -866,9 +895,9 @@ footer{background:var(--bg3);border-top:1px solid var(--border);padding:48px cla
     <li><a href="#lore">The Story</a></li>
     <li><a href="#buy">How to Buy</a></li>
     <li><a href="#tiers">Tiers</a></li>
-    <li><a href="#checker">Check Tier</a></li>
-    <li><a href="/paid-summary?transparent=1">Paid Summary</a></li>
-    <li><a href="#proof">Proof</a></li>
+    <li><a href="#checker">Check Wallet</a></li>
+    <li><a href="/paid-summary?transparent=1">Payouts</a></li>
+    <li><a href="#proof">TX Proof</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#leaderboard">Leaderboard</a></li>
     <li><a href="#stats">Live Stats</a></li>
@@ -884,9 +913,9 @@ footer{background:var(--bg3);border-top:1px solid var(--border);padding:48px cla
   <a href="#wbtc" onclick="closeMobileNav()">What is wBTC?</a>
   <a href="#buy" onclick="closeMobileNav()">How to Buy</a>
   <a href="#tiers" onclick="closeMobileNav()">Tier System</a>
-  <a href="#checker" onclick="closeMobileNav()">Check Your Tier</a>
-  <a href="/paid-summary?transparent=1" onclick="closeMobileNav()">Paid Summary</a>
-  <a href="#proof" onclick="closeMobileNav()">Proof Explorer</a>
+  <a href="#checker" onclick="closeMobileNav()">Check Wallet</a>
+  <a href="/paid-summary?transparent=1" onclick="closeMobileNav()">Payouts</a>
+  <a href="#proof" onclick="closeMobileNav()">TX Proof</a>
   <a href="#roadmap" onclick="closeMobileNav()">Roadmap</a>
   <a href="#leaderboard" onclick="closeMobileNav()">Leaderboard</a>
   <a href="#stats" onclick="closeMobileNav()">Live Stats</a>
@@ -1143,9 +1172,9 @@ ${renderHypeSection(minimumTokens, holderMint)}
       </div>
       <div class="checker-card sticky">
         <span class="checker-anchor" id="checker"></span>
-        <div class="section-label" style="margin-bottom:8px">Wallet Checker</div>
-        <h3>Check Your Tier Before You Jeet</h3>
-        <p>Paste a wallet and see the real answer: how much BTCBANK it holds, whether it qualifies, how many full shares it has, how old the hold is, what multiplier it gets, and whether it is WBTC-ready right now.</p>
+        <div class="section-label" style="margin-bottom:8px">Wallet + Payment Checker</div>
+        <h3>Check Wallet Status</h3>
+        <p>Paste a wallet and get the plain answer: qualified or not, WBTC-ready or blocked, how many times it has been paid, total WBTC earned, last payout, current tier, and estimated next payout.</p>
         <div class="checker-mini">
           <div class="checker-mini-card"><span>Reward line</span><strong>${escapeHtml(formatCount(minimumTokens))} BTCBANK</strong></div>
           <div class="checker-mini-card"><span>Max tier</span><strong>Satoshi at 30 days</strong></div>
@@ -1154,7 +1183,7 @@ ${renderHypeSection(minimumTokens, holderMint)}
           <input id="walletInput" type="text" name="wallet" placeholder="Enter Solana wallet address" value="${escapeHtml(wallet ?? "")}" autocomplete="off" spellcheck="false" />
           <button class="btn-primary" type="submit">Check Wallet</button>
         </form>
-        <div class="checker-helper">It will tell people the exact thing they want to know: am I qualified, what tier am I in, how much longer until the next multiplier, and did I accidentally reset myself?</div>
+        <div class="checker-helper">Best support answer in one box: am I qualified, can I actually receive WBTC, have I been paid before, and what is likely next?</div>
         <div id="checkerResult" style="margin-top:16px">${checkerHtml}</div>
       </div>
     </div>
@@ -1284,7 +1313,7 @@ ${renderHypeSection(minimumTokens, holderMint)}
         <p class="big-stmt-sub">Tiny market cap. Real on-chain proof. Live rounds. Public payouts. The market usually notices late and then rewrites patience as luck.</p>
         <div class="why-ctas">
           <a href="#buy" class="btn-primary">How to Buy</a>
-          <a href="#checker" class="btn-secondary">Check Your Tier</a>
+          <a href="#checker" class="btn-secondary">Check Wallet</a>
         </div>
       </div>
       <div class="why-points">
@@ -1669,8 +1698,20 @@ function renderCheckResult(result){
     if(heroMount) heroMount.innerHTML='<div class="checker-result checker-miss"><div class="checker-state">No live match yet</div><div class="checker-message">'+esc((result && result.message) || 'Try again in a few seconds or use the full checker below.')+'</div></div>';
     return;
   }
-  const readyText = result.hasWbtcAccount === null ? 'Live feed does not expose this yet' : (result.hasWbtcAccount ? 'Ready' : 'Needs one-time wBTC unlock');
+  const statusClass = result.paymentStatus || (!result.qualifiesNow ? 'not-qualified' : result.hasWbtcAccount === false ? 'blocked' : result.payableNow ? 'ready' : 'waiting');
+  const statusTitle = result.paymentStatusTitle || (!result.qualifiesNow ? 'Not qualified yet' : result.hasWbtcAccount === false ? 'Qualified, but WBTC unlock is needed' : result.payableNow ? 'Ready for automatic payouts' : 'Waiting for next payout pass');
+  const statusCopy = result.paymentStatusCopy || (!result.qualifiesNow
+    ? 'This wallet is below the reward line, so it cannot receive holder payouts yet.'
+    : result.hasWbtcAccount === false
+      ? 'The wallet has enough BTCBANK, but it has never opened/held WBTC. Unlock WBTC once, then future payouts can land automatically.'
+      : 'This wallet is eligible. Actual payouts depend on round size, WBTC readiness, and the live payout queue.');
+  const readyText = result.hasWbtcAccount === null ? 'Live feed does not expose this yet' : (result.hasWbtcAccount ? 'Ready' : 'Needs one-time WBTC unlock');
   const payableText = result.payableNow === null ? 'Waiting on richer live feed' : (result.payableNow ? 'Yes' : 'Not yet');
+  const lastPaidAt = result.lastPaidAt ? timeAgo(Date.parse(result.lastPaidAt)) : 'Never';
+  const lastPaidTx = result.lastPaidTx ? String(result.lastPaidTx).slice(0,6)+'...'+String(result.lastPaidTx).slice(-6) : 'None';
+  const lastPaidHref = result.lastPaidTx ? 'https://solscan.io/tx/'+encodeURIComponent(result.lastPaidTx) : '#';
+  const qualificationGap = result.qualifiesNow ? 'Qualified' : esc(result.tokensNeeded)+' BTCBANK needed';
+  const approxNextLabel = result.hasWbtcAccount === false ? 'Approx next after unlock' : 'Approx next';
   const paymentRows = Array.isArray(result.payments) && result.payments.length
     ? result.payments.slice(0,8).map(function(payment){
         const sig=String(payment.signature||'');
@@ -1682,12 +1723,19 @@ function renderCheckResult(result){
           +'<a href="'+href+'" target="_blank" rel="noopener">'+esc(shortSig)+'</a>'
           +'</div>';
       }).join('')
-    : '<div class="wallet-payment-empty">No completed payments are published for this wallet yet. If it is qualified but no-WBTC, unlock WBTC once so future payouts can land.</div>';
+    : '<div class="wallet-payment-empty"><strong>0 completed payouts found.</strong> '+esc(result.paymentNote||'If this wallet is qualified but no-WBTC, unlock WBTC once so future payouts can land.')+'</div>';
   const paymentHtml = '<div class="wallet-payments"><div class="wallet-payments-title">Recent wallet payments</div>'+paymentRows+'<div class="checker-message">'+esc(result.paymentNote||'Approx next payment is only an estimate and changes with round size, holder count, bag size, and hold tier.')+'</div></div>';
   if(mount) mount.innerHTML=''
     +'<div class="checker-result checker-hit">'
     +'<div class="checker-topline"><div><div class="checker-state">Wallet found</div><div class="checker-wallet">'+esc(result.wallet)+'</div></div><div class="checker-tier-pill">'+esc(result.holdTier)+'</div></div>'
+    +'<div class="checker-status '+esc(statusClass)+'"><div class="checker-status-title">'+esc(statusTitle)+'</div><div class="checker-status-copy">'+esc(statusCopy)+'</div></div>'
     +'<div class="checker-metrics">'
+    +'<div class="checker-metric checker-important"><span>Completed payouts</span><strong>'+fmt(result.paymentsReceived||result.paymentCountShown||0,0)+'</strong></div>'
+    +'<div class="checker-metric checker-important"><span>Total paid to wallet</span><strong>'+esc(result.totalWbtcEarned)+' WBTC</strong></div>'
+    +'<div class="checker-metric checker-important"><span>Total paid USD</span><strong>$'+fmt(result.totalWbtcUsd||0,2)+'</strong></div>'
+    +'<div class="checker-metric"><span>Last paid</span><strong>'+esc(lastPaidAt)+'</strong></div>'
+    +'<div class="checker-metric"><span>Last amount</span><strong>'+esc(result.lastPaidWbtc||'0.00000000')+' WBTC</strong></div>'
+    +'<div class="checker-metric"><span>Last TX</span><strong>'+(result.lastPaidTx?'<a href="'+lastPaidHref+'" target="_blank" rel="noopener">'+esc(lastPaidTx)+'</a>':'None')+'</strong></div>'
     +'<div class="checker-metric"><span>Balance</span><strong>'+esc(result.balanceTokens)+' BTCBANK</strong></div>'
     +'<div class="checker-metric"><span>Qualified</span><strong>'+(result.qualifiesNow?'YES':'NO')+'</strong></div>'
     +'<div class="checker-metric"><span>Full shares</span><strong>'+esc(String(result.shareCount))+'</strong></div>'
@@ -1698,20 +1746,19 @@ function renderCheckResult(result){
     +'<div class="checker-metric"><span>Payable now</span><strong>'+esc(payableText)+'</strong></div>'
     +'<div class="checker-metric"><span>Next tier</span><strong>'+esc(result.nextTier || 'Top tier')+'</strong></div>'
     +'<div class="checker-metric"><span>Next tier ETA</span><strong>'+esc(result.nextTierEta || 'Reached')+'</strong></div>'
-    +'<div class="checker-metric"><span>Need to qualify</span><strong>'+esc(result.tokensNeeded)+' BTCBANK</strong></div>'
-    +'<div class="checker-metric"><span>wBTC earned</span><strong>'+esc(result.totalWbtcEarned)+' WBTC</strong></div>'
-    +'<div class="checker-metric"><span>wBTC earned USD</span><strong>$'+fmt(result.totalWbtcUsd||0,2)+'</strong></div>'
-    +'<div class="checker-metric"><span>Approx next</span><strong>'+Number(result.nextEstimatedWbtc||0).toFixed(8)+' WBTC</strong></div>'
+    +'<div class="checker-metric"><span>Qualification gap</span><strong>'+qualificationGap+'</strong></div>'
+    +'<div class="checker-metric"><span>'+esc(approxNextLabel)+'</span><strong>'+Number(result.nextEstimatedWbtc||0).toFixed(8)+' WBTC</strong></div>'
     +'<div class="checker-metric"><span>Approx next USD</span><strong>$'+fmt(result.nextEstimatedUsd||0,2)+'</strong></div>'
     +'</div><div class="checker-message">'+esc(result.message)+'</div>'+paymentHtml+'</div>';
   if(heroMount) heroMount.innerHTML=''
     +'<div class="checker-result checker-hit">'
     +'<div class="checker-topline"><div><div class="checker-state">Instant answer</div><div class="checker-wallet">'+esc(result.wallet)+'</div></div><div class="checker-tier-pill">'+esc(result.holdTier)+'</div></div>'
+    +'<div class="checker-status '+esc(statusClass)+'"><div class="checker-status-title">'+esc(statusTitle)+'</div><div class="checker-status-copy">'+esc(statusCopy)+'</div></div>'
     +'<div class="checker-metrics">'
     +'<div class="checker-metric"><span>Qualified</span><strong>'+(result.qualifiesNow?'YES':'NO')+'</strong></div>'
+    +'<div class="checker-metric"><span>Paid before</span><strong>'+fmt(result.paymentsReceived||result.paymentCountShown||0,0)+'x</strong></div>'
     +'<div class="checker-metric"><span>Shares</span><strong>'+esc(String(result.shareCount))+'</strong></div>'
-    +'<div class="checker-metric"><span>Hold age</span><strong>'+esc(result.holdAge)+'</strong></div>'
-    +'<div class="checker-metric"><span>Next tier</span><strong>'+esc(result.nextTier || 'Top tier')+'</strong></div>'
+    +'<div class="checker-metric"><span>Total paid</span><strong>'+esc(result.totalWbtcEarned)+' WBTC</strong></div>'
     +'</div></div>';
 }
 

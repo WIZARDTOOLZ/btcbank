@@ -10,13 +10,28 @@ import {
   safeNumber,
 } from "./_shared.js";
 
+const DEFAULT_HOLDER_MINT = "9s96G11xGsHczudfJqKQzQxzvubQgJXSySJ1wRgxpump";
+const DEFAULT_REWARD_MINT = "5XZw2LKTyrfvfiskJ78AMpackRjPcyCif1WhUsPDuVqQ";
+const TOKEN_PROGRAM_IDS = [
+  "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+  "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
+];
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 async function buildDirectWalletCheck(wallet, minimumTokens, stats = {}) {
-  const rpcUrl = (process.env.SOLANA_RPC_URLS ?? "")
+  const rpcUrls = [
+    ...(process.env.SOLANA_RPC_URLS ?? "")
     .split(",")
     .map((entry) => entry.trim())
-    .filter(Boolean)[0] || process.env.SOLANA_RPC_URL?.trim() || "https://api.mainnet-beta.solana.com";
-  const holderMintRaw = process.env.HOLDER_MINT?.trim() || String(stats.holderMint ?? "").trim();
-  const rewardMintRaw = process.env.REWARD_MINT?.trim() || String(stats.rewardMint ?? "").trim();
+      .filter(Boolean),
+    process.env.SOLANA_RPC_URL?.trim(),
+    "https://api.mainnet-beta.solana.com",
+  ].filter(Boolean);
+  const holderMintRaw = process.env.HOLDER_MINT?.trim() || String(stats.holderMint ?? "").trim() || DEFAULT_HOLDER_MINT;
+  const rewardMintRaw = process.env.REWARD_MINT?.trim() || String(stats.rewardMint ?? "").trim() || DEFAULT_REWARD_MINT;
 
   if (!holderMintRaw || !rewardMintRaw) {
     return null;
@@ -24,52 +39,89 @@ async function buildDirectWalletCheck(wallet, minimumTokens, stats = {}) {
 
   let id = 1;
   async function rpc(method, params) {
-    const response = await fetch(rpcUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ jsonrpc: "2.0", id: id++, method, params }),
-      cache: "no-store",
-    });
-    if (!response.ok) {
-      throw new Error(`RPC ${method} failed with HTTP ${response.status}`);
+    let lastError = null;
+    for (const rpcUrl of rpcUrls) {
+      for (let attempt = 0; attempt < 3; attempt += 1) {
+        try {
+          const response = await fetch(rpcUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ jsonrpc: "2.0", id: id++, method, params }),
+            cache: "no-store",
+          });
+          if (!response.ok) {
+            throw new Error(`RPC ${method} failed with HTTP ${response.status}`);
+          }
+          const body = await response.json();
+          if (body?.error) {
+            throw new Error(body.error.message ?? `${method} RPC error`);
+          }
+          return body?.result;
+        } catch (error) {
+          lastError = error;
+          const message = error instanceof Error ? error.message : String(error);
+          if (!/too many requests|429|rate|timeout|fetch failed/i.test(message) || attempt === 2) {
+            break;
+          }
+          await sleep(250 * (attempt + 1));
+        }
+      }
     }
-    const body = await response.json();
-    if (body?.error) {
-      throw new Error(body.error.message ?? `${method} RPC error`);
-    }
-    return body?.result;
+    throw lastError ?? new Error(`${method} RPC error`);
   }
 
-  const holderAccounts = await rpc("getTokenAccountsByOwner", [
-    wallet,
-    { mint: holderMintRaw },
-    { encoding: "jsonParsed", commitment: "confirmed" },
-  ]);
+  async function getTokenAccountsForMint(owner, mint) {
+    const byMint = await rpc("getTokenAccountsByOwner", [
+      owner,
+      { mint },
+      { encoding: "jsonParsed", commitment: "confirmed" },
+    ]);
+    if ((byMint?.value ?? []).length > 0) {
+      return byMint.value;
+    }
 
-  let tokens = 0;
-  for (const account of holderAccounts?.value ?? []) {
+    const matches = [];
+    for (const programId of TOKEN_PROGRAM_IDS) {
+      const byProgram = await rpc("getTokenAccountsByOwner", [
+        owner,
+        { programId },
+        { encoding: "jsonParsed", commitment: "confirmed" },
+      ]);
+      for (const account of byProgram?.value ?? []) {
+        if (account?.account?.data?.parsed?.info?.mint === mint) {
+          matches.push(account);
+        }
+      }
+    }
+    return matches;
+  }
+
+  function sumTokenAccounts(accounts) {
+    let total = 0;
+    for (const account of accounts ?? []) {
     const tokenAmount = account?.account?.data?.parsed?.info?.tokenAmount;
     const uiAmount = Number(tokenAmount?.uiAmountString ?? tokenAmount?.uiAmount ?? 0);
     if (Number.isFinite(uiAmount)) {
-      tokens += uiAmount;
+      total += uiAmount;
       continue;
     }
     const amount = Number(tokenAmount?.amount ?? 0);
     const decimals = Number(tokenAmount?.decimals ?? 0);
     if (Number.isFinite(amount) && Number.isFinite(decimals)) {
-      tokens += amount / 10 ** decimals;
+      total += amount / 10 ** decimals;
     }
   }
+    return total;
+  }
+
+  const holderAccounts = await getTokenAccountsForMint(wallet, holderMintRaw);
+  const tokens = sumTokenAccounts(holderAccounts);
 
   const qualifiesNow = tokens >= minimumTokens;
   const shareCount = qualifiesNow ? Math.floor(tokens / minimumTokens) : 0;
   const tokensNeeded = qualifiesNow ? 0 : Math.max(0, minimumTokens - tokens);
-  const rewardAccounts = await rpc("getTokenAccountsByOwner", [
-    wallet,
-    { mint: rewardMintRaw },
-    { encoding: "jsonParsed", commitment: "confirmed" },
-  ]);
-  const hasWbtcAccount = (rewardAccounts?.value ?? []).length > 0;
+  const rewardAccounts = await getTokenAccountsForMint(wallet, rewardMintRaw);
+  const hasWbtcAccount = rewardAccounts.length > 0;
 
   return {
     found: true,
@@ -207,7 +259,13 @@ export default async function handler(req, res) {
       return;
     }
 
-    const payload = await getLivePayload();
+    let payload = { stats: {}, holders: [], txs: [], walletPayments: {} };
+    try {
+      payload = await getLivePayload();
+    } catch {
+      // The wallet checker should still answer from-chain if the live cache is unavailable.
+      payload = { stats: {}, holders: [], txs: [], walletPayments: {} };
+    }
     const stats = payload?.stats ?? {};
     const minimumTokens = safeInteger(stats.holderMinTokens ?? 300000, 300000);
     const holders = payload?.holders ?? [];

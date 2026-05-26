@@ -567,7 +567,7 @@ async function runReplayCatchup(): Promise<void> {
 
     if (awaitingSwapSummary.awaitingSwapRounds > 0 || pendingSummary.pendingRecipients > 0) {
       logReplayHeartbeat(
-        `background payouts active: ${awaitingSwapSummary.awaitingSwapRounds} swap round(s), ${pendingSummary.pendingRounds} backlog round(s), ${pendingSummary.pendingRecipients} payout${pendingSummary.pendingRecipients === 1 ? "" : "s"} still waiting, ${formatTokenAmountPretty(pendingSummary.pendingRewardRaw, await getRewardMintDecimals())} WBTC still waiting`,
+        `background cleanup active: ${awaitingSwapSummary.awaitingSwapRounds} swap round(s), ${pendingSummary.pendingRounds} old backlog round(s), ${pendingSummary.pendingRecipients} setup/backlog entr${pendingSummary.pendingRecipients === 1 ? "y" : "ies"}, ${formatTokenAmountPretty(pendingSummary.pendingRewardRaw, await getRewardMintDecimals())} WBTC reserved`,
       );
       scheduleReplayCatchup();
     } else {
@@ -616,7 +616,7 @@ async function executeCycle(): Promise<void> {
   );
   if (pendingSummaryBeforeClaim.pendingRecipients > 0) {
     logHoldMessage(
-      `Payout backlog active: ${pendingSummaryBeforeClaim.pendingRecipients} payout(s) still waiting. Fresh claims will keep running.`,
+      `Backlog cleanup active: ${pendingSummaryBeforeClaim.pendingRecipients} old setup/backlog entr${pendingSummaryBeforeClaim.pendingRecipients === 1 ? "y" : "ies"}. Fresh claims keep running.`,
     );
     scheduleReplayCatchup();
   }
@@ -1318,12 +1318,12 @@ async function resumePendingRounds(maxBatchesToProcess = Number.POSITIVE_INFINIT
   const rewardDecimals = await getRewardMintDecimals();
 
   logger.summaryBox("Replay Queue", [
-    { label: "Backlog rounds", value: String(pendingRounds.length) },
+    { label: "Old backlog rounds", value: String(pendingRounds.length) },
     {
-      label: "Unsent payouts",
+      label: "Setup/backlog entries",
       value: String(pendingRecipientsTotal),
     },
-    { label: "WBTC waiting", value: formatTokenAmountPretty(pendingRewardRaw, rewardDecimals) },
+    { label: "WBTC reserved", value: formatTokenAmountPretty(pendingRewardRaw, rewardDecimals) },
   ], "hold");
 
   let processedBatches = 0;
@@ -1480,6 +1480,8 @@ async function resumePendingRounds(maxBatchesToProcess = Number.POSITIVE_INFINIT
           const now = Date.now();
           if (message.includes("no-WBTC accounts")) {
             round.nextPayoutRetryAt = new Date(now + NO_WBTC_ACCOUNT_RETRY_COOLDOWN_MS).toISOString();
+            await stateStore.write(state);
+            break;
           } else if (message.includes("needs a little more SOL for wallet setup and network fees")) {
             round.nextPayoutRetryAt = new Date(now + LOW_SOL_RETRY_COOLDOWN_MS).toISOString();
           }

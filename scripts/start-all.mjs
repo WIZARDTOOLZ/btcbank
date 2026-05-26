@@ -1,8 +1,8 @@
 import { spawn } from "node:child_process";
 
 const processes = [
-  { name: "worker", command: "node", args: ["dist/index.js"] },
-  { name: "overlay", command: "node", args: ["dist/overlay.js"] },
+  { name: "worker", command: "node", args: ["dist/index.js"], alreadyRunning: false },
+  { name: "overlay", command: "node", args: ["dist/overlay.js"], alreadyRunning: false },
 ];
 
 const children = processes.map((entry) => {
@@ -18,6 +18,9 @@ const children = processes.map((entry) => {
     const text = chunk.toString();
     for (const line of text.split(/\r?\n/)) {
       if (line.length) {
+        if (entry.name === "worker" && line.includes("Another payer worker is already running")) {
+          entry.alreadyRunning = true;
+        }
         stream.write(`${prefix}${line}\n`);
       }
     }
@@ -28,6 +31,10 @@ const children = processes.map((entry) => {
   child.on("exit", (code, signal) => {
     const reason = signal ? `signal ${signal}` : `code ${code}`;
     process.stderr.write(`${prefix}exited with ${reason}\n`);
+    if (entry.name === "worker" && entry.alreadyRunning) {
+      process.stderr.write("[start:all] Existing payout worker detected. Keeping overlay running.\n");
+      return;
+    }
     stopAll(child.pid);
   });
 

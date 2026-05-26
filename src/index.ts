@@ -1897,6 +1897,7 @@ function buildPublicSiteWalletPayments(
   rounds: PayoutRoundState[],
   rewardDecimals: number,
   btcPrice: number,
+  allowedOwners: Set<string>,
   maxPerWallet = 8,
 ): Record<string, PublicSiteWalletPayment[]> {
   const roundNumbers = buildRoundSequenceMap(rounds);
@@ -1910,6 +1911,9 @@ function buildPublicSiteWalletPayments(
       }
 
       const owner = recipient.owner;
+      if (!allowedOwners.has(owner)) {
+        continue;
+      }
       const existing = payments[owner] ?? [];
       if (existing.length >= maxPerWallet) {
         continue;
@@ -1976,6 +1980,7 @@ async function buildPublicSitePayload(): Promise<PublicSitePayload> {
     REWARD_ACCOUNT_SCAN_TIMEOUT_MS,
   );
   const holderHistory = buildHolderHistory(state.rounds);
+  const liveOwnerSet = new Set(annotatedHolders.map((holder) => holder.owner.toBase58()));
   const sortedRounds = [...state.rounds].sort((left, right) => right.createdAt.localeCompare(left.createdAt));
   const roundNumbers = buildRoundSequenceMap(state.rounds);
   const latestRound = sortedRounds[0] ?? null;
@@ -2062,7 +2067,7 @@ async function buildPublicSitePayload(): Promise<PublicSitePayload> {
     },
     holders,
     txs: buildPublicSiteTransactions(state.rounds, rewardDecimals),
-    walletPayments: buildPublicSiteWalletPayments(state.rounds, rewardDecimals, btcPrice),
+    walletPayments: buildPublicSiteWalletPayments(state.rounds, rewardDecimals, btcPrice, liveOwnerSet),
   };
 }
 

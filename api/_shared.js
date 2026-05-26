@@ -1,4 +1,4 @@
-import { kv } from "@vercel/kv";
+import { redisGetJson } from "./_kv.js";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -13,7 +13,7 @@ export const TIER_DEFS = [
 ];
 
 export async function getLivePayload() {
-  return kv.get("btcbank:live");
+  return redisGetJson("btcbank:live");
 }
 
 export function safeNumber(value, fallback = 0) {

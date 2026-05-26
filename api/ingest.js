@@ -1,4 +1,4 @@
-import { kv } from "@vercel/kv";
+import { redisSetJson } from "./_kv.js";
 
 const INGEST_SECRET = process.env.INGEST_SECRET ?? "";
 
@@ -43,7 +43,7 @@ export default async function handler(req, res) {
     updatedAt: Date.now(),
   };
 
-  await kv.set("btcbank:live", payload, { ex: 3600 }); // expires in 1 hour
+  await redisSetJson("btcbank:live", payload, 3600);
 
   res.statusCode = 200;
   res.setHeader("Content-Type", "application/json");

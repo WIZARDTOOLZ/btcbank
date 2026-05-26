@@ -1,4 +1,5 @@
 {
+  "buildCommand": "echo public api site build skipped",
   "rewrites": [
     { "source": "/", "destination": "/api/site" },
     { "source": "/paid-summary", "destination": "/api/page?page=paid-summary" },

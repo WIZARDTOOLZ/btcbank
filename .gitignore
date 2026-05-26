@@ -1,5 +1,9 @@
 node_modules
 dist
 .env
+.env.vercel
+.env.vercel.production
 data
 npm-debug.log*
+
+.vercel

@@ -1,0 +1,21 @@
+{
+  "rewrites": [
+    { "source": "/", "destination": "/api/page?page=paid-summary" },
+    { "source": "/paid-summary", "destination": "/api/page?page=paid-summary" },
+    { "source": "/summary", "destination": "/api/page?page=paid-summary" },
+    { "source": "/overlay", "destination": "/api/page?page=overlay" },
+    { "source": "/dashboard", "destination": "/api/page?page=dashboard" },
+    { "source": "/site", "destination": "/api/page?page=dashboard" },
+    { "source": "/wallet-check", "destination": "/api/page?page=wallet-check" },
+    { "source": "/check", "destination": "/api/page?page=wallet-check" },
+    { "source": "/assets/ryan-on-stream.png", "destination": "/api/asset?name=ryan-on-stream.png" }
+  ],
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store, no-cache, must-revalidate, proxy-revalidate" }
+      ]
+    }
+  ]
+}

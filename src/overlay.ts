@@ -2883,7 +2883,7 @@ function renderPaidSummaryHtml(): string {
 
     .subtitle {
       color: var(--muted);
-      font-size: 22px;
+      font-size: 28px;
       line-height: 1.2;
       margin-top: 5px;
     }
@@ -2912,9 +2912,9 @@ function renderPaidSummaryHtml(): string {
     }
 
     .hero {
-      padding: 14px 20px 10px;
+      padding: 12px 18px 8px;
       display: grid;
-      gap: 8px;
+      gap: 6px;
     }
 
     .hero-main {
@@ -2929,15 +2929,15 @@ function renderPaidSummaryHtml(): string {
     }
 
     .hero-side {
-      flex: 0 0 272px;
+      flex: 0 0 300px;
       display: grid;
-      gap: 10px;
+      gap: 8px;
       align-content: start;
     }
 
     .eyebrow {
       color: var(--green);
-      font-size: 20px;
+      font-size: 24px;
       font-weight: 700;
       letter-spacing: 0.1em;
       text-transform: uppercase;
@@ -2946,16 +2946,16 @@ function renderPaidSummaryHtml(): string {
 
     .big {
       color: #fff4cf;
-      font-size: 68px;
+      font-size: 78px;
       font-weight: 700;
       line-height: 0.95;
     }
 
     .sub {
-      max-width: 520px;
+      max-width: 640px;
       margin-top: 8px;
       color: #fff0cf;
-      font-size: 24px;
+      font-size: 31px;
       line-height: 1.34;
     }
 
@@ -2977,14 +2977,14 @@ function renderPaidSummaryHtml(): string {
     .round-now {
       border: 1px solid rgba(255, 166, 0, 0.18);
       background: linear-gradient(180deg, rgba(255, 166, 0, 0.09), rgba(255,255,255,0.02));
-      padding: 14px;
+      padding: 13px;
       display: grid;
       gap: 10px;
     }
 
     .round-now-top {
       color: var(--muted);
-      font-size: 15px;
+      font-size: 18px;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.1em;
@@ -2992,14 +2992,14 @@ function renderPaidSummaryHtml(): string {
 
     .round-now-main {
       color: var(--text);
-      font-size: 34px;
+      font-size: 39px;
       font-weight: 800;
       line-height: 1.05;
     }
 
     .round-now-sub {
       color: var(--muted);
-      font-size: 20px;
+      font-size: 24px;
       line-height: 1.35;
     }
 
@@ -3017,7 +3017,7 @@ function renderPaidSummaryHtml(): string {
 
     .round-now-card .k {
       color: var(--muted);
-      font-size: 14px;
+      font-size: 17px;
       text-transform: uppercase;
       letter-spacing: 0.08em;
       margin-bottom: 5px;
@@ -3025,7 +3025,7 @@ function renderPaidSummaryHtml(): string {
 
     .round-now-card .v {
       color: var(--text);
-      font-size: 26px;
+      font-size: 30px;
       font-weight: 800;
       line-height: 1.15;
     }
@@ -3039,13 +3039,13 @@ function renderPaidSummaryHtml(): string {
     .mini {
       border: 1px solid rgba(255, 166, 0, 0.14);
       background: linear-gradient(180deg, rgba(255, 140, 0, 0.09), rgba(255,255,255,0.015));
-      padding: 12px 14px;
+      padding: 11px 13px;
       min-width: 0;
     }
 
     .mini-label {
       color: var(--muted);
-      font-size: 15px;
+      font-size: 18px;
       font-family: var(--mono);
       font-weight: 700;
       text-transform: uppercase;
@@ -3055,7 +3055,7 @@ function renderPaidSummaryHtml(): string {
 
     .mini-value {
       color: var(--text);
-      font-size: 38px;
+      font-size: 44px;
       font-weight: 800;
       line-height: 1.02;
       white-space: nowrap;
@@ -3069,17 +3069,17 @@ function renderPaidSummaryHtml(): string {
     .mini-value.orange { color: #ffc273; }
 
     .status-ribbon {
-      margin: 0 18px 10px;
+      margin: 0 16px 8px;
       padding: 12px 14px;
       border: 1px solid rgba(109, 224, 31, 0.16);
       background: rgba(109, 224, 31, 0.06);
       color: #efffe2;
-      font-size: 23px;
+      font-size: 29px;
       line-height: 1.35;
     }
 
     .queue-grid {
-      margin: 0 18px 10px;
+      margin: 0 16px 8px;
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 10px;
@@ -3104,7 +3104,7 @@ function renderPaidSummaryHtml(): string {
 
     .queue-label {
       color: var(--muted);
-      font-size: 15px;
+      font-size: 18px;
       font-family: var(--mono);
       font-weight: 700;
       text-transform: uppercase;
@@ -3114,7 +3114,7 @@ function renderPaidSummaryHtml(): string {
 
     .queue-value {
       color: var(--text);
-      font-size: 34px;
+      font-size: 40px;
       font-weight: 800;
       line-height: 1.08;
     }
@@ -3122,12 +3122,12 @@ function renderPaidSummaryHtml(): string {
     .queue-note {
       margin-top: 5px;
       color: var(--muted);
-      font-size: 20px;
+      font-size: 24px;
       line-height: 1.3;
     }
 
     .tiers {
-      margin: 0 18px 10px;
+      margin: 0 16px 8px;
       padding: 9px 12px 10px;
       border: 1px solid rgba(255, 166, 0, 0.18);
       background: rgba(255, 140, 0, 0.06);
@@ -3143,7 +3143,7 @@ function renderPaidSummaryHtml(): string {
 
     .tiers-title {
       color: var(--amber);
-      font-size: 20px;
+      font-size: 24px;
       font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.09em;
@@ -3151,7 +3151,7 @@ function renderPaidSummaryHtml(): string {
 
     .tiers-sub {
       color: #ffe1a3;
-      font-size: 18px;
+      font-size: 22px;
       text-align: right;
     }
 
@@ -3170,7 +3170,7 @@ function renderPaidSummaryHtml(): string {
 
     .tier-pill .top {
       color: var(--green);
-      font-size: 18px;
+      font-size: 22px;
       font-weight: 800;
       margin-bottom: 4px;
       white-space: nowrap;
@@ -3178,7 +3178,7 @@ function renderPaidSummaryHtml(): string {
 
     .tier-pill .bottom {
       color: var(--text);
-      font-size: 24px;
+      font-size: 29px;
       font-weight: 700;
       white-space: nowrap;
       overflow: hidden;
@@ -3190,7 +3190,7 @@ function renderPaidSummaryHtml(): string {
     .tx-item {
       border: 1px solid rgba(255, 166, 0, 0.12);
       background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.015));
-      padding: 8px 10px;
+      padding: 9px 11px;
       min-width: 0;
     }
 
@@ -3198,7 +3198,7 @@ function renderPaidSummaryHtml(): string {
     .rule-k,
     .rail-kicker {
       color: var(--muted);
-      font-size: 15px;
+      font-size: 18px;
       font-family: var(--mono);
       font-weight: 700;
       letter-spacing: 0.08em;
@@ -3208,7 +3208,7 @@ function renderPaidSummaryHtml(): string {
 
     .fact-value {
       color: var(--text);
-      font-size: 26px;
+      font-size: 31px;
       font-weight: 800;
       line-height: 1.16;
       white-space: nowrap;
@@ -3228,7 +3228,7 @@ function renderPaidSummaryHtml(): string {
 
     .panel-title {
       color: var(--text);
-      font-size: 24px;
+      font-size: 30px;
       font-weight: 900;
       letter-spacing: 0.09em;
       text-transform: uppercase;
@@ -3236,7 +3236,7 @@ function renderPaidSummaryHtml(): string {
 
     .panel-sub {
       color: #ffe1a3;
-      font-size: 18px;
+      font-size: 22px;
       margin-top: 2px;
       line-height: 1.3;
     }
@@ -3267,7 +3267,7 @@ function renderPaidSummaryHtml(): string {
 
     .meta-pill .k {
       color: var(--muted);
-      font-size: 14px;
+      font-size: 17px;
       font-family: var(--mono);
       font-weight: 700;
       text-transform: uppercase;
@@ -3277,7 +3277,7 @@ function renderPaidSummaryHtml(): string {
 
     .meta-pill .v {
       color: var(--text);
-      font-size: 22px;
+      font-size: 27px;
       font-weight: 700;
       line-height: 1.25;
       white-space: nowrap;
@@ -3294,7 +3294,7 @@ function renderPaidSummaryHtml(): string {
     .bonus-head {
       color: var(--muted);
       font-family: var(--mono);
-      font-size: 11px;
+      font-size: 15px;
       font-weight: 700;
       letter-spacing: 0.08em;
       text-transform: uppercase;
@@ -3316,7 +3316,7 @@ function renderPaidSummaryHtml(): string {
     .bonus-top {
       color: var(--green);
       font-family: var(--mono);
-      font-size: 11px;
+      font-size: 15px;
       font-weight: 800;
       letter-spacing: 0.06em;
       text-transform: uppercase;
@@ -3325,7 +3325,7 @@ function renderPaidSummaryHtml(): string {
 
     .bonus-main {
       color: var(--text);
-      font-size: 16px;
+      font-size: 20px;
       font-weight: 800;
       line-height: 1;
       margin-bottom: 6px;
@@ -3333,7 +3333,7 @@ function renderPaidSummaryHtml(): string {
 
     .bonus-note {
       color: var(--muted);
-      font-size: 11px;
+      font-size: 15px;
       line-height: 1.3;
     }
 
@@ -3353,7 +3353,7 @@ function renderPaidSummaryHtml(): string {
     .math-card strong {
       display: block;
       color: var(--text);
-      font-size: 13px;
+      font-size: 16px;
       margin-bottom: 5px;
       text-transform: uppercase;
       letter-spacing: 0.08em;
@@ -3361,13 +3361,13 @@ function renderPaidSummaryHtml(): string {
 
     .math-card span {
       color: var(--muted);
-      font-size: 12px;
+      font-size: 15px;
       line-height: 1.35;
     }
 
     .rule-v {
       color: var(--text);
-      font-size: 24px;
+      font-size: 29px;
       font-weight: 700;
       line-height: 1.28;
     }
@@ -3398,7 +3398,7 @@ function renderPaidSummaryHtml(): string {
       align-items: center;
       gap: 8px;
       font-family: var(--mono);
-      font-size: 16px;
+      font-size: 20px;
       font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.1em;
@@ -3421,26 +3421,26 @@ function renderPaidSummaryHtml(): string {
 
     .tx-time {
       color: var(--muted);
-      font-size: 17px;
+      font-size: 21px;
       font-family: var(--mono);
     }
 
     .tx-detail {
       color: var(--text);
-      font-size: 20px;
+      font-size: 25px;
       line-height: 1.3;
     }
 
     .tx-link {
       color: var(--cyan);
       font-family: var(--mono);
-      font-size: 17px;
+      font-size: 21px;
       word-break: break-all;
     }
 
     .tx-empty {
       color: var(--muted);
-      font-size: 18px;
+      font-size: 22px;
       line-height: 1.4;
     }
 
@@ -3460,7 +3460,7 @@ function renderPaidSummaryHtml(): string {
 
     .rule-compact .k {
       color: var(--muted);
-      font-size: 14px;
+      font-size: 17px;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.08em;
@@ -3469,7 +3469,7 @@ function renderPaidSummaryHtml(): string {
 
     .rule-compact .v {
       color: var(--text);
-      font-size: 22px;
+      font-size: 27px;
       font-weight: 700;
       line-height: 1.3;
     }
@@ -3481,7 +3481,7 @@ function renderPaidSummaryHtml(): string {
       background: rgba(255, 255, 255, 0.03);
       color: var(--gold);
       font-family: var(--mono);
-      font-size: 19px;
+      font-size: 23px;
       font-weight: 700;
       opacity: 0.95;
     }

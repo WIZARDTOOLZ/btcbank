@@ -74,9 +74,9 @@ const HOLD_TIERS = [
   { label: "24h+", minMs: DAY_MS, multiplierBps: 10_100 },
   { label: "<24h", minMs: 0, multiplierBps: 10_000 },
 ] as const;
-const MAX_SWAP_REPLAYS_PER_CYCLE = 1;
-const MAX_REPLAY_BATCHES_PER_CYCLE = 48;
-const MAX_REPLAY_BATCHES_PER_CATCHUP = 48;
+const MAX_SWAP_REPLAYS_PER_CYCLE = Number(process.env.MAX_SWAP_REPLAYS_PER_CYCLE ?? "1");
+const MAX_REPLAY_BATCHES_PER_CYCLE = Number(process.env.MAX_REPLAY_BATCHES_PER_CYCLE ?? "64");
+const MAX_REPLAY_BATCHES_PER_CATCHUP = Number(process.env.MAX_REPLAY_BATCHES_PER_CATCHUP ?? "64");
 const REPLAY_CATCHUP_DELAY_MS = 250;
 const SWAP_RETRY_COOLDOWN_MS = 30_000;
 const NO_WBTC_ACCOUNT_RETRY_COOLDOWN_MS = 60 * 60 * 1000;
@@ -84,7 +84,7 @@ const LOW_SOL_RETRY_COOLDOWN_MS = 60_000;
 const HOLD_MESSAGE_COOLDOWN_MS = 60_000;
 const REPLAY_HEARTBEAT_COOLDOWN_MS = 60_000;
 const ELIGIBLE_OWNER_CACHE_MS = 60_000;
-const REPLAY_PASS_TIMEOUT_MS = 90_000;
+const REPLAY_PASS_TIMEOUT_MS = Number(process.env.REPLAY_PASS_TIMEOUT_MS ?? "240000");
 const HOLDER_SCAN_TIMEOUT_MS = 60_000;
 const REWARD_ACCOUNT_SCAN_TIMEOUT_MS = 60_000;
 const CLAIMABLE_CHECK_TIMEOUT_MS = 30_000;
@@ -578,7 +578,7 @@ async function runReplayCatchup(): Promise<void> {
     if (message.startsWith("Swap held:")) {
       logHoldMessage(`${message} (background payouts)`);
     } else if (isReplayWindowTimeout(message)) {
-      logger.warn("Background payout catch-up hit its 90s safety window and will continue on the next pass.");
+      logger.warn(`Background payout catch-up hit its ${Math.floor(REPLAY_PASS_TIMEOUT_MS / 1000)}s safety window and will continue on the next pass.`);
     } else {
       logger.error(`Background replay failed: ${message}`);
     }
@@ -945,7 +945,7 @@ async function executeCycle(): Promise<void> {
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     if (isReplayWindowTimeout(message)) {
-      logger.warn("Post-swap payout catch-up hit its 90s safety window and will keep finishing in the background.");
+      logger.warn(`Post-swap payout catch-up hit its ${Math.floor(REPLAY_PASS_TIMEOUT_MS / 1000)}s safety window and will keep finishing in the background.`);
       scheduleReplayCatchup();
       return;
     }

@@ -27,6 +27,8 @@ const STORY_LOGO_URLS = {
 
 const SITE_URL = (process.env.SITE_URL ?? "https://www.btcbank.help").replace(/\/+$/, "");
 const COINGECKO_URL = "https://www.coingecko.com/en/coins/bitcoin-bank";
+const DEXSCREENER_PAIR = process.env.DEXSCREENER_PAIR_ADDRESS?.trim()
+  || "4a2acVjBJysaUeEwedivQHcMNftY2EF49eayYxSwdMt2";
 
 const TIER_CALC_DEFS = [
   { label: "Satoshi", minDays: 30, multiplier: 1.2 },
@@ -637,8 +639,8 @@ section{padding:clamp(60px,8vw,100px) clamp(16px,4vw,40px)}
 .hero-round-pill{background:#0d0d0d;border:1px solid var(--border2);border-radius:10px;padding:12px}
 .hero-round-pill span{display:block;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
 .hero-round-pill strong{display:block;font-family:var(--mono);font-size:14px;color:#fff}
-.chart-shell{background:var(--bg3);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-top:26px}
-.chart-shell iframe{display:block;width:100%;height:360px;border:0;background:#000}
+.chart-shell{background:var(--bg3);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-top:0}
+.chart-shell iframe{display:block;width:100%;height:520px;border:0;background:#000}
 .chart-shell-fallback{padding:26px}
 .mini-links{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
 .mini-link{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:999px;border:1px solid var(--border2);background:#0d0d0d;color:#d7d7d7;text-decoration:none;font-size:12px}
@@ -890,16 +892,8 @@ footer{background:var(--bg3);border-top:1px solid var(--border);padding:48px cla
 
 <section class="proof-section" id="chart">
   <div class="container">
-    <div class="section-label">Live Market View</div>
-    <h2 class="section-title">DexScreener <span>Chart</span></h2>
-    <p class="section-desc">Nothing oversized, just the live market view where people expect it. Price, liquidity, and flow in one embedded panel.</p>
     <div class="chart-shell">
-      ${dexCard ? `<iframe src="https://dexscreener.com/solana/${escapeHtml(dexCard.pairAddress)}?embed=1&theme=dark&trades=0&info=0" title="BTCBANK DexScreener chart" loading="lazy"></iframe>` : `<div class="chart-shell-fallback"><div class="section-label" style="margin-bottom:8px">Chart loading</div><p style="font-size:14px;color:var(--muted);line-height:1.8">DexScreener pair data will appear here once the pair lookup resolves for the current holder mint.</p></div>`}
-    </div>
-    <div class="mini-links">
-      ${dexCard?.url ? `<a class="mini-link" href="${escapeHtml(dexCard.url)}" target="_blank" rel="noopener">Open DexScreener</a>` : ""}
-      <a class="mini-link" href="${COINGECKO_URL}" target="_blank" rel="noopener">CoinGecko listing</a>
-      <span class="mini-link">CMC submission in process</span>
+      <iframe src="https://dexscreener.com/solana/${escapeHtml(DEXSCREENER_PAIR)}?embed=1&theme=dark&trades=0&info=0" title="BTCBANK DexScreener chart" loading="lazy"></iframe>
     </div>
   </div>
 </section>

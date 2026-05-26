@@ -7,6 +7,8 @@
     { "source": "/dashboard", "destination": "/api/page?page=dashboard" },
     { "source": "/site", "destination": "/api/site" },
     { "source": "/history", "destination": "/api/page?page=history" },
+    { "source": "/brand-kit", "destination": "/api/brand-kit" },
+    { "source": "/media-kit", "destination": "/api/brand-kit" },
     { "source": "/wallet-check", "destination": "/api/page?page=wallet-check" },
     { "source": "/check", "destination": "/api/page?page=wallet-check" },
     { "source": "/assets/ryan-on-stream.png", "destination": "/api/asset?name=ryan-on-stream.png" }

@@ -232,7 +232,7 @@ function renderSite(data, wallet, dexSummary) {
   const currentRound = safeInteger(stats.currentRound, roundsCompleted);
   const qualifiedThisRound = safeInteger(stats.qualifiedThisRound, 0);
   const btcPrice = safeNumber(stats.btcPrice, 103240);
-  const nextCycleSeconds = safeInteger(stats.nextCycleSeconds, 294);
+  const nextCycleSeconds = safeInteger(stats.nextCycleSeconds, 300);
   const holderMint = String(stats.holderMint ?? process.env.HOLDER_MINT ?? "").trim();
   const rewardMint = String(stats.rewardMint ?? process.env.REWARD_MINT ?? "").trim();
   const topHolders = holders
@@ -722,6 +722,7 @@ footer{background:var(--bg3);border-top:1px solid var(--border);padding:48px cla
     <li><a href="#tiers">Tiers</a></li>
     <li><a href="#checker">Check Tier</a></li>
     <li><a href="#proof">Proof</a></li>
+    <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#leaderboard">Leaderboard</a></li>
     <li><a href="#stats">Live Stats</a></li>
     <li><a href="#brand-kit">Brand Kit</a></li>
@@ -737,6 +738,7 @@ footer{background:var(--bg3);border-top:1px solid var(--border);padding:48px cla
   <a href="#tiers" onclick="closeMobileNav()">Tier System</a>
   <a href="#checker" onclick="closeMobileNav()">Check Your Tier</a>
   <a href="#proof" onclick="closeMobileNav()">Proof Explorer</a>
+  <a href="#roadmap" onclick="closeMobileNav()">Roadmap</a>
   <a href="#leaderboard" onclick="closeMobileNav()">Leaderboard</a>
   <a href="#stats" onclick="closeMobileNav()">Live Stats</a>
   <a href="#brand-kit" onclick="closeMobileNav()">Brand Kit</a>
@@ -746,7 +748,12 @@ footer{background:var(--bg3);border-top:1px solid var(--border);padding:48px cla
   <div class="hero-bg"></div><div class="hero-grid"></div>
   <div class="live-badge"><div class="live-dot"></div>Distribution running 24/7</div>
   <h1>BITCOIN<br><span class="orange">BANK.</span><br><span class="outline">REAL REWARDS.</span></h1>
-  <p class="hero-sub">The only token routing creator-fee flow into <strong>wrapped Bitcoin</strong> for real holders. No claiming. No staking. No babysitting every cycle. <strong>Stop jeeting. Stop selling.</strong> Hold the line and let the Bitcoin side stack for you.</p>
+  <p class="hero-sub">SOL creator-fee flow in. <strong>Wrapped Bitcoin</strong> out. Creator rewards are claimed every <strong>5 minutes</strong>, converted to Bitcoin exposure, and routed to qualifying holders. <strong>Stop jeeting. Stop selling.</strong> Hold enough, hold long enough, and let the Bitcoin side build itself in the background.</p>
+  <div class="hero-live-strip">
+    <div class="hero-live-card"><span>Live round countdown</span><strong class="o"><span id="hero-countdown-m">${Math.floor(nextCycleSeconds / 60)}</span>:<span id="hero-countdown-s">${String(nextCycleSeconds % 60).padStart(2, "0")}</span></strong></div>
+    <div class="hero-live-card"><span>Current round value</span><strong id="hero-round-value">${escapeHtml(formatUsd(currentRoundValue, 2))}</strong></div>
+    <div class="hero-live-card"><span>Biggest round ever</span><strong id="hero-biggest-round">${escapeHtml(formatWbtc(biggestRoundWbtc, 6))} WBTC</strong></div>
+  </div>
   <div class="hero-stats">
     <div class="hero-stat"><div class="hero-stat-val" id="h-paid"><span>$</span>${escapeHtml(formatCount(allTimeUsd))}</div><div class="hero-stat-label">Paid to holders</div></div>
     <div class="hero-stat"><div class="hero-stat-val" id="h-holders">${escapeHtml(formatCompactCount(holdersPaid))}<span></span></div><div class="hero-stat-label">Wallets paid</div></div>
@@ -756,6 +763,46 @@ footer{background:var(--bg3);border-top:1px solid var(--border);padding:48px cla
   <div class="hero-buttons">
     <a href="#buy" class="btn-primary">How to Buy →</a>
     <a href="#problem" class="btn-secondary">Fix wBTC Display</a>
+  </div>
+  <div class="hero-qualify">
+    <div class="hero-check-card">
+      <div class="section-label" style="margin-bottom:8px">Am I Qualified Right Now?</div>
+      <h3>Check Before You Sell</h3>
+      <p>Paste your wallet here and see if you still qualify, what tier you're on, how many shares you have, and whether selling kills your timer.</p>
+      <form id="heroWalletCheckerForm" class="checker-form" style="margin-top:14px">
+        <input id="heroWalletInput" type="text" placeholder="Paste Solana wallet address" value="${escapeHtml(wallet ?? "")}" autocomplete="off" spellcheck="false" />
+        <button class="btn-primary" type="submit">Check Now</button>
+      </form>
+      <div class="checker-helper">Reward line: ${escapeHtml(formatCount(minimumTokens))} BTCBANK. ${escapeHtml(shareDescription)}.</div>
+      <div id="heroCheckerResult" style="margin-top:14px"></div>
+    </div>
+    <div class="hero-round-card">
+      <div class="section-label" style="margin-bottom:8px">Round right now</div>
+      <h3>Live Distribution Pulse</h3>
+      <p>Current queue, round size, and biggest proof so new visitors instantly understand the bot is doing real work on-chain.</p>
+      <div class="hero-round-grid">
+        <div class="hero-round-pill"><span>Qualified now</span><strong id="hero-qualified-now">${escapeHtml(formatCount(qualifiedThisRound))} holders</strong></div>
+        <div class="hero-round-pill"><span>Paid in latest round</span><strong id="hero-paid-now">${escapeHtml(formatCount(currentRoundPaid))}</strong></div>
+        <div class="hero-round-pill"><span>Latest wBTC sent</span><strong id="hero-round-wbtc">${escapeHtml(formatWbtc(currentRoundWbtc, 6))} WBTC</strong></div>
+        <div class="hero-round-pill"><span>Top earner</span><strong>${topEarner ? `${escapeHtml(topEarner.shortAddress)} · ${escapeHtml(topEarner.totalWbtcEarned.toFixed(6))}` : "Loading"}</strong></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="proof-section" id="chart">
+  <div class="container">
+    <div class="section-label">Live Market View</div>
+    <h2 class="section-title">DexScreener <span>Chart</span></h2>
+    <p class="section-desc">Nothing oversized, just the live market view where people expect it. Price, liquidity, and flow in one embedded panel.</p>
+    <div class="chart-shell">
+      ${dexCard ? `<iframe src="https://dexscreener.com/solana/${escapeHtml(dexCard.pairAddress)}?embed=1&theme=dark&trades=0&info=0" title="BTCBANK DexScreener chart" loading="lazy"></iframe>` : `<div class="chart-shell-fallback"><div class="section-label" style="margin-bottom:8px">Chart loading</div><p style="font-size:14px;color:var(--muted);line-height:1.8">DexScreener pair data will appear here once the pair lookup resolves for the current holder mint.</p></div>`}
+    </div>
+    <div class="mini-links">
+      ${dexCard?.url ? `<a class="mini-link" href="${escapeHtml(dexCard.url)}" target="_blank" rel="noopener">Open DexScreener</a>` : ""}
+      <a class="mini-link" href="${COINGECKO_URL}" target="_blank" rel="noopener">CoinGecko listing</a>
+      <span class="mini-link">CMC submission in process</span>
+    </div>
   </div>
 </section>
 
@@ -964,6 +1011,50 @@ footer{background:var(--bg3);border-top:1px solid var(--border);padding:48px cla
   </div>
 </section>
 
+<section class="calc-section" id="tools">
+  <div class="container">
+    <div class="section-label">Holder Tools</div>
+    <h2 class="section-title">Reward <span>Calculators</span></h2>
+    <p class="section-desc">Three plain-English tools people actually want: what your bag is worth in reward power, how tiers grow with time, and what selling below the line costs you.</p>
+    <div class="calc-grid">
+      <div class="calc-panel">
+        <div class="section-label" style="margin-bottom:8px">Bag strength</div>
+        <h3>Holder Earnings</h3>
+        <p>Enter a bag size and estimated hold age. It shows base shares, tier, multiplier, and reward power.</p>
+        <div class="calc-fields">
+          <label for="bagTokensInput">BTCBANK held</label>
+          <input id="bagTokensInput" type="number" min="0" step="1" value="${minimumTokens * 2}" />
+          <label for="bagDaysInput">Days held</label>
+          <input id="bagDaysInput" type="number" min="0" step="1" value="7" />
+        </div>
+        <div class="calc-result" id="bagCalcResult"></div>
+      </div>
+      <div class="calc-panel">
+        <div class="section-label" style="margin-bottom:8px">Tier growth</div>
+        <h3>Tier Progression</h3>
+        <p>See what tier a wallet reaches by hold duration alone, assuming it keeps the minimum bag intact.</p>
+        <div class="calc-fields">
+          <label for="tierDaysInput">Days held</label>
+          <input id="tierDaysInput" type="number" min="0" step="1" value="14" />
+        </div>
+        <div class="calc-result" id="tierCalcResult"></div>
+      </div>
+      <div class="calc-panel">
+        <div class="section-label" style="margin-bottom:8px">Penalty</div>
+        <h3>What If I Sell?</h3>
+        <p>Simple answer: dropping below the reward line nukes the timer. This shows exactly what resets.</p>
+        <div class="calc-fields">
+          <label for="sellTokensInput">Current BTCBANK bag</label>
+          <input id="sellTokensInput" type="number" min="0" step="1" value="${minimumTokens * 2}" />
+          <label for="sellAmountInput">Tokens sold</label>
+          <input id="sellAmountInput" type="number" min="0" step="1" value="${minimumTokens}" />
+        </div>
+        <div class="calc-result" id="sellCalcResult"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section class="lb-section" id="leaderboard">
   <div class="container">
     <div class="section-label">Top Holders</div>
@@ -993,6 +1084,23 @@ footer{background:var(--bg3);border-top:1px solid var(--border);padding:48px cla
       <div class="tx-header"><span>Wallet</span><span>Round</span><span>wBTC</span><span>Tier</span><span>Time</span></div>
       ${renderInitialTxRows(initialTxs)}
       <button class="load-more" id="loadMoreBtn" onclick="loadMoreTxs()" style="display:${txs.length > 30 ? "block" : "none"}">Load more transactions ↓</button>
+    </div>
+  </div>
+</section>
+
+<section class="proof-section" id="proof">
+  <div class="container">
+    <div class="section-label">Public Proof</div>
+    <h2 class="section-title">Payout <span>Proof Explorer</span></h2>
+    <p class="section-desc">No trust-me accounting. Real wallets, real rounds, real signatures. This is the part that separates a cute concept from an actual on-chain machine.</p>
+    <div class="proof-summary">
+      <div class="proof-summary-card"><span>Current round</span><strong>${escapeHtml(formatCount(currentRound))}</strong></div>
+      <div class="proof-summary-card"><span>Latest round sent</span><strong>${escapeHtml(formatWbtc(currentRoundWbtc, 6))} WBTC</strong></div>
+      <div class="proof-summary-card"><span>Biggest round ever</span><strong>${escapeHtml(formatUsd(biggestRoundUsdEstimate, 2))}</strong></div>
+    </div>
+    <div class="proof-panel">
+      <div class="proof-head"><span>Wallet / round</span><span>Amount</span><span>Signature</span><span>Verify</span></div>
+      ${renderProofRows(proofTxs)}
     </div>
   </div>
 </section>
@@ -1039,16 +1147,132 @@ footer{background:var(--bg3);border-top:1px solid var(--border);padding:48px cla
   </div>
 </section>
 
-<section style="background:var(--bg2);padding:clamp(60px,8vw,100px) clamp(16px,4vw,40px)" id="exchanges">
+<section class="manifesto-section" id="importance">
   <div class="container">
-    <div class="section-label">Exchange Roadmap</div>
-    <h2 class="section-title">Where You Can <span>Trade $BTCBANK</span></h2>
-    <p class="section-desc">Already live on Solana DEXs. Centralized exchange listings are a growth path, but the proof starts on-chain.</p>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:40px">
-      <div style="background:var(--bg3);border:1px solid rgba(34,197,94,0.3);border-radius:12px;padding:24px 20px;position:relative"><div style="position:absolute;top:12px;right:12px;background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.3);border-radius:4px;padding:2px 8px;font-size:10px;color:var(--green);font-weight:600;letter-spacing:1px">LIVE NOW</div><div style="font-size:28px;margin-bottom:12px">🌊</div><h3 style="font-size:15px;font-weight:600;color:#fff;margin-bottom:8px">pump.fun + Solana DEXs</h3><p style="font-size:13px;color:var(--muted);line-height:1.7">Buy $BTCBANK right now on pump.fun or swap instantly on Jupiter and Raydium. Always open, always on-chain.</p></div>
-      <div style="background:var(--bg3);border:1px solid rgba(247,147,26,0.25);border-radius:12px;padding:24px 20px;position:relative"><div style="position:absolute;top:12px;right:12px;background:rgba(247,147,26,0.1);border:1px solid rgba(247,147,26,0.25);border-radius:4px;padding:2px 8px;font-size:10px;color:var(--btc);font-weight:600;letter-spacing:1px">IN PROGRESS</div><div style="font-size:28px;margin-bottom:12px">📊</div><h3 style="font-size:15px;font-weight:600;color:#fff;margin-bottom:8px">Tier 3 CEX Listings</h3><p style="font-size:13px;color:var(--muted);line-height:1.7">Community metrics, volume, and proof of utility are the foundation. We are building the part exchanges actually care about.</p></div>
-      <div style="background:var(--bg3);border:1px solid rgba(247,147,26,0.25);border-radius:12px;padding:24px 20px;position:relative"><div style="position:absolute;top:12px;right:12px;background:rgba(247,147,26,0.1);border:1px solid rgba(247,147,26,0.25);border-radius:4px;padding:2px 8px;font-size:10px;color:var(--btc);font-weight:600;letter-spacing:1px">TARGETED</div><div style="font-size:28px;margin-bottom:12px">🔥</div><h3 style="font-size:15px;font-weight:600;color:#fff;margin-bottom:8px">Tier 2 — MEXC & BingX</h3><p style="font-size:13px;color:var(--muted);line-height:1.7">As the proof strengthens, the conversation gets easier. The system needs signal, not fake hype.</p></div>
-      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:24px 20px;position:relative;opacity:0.65"><div style="position:absolute;top:12px;right:12px;background:var(--bg);border:1px solid var(--border2);border-radius:4px;padding:2px 8px;font-size:10px;color:var(--muted);font-weight:600;letter-spacing:1px">FUTURE</div><div style="font-size:28px;margin-bottom:12px">🏆</div><h3 style="font-size:15px;font-weight:600;color:#fff;margin-bottom:8px">Tier 1 — KuCoin & Beyond</h3><p style="font-size:13px;color:var(--muted);line-height:1.7">The goal is simple: more proof, more community, more real distribution history, better exchange conversations.</p></div>
+    <div class="section-label">Why This Matters</div>
+    <h2 class="section-title">A <span>Generational</span> Idea</h2>
+    <p class="section-desc">Your lore was right on the core point: people do not usually regret stacking too much Bitcoin. They regret selling too early, fading it too long, or letting another cycle pass before they built real exposure.</p>
+    <div class="manifesto-grid">
+      <div class="manifesto-panel">
+        <h3>Why BTCBANK feels different</h3>
+        <p>Most meme projects only ask one question: can price go up before attention leaves? BTCBANK asks a better one: what if the reward stream itself points back at the only crypto asset old money, institutions, retirees, and long-horizon holders keep coming back to?</p>
+        <p>That is why the psychology here matters. Stablecoins preserve. Bitcoin as an asset has historically repriced. Random rewards get dumped. Bitcoin gets stacked. BTCBANK was built around that exact asymmetry.</p>
+        <ul class="manifesto-list">
+          <li><div class="manifesto-num">1</div><div><strong>Bitcoin is where people settle.</strong> The longer someone stays in crypto, the more likely they are to respect BTC as the benchmark asset.</div></li>
+          <li><div class="manifesto-num">2</div><div><strong>Automatic accumulation beats perfect timing.</strong> Most people are bad traders. Far fewer regret automatic stacking than constant overtrading.</div></li>
+          <li><div class="manifesto-num">3</div><div><strong>The narrative is instantly understandable.</strong> Hold token → receive Bitcoin exposure. That is cleaner than APY math, farming jargon, or inflationary reward schemes.</div></li>
+        </ul>
+      </div>
+      <div class="manifesto-panel">
+        <h3>Why older BTC-minded people get it</h3>
+        <p>Older holders and long-cycle Bitcoin people usually do not care about cute token engineering. They care about asset quality, custody, and whether a system pushes behavior in the right direction. BTCBANK pushes people away from panic-selling and toward longer-term Bitcoin exposure.</p>
+        <p>That is why this can read like a bridge: meme-energy on the front end, serious Bitcoin accumulation on the back end.</p>
+        <ul class="manifesto-list">
+          <li><div class="manifesto-num">4</div><div><strong>Scarcity is the premium narrative.</strong> BTC has the 21M cap. wBTC carries that monetary story into fast Solana settlement.</div></li>
+          <li><div class="manifesto-num">5</div><div><strong>Every headline about Bitcoin helps the story.</strong> ETFs, sovereign talk, treasury adoption, and macro fear all strengthen the reward asset without BTCBANK needing to invent a new religion.</div></li>
+          <li><div class="manifesto-num">6</div><div><strong>It rewards conviction, not constant fiddling.</strong> Stop jeeting. Stop selling. Keep the line. Let the timer and the stack do the work.</div></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="proof-section" id="compare">
+  <div class="container">
+    <div class="section-label">Why Wrapped Bitcoin</div>
+    <h2 class="section-title">Bitcoin <span>vs Stablecoin Rewards</span></h2>
+    <p class="section-desc">Stablecoin rewards and Bitcoin-linked rewards are not emotionally or financially the same thing. One stays flat by design. The other tracks the asset most of crypto still ends up chasing.</p>
+    <div class="compare-grid">
+      <div class="compare-card">
+        <h3>Stablecoin rewards</h3>
+        <ul class="compare-list">
+          <li><strong>Good for preserving:</strong> USDC is designed to stay near $1.</li>
+          <li><strong>Low narrative upside:</strong> nobody dreams about retiring on a bigger pile of flat $1 units.</li>
+          <li><strong>Emotionally weaker:</strong> people spend stable rewards; they rarely feel compelled to hoard them.</li>
+        </ul>
+      </div>
+      <div class="compare-card">
+        <h3><span>Wrapped Bitcoin</span> rewards</h3>
+        <ul class="compare-list">
+          <li><strong>Bitcoin-linked upside:</strong> wBTC tracks BTC 1:1 in market value.</li>
+          <li><strong>Stronger long-term narrative:</strong> institutions buy Bitcoin first, not random reward tokens.</li>
+          <li><strong>People actually want to stack it:</strong> the reward feels premium, scarce, and worth holding.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section style="background:var(--bg2);padding:clamp(60px,8vw,100px) clamp(16px,4vw,40px)" id="roadmap">
+  <div class="container">
+    <div class="section-label">Done. Building. Future.</div>
+    <h2 class="section-title">BTCBANK <span>Roadmap</span></h2>
+    <p class="section-desc">No fake vapor map. Just what is already live, what is actively being worked, and what unlocks next once the proof gets too obvious to ignore.</p>
+    <div class="roadmap-wrap">
+      <div class="roadmap-card roadmap-done">
+        <div class="roadmap-badge">Done</div>
+        <h3>Already Live</h3>
+        <p>The real foundation is already public: on-chain rounds, public payouts, live site data, and market access where people can actually buy.</p>
+        <ul class="roadmap-points">
+          <li>Pump.fun, Jupiter, and Raydium are already live.</li>
+          <li>CoinGecko listing is live: <a href="${COINGECKO_URL}" target="_blank" rel="noopener" style="color:var(--btc);text-decoration:none">bitcoin-bank on CoinGecko</a>.</li>
+          <li>Payout proof explorer, wallet checker, and live stats are public-facing.</li>
+        </ul>
+      </div>
+      <div class="roadmap-card roadmap-building">
+        <div class="roadmap-badge">Building</div>
+        <h3>Current Push</h3>
+        <p>The next stage is about credibility layers: distribution proof, discovery, and brand assets that make the story easier for new buyers, communities, and exchanges to understand.</p>
+        <ul class="roadmap-points">
+          <li>CoinMarketCap application is in process now.</li>
+          <li>Public brand kit and media kit are being formalized for partners and creators.</li>
+          <li>Tangem update lands in 48 hours with fuller card details and next steps.</li>
+        </ul>
+      </div>
+      <div class="roadmap-card roadmap-future">
+        <div class="roadmap-badge">Future</div>
+        <h3>Bigger Distribution</h3>
+        <p>Once the proof stack is impossible to dismiss, the path opens into broader discovery and higher-tier exchange conversations.</p>
+        <ul class="roadmap-points">
+          <li>Tier 3 exchange expansion once metrics and community demand justify it.</li>
+          <li>Tier 2 targets like MEXC and BingX as the proof and audience grow.</li>
+          <li>Long-term goal: make BTCBANK the obvious "hold meme, earn Bitcoin" case study on Solana.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="faq-section" id="faq">
+  <div class="container">
+    <div class="section-label">Creator Fees and Holder Questions</div>
+    <h2 class="section-title">FAQ <span>That Actually Matters</span></h2>
+    <p class="section-desc">People do not need more generic crypto filler. They need the real mechanics in plain English: where rewards come from, why the timer matters, and what the payout bot is actually doing.</p>
+    <div class="faq-grid">
+      <div class="faq-panel">
+        <h3>Where do the rewards come from?</h3>
+        <p>From creator-fee SOL generated by BTCBANK trading activity. The payout worker claims that SOL, routes it into wrapped Bitcoin, and distributes it to qualifying holders. This is why the live proof matters so much: the loop can be watched.</p>
+      </div>
+      <div class="faq-panel">
+        <h3>Why wrapped Bitcoin instead of stablecoins?</h3>
+        <p>Because stablecoins preserve. Bitcoin historically reprices. Most people dump random reward tokens and feel nothing. Bitcoin-linked rewards feel premium, scarce, and worth stacking. That difference changes holder behavior.</p>
+      </div>
+      <div class="faq-panel">
+        <h3>What breaks my timer?</h3>
+        <p>Falling below ${escapeHtml(formatCount(minimumTokens))} BTCBANK. The bag qualifies you; the clock boosts you. If the bag drops under the reward line, the hold timer resets and you start from base again.</p>
+      </div>
+      <div class="faq-panel">
+        <h3>How often does the worker check?</h3>
+        <p>Main claim checks run every 5 minutes. Background replay runs much faster so old payout rounds keep clearing while the next reward cycle is already forming. The public site feed updates every 30 seconds.</p>
+      </div>
+      <div class="faq-panel">
+        <h3>Why can some wallets not see wBTC at first?</h3>
+        <p>That is a Solana token-account display issue, not a payout failure. Brand new wBTC wallets need a one-time token-account unlock. Once the wallet has ever held wBTC, future BTCBANK rewards show up normally.</p>
+      </div>
+      <div class="faq-panel">
+        <h3>Is BTCBANK already listed anywhere people recognize?</h3>
+        <p>Yes. BTCBANK is already listed on <a href="${COINGECKO_URL}" target="_blank" rel="noopener" style="color:var(--btc);text-decoration:none">CoinGecko</a>. CoinMarketCap is currently in process, not hand-waved as done before it is done.</p>
+      </div>
     </div>
   </div>
 </section>
@@ -1057,23 +1281,52 @@ footer{background:var(--bg3);border-top:1px solid var(--border);padding:48px cla
   <div class="container">
     <div class="section-label">Official Partnership</div>
     <h2 class="section-title">The $BTCBANK <span>Bank Card</span></h2>
-    <p class="section-desc">We've partnered with Tangem — the world's most secure NFC hardware wallet — to offer exclusive $BTCBANK branded cards to our community. Because if you're going to be a Bitcoin bank, you should have a card.</p>
+    <p class="section-desc">Tangem belongs here. The details just are not ready to oversell yet. More info lands in 48 hours, so this section stays slightly muted on purpose while still explaining where it fits.</p>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:48px;align-items:start">
       <div>
-        <div style="background:linear-gradient(135deg,rgba(247,147,26,0.12) 0%,rgba(247,147,26,0.03) 100%);border:1px solid rgba(247,147,26,0.3);border-radius:16px;padding:32px 28px;margin-bottom:16px">
+        <div style="background:linear-gradient(135deg,rgba(247,147,26,0.08) 0%,rgba(247,147,26,0.02) 100%);border:1px solid rgba(247,147,26,0.22);border-radius:16px;padding:32px 28px;margin-bottom:16px;opacity:.78;filter:saturate(.88)">
+          <div class="roadmap-badge" style="margin-bottom:16px">More info in 48h</div>
           <div style="font-size:11px;color:var(--btc);text-transform:uppercase;letter-spacing:1.5px;font-weight:600;margin-bottom:16px">Standard Edition</div>
           <div style="font-family:var(--display);font-size:42px;color:#fff;line-height:1;margin-bottom:8px">350 <span style="color:var(--btc)">CARDS</span></div>
-          <div style="font-size:14px;color:var(--muted);margin-bottom:20px;line-height:1.7">Classic $BTCBANK branded Tangem NFC hardware wallet cards. Self-custody, no seed phrase, tap-to-sign with your phone.</div>
+          <div style="font-size:14px;color:var(--muted);margin-bottom:20px;line-height:1.7">Classic BTCBANK branded Tangem NFC hardware wallet cards. Self-custody, no seed phrase, tap-to-sign with your phone, and a cleaner real-world expression of the Bitcoin Bank identity.</div>
         </div>
-        <div style="background:linear-gradient(135deg,rgba(251,191,36,0.1) 0%,rgba(247,147,26,0.04) 100%);border:1px solid rgba(251,191,36,0.3);border-radius:16px;padding:32px 28px">
+        <div style="background:linear-gradient(135deg,rgba(251,191,36,0.08) 0%,rgba(247,147,26,0.03) 100%);border:1px solid rgba(251,191,36,0.22);border-radius:16px;padding:32px 28px;opacity:.74;filter:saturate(.88)">
           <div style="font-size:11px;color:#fbbf24;text-transform:uppercase;letter-spacing:1.5px;font-weight:600;margin-bottom:16px">Limited Edition</div>
           <div style="font-family:var(--display);font-size:42px;color:#fff;line-height:1;margin-bottom:8px">1,000 <span style="color:#fbbf24">COLORED</span></div>
-          <div style="font-size:14px;color:var(--muted);margin-bottom:20px;line-height:1.7">Special full-color edition cards. Limited run. Once they're gone, they're gone.</div>
+          <div style="font-size:14px;color:var(--muted);margin-bottom:20px;line-height:1.7">Special full-color edition cards. Limited run. Once details unlock, this becomes the premium collector version for the people who want the physical bank-card flex.</div>
         </div>
       </div>
       <div style="display:flex;flex-direction:column;gap:16px">
-        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:24px"><h3 style="font-size:16px;font-weight:600;color:#fff;margin-bottom:12px">Why Tangem?</h3><p style="font-size:13px;color:var(--muted);line-height:1.8">No seed phrase. No USB cable. No screen. Just tap your card to your phone to sign transactions. This is what a real Bitcoin bank card looks like.</p></div>
-        <div style="background:rgba(247,147,26,0.06);border:1px solid rgba(247,147,26,0.2);border-radius:10px;padding:18px 20px"><p style="font-size:13px;color:var(--text);line-height:1.7">The Tangem partnership is part of the $BTCBANK identity — this isn't just a token, it's a <strong style="color:var(--btc)">Bitcoin bank</strong>. A physical card that stores your Bitcoin and wBTC rewards fits the whole thesis.</p></div>
+        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:24px;opacity:.82"><h3 style="font-size:16px;font-weight:600;color:#fff;margin-bottom:12px">Why Tangem?</h3><p style="font-size:13px;color:var(--muted);line-height:1.8">No seed phrase. No USB cable. No screen. Just tap your card to your phone to sign transactions. That fits the BTCBANK identity much better than pretending a serious Bitcoin-linked project should live only as a browser tab.</p></div>
+        <div style="background:rgba(247,147,26,0.06);border:1px solid rgba(247,147,26,0.2);border-radius:10px;padding:18px 20px;opacity:.86"><p style="font-size:13px;color:var(--text);line-height:1.7">The Tangem partnership belongs because BTCBANK is not just a ticker. It is a Bitcoin accumulation story on Solana. A physical card that stores your Bitcoin and wBTC rewards makes the thesis feel real.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="brand-teaser-section" id="brand-kit">
+  <div class="container">
+    <div class="brand-teaser-panel">
+      <div class="brand-grid">
+        <div>
+          <div class="section-label">Brand and Media</div>
+          <h2 class="section-title" style="margin-bottom:10px">A Real <span>Brand Kit</span></h2>
+          <p class="section-desc" style="max-width:760px;margin:0">For articles, community posts, creator clips, exchange applications, and link previews, the project needs clean facts and consistent language. That is live now too: core messaging, approved boilerplate, token facts, and the public-facing explanation of what BTCBANK actually is.</p>
+        </div>
+        <div class="brand-actions">
+          <a href="/brand-kit" class="btn-primary">Open Media Kit</a>
+          <a href="${COINGECKO_URL}" class="btn-secondary" target="_blank" rel="noopener">CoinGecko</a>
+        </div>
+      </div>
+      <div class="faq-grid" style="margin-top:28px">
+        <div class="faq-panel">
+          <h3>Approved one-liner</h3>
+          <p>BTCBANK is a Solana token that routes creator-fee value into wrapped Bitcoin for qualifying holders. Hold enough, hold long enough, and the reward side keeps pointing back at BTC.</p>
+        </div>
+        <div class="faq-panel">
+          <h3>Professional facts</h3>
+          <p>Website: <a href="${SITE_URL}" style="color:var(--btc);text-decoration:none">${SITE_URL.replace(/^https?:\/\//, "")}</a><br/>CoinGecko: live<br/>CoinMarketCap: application in process<br/>Holder mint: <span style="font-family:var(--mono)">${escapeHtml(shortenAddress(holderMint || "not-set", 8, 8))}</span></p>
+        </div>
       </div>
     </div>
   </div>
@@ -1083,7 +1336,7 @@ footer{background:var(--bg3);border-top:1px solid var(--border);padding:48px cla
   <div class="footer-grid">
     <div class="footer-brand">
       <div style="display:flex;align-items:center;gap:8px"><div class="nav-coin">₿</div><div class="nav-name">BTC<span style="color:var(--btc)">BANK</span></div></div>
-      <p>The only token that automatically routes creator-fee value into wrapped Bitcoin for holders. Stop jeeting. Stop selling. Hold enough and hold long enough.</p>
+      <p>Creator-fee value gets routed into wrapped Bitcoin every 5 minutes for qualifying holders. Stop jeeting. Stop selling. Hold enough and hold long enough.</p>
     </div>
     <div class="footer-col">
       <h4>Learn</h4>
@@ -1092,6 +1345,7 @@ footer{background:var(--bg3);border-top:1px solid var(--border);padding:48px cla
         <li><a href="#lore">Bitcoin history</a></li>
         <li><a href="/history">Bitcoin vs Memes</a></li>
         <li><a href="#wbtc">What is wBTC?</a></li>
+        <li><a href="#faq">Creator fee FAQ</a></li>
       </ul>
     </div>
     <div class="footer-col">
@@ -1101,6 +1355,8 @@ footer{background:var(--bg3);border-top:1px solid var(--border);padding:48px cla
         <li><a href="#tiers">Tier system</a></li>
         <li><a href="#checker">Wallet checker</a></li>
         <li><a href="#leaderboard">Leaderboard</a></li>
+        <li><a href="#roadmap">Roadmap</a></li>
+        <li><a href="/brand-kit">Brand kit</a></li>
       </ul>
     </div>
   </div>
@@ -1110,6 +1366,8 @@ footer{background:var(--bg3);border-top:1px solid var(--border);padding:48px cla
 
 <script>
 const API_BASE = '';
+const MIN_TOKENS = ${minimumTokens};
+const TIER_MODEL = ${tierModelJson};
 let secs = ${nextCycleSeconds};
 let lbSort = 'rewards';
 let txOffset = 30;
@@ -1123,11 +1381,16 @@ function fmt(n,dec){const number=Number(n||0);return number.toLocaleString('en-U
 function fmtK(n){const number=Number(n||0);if(number>=1000000)return (number/1000000).toFixed(1)+'M';if(number>=1000)return Math.round(number/1000)+'K';return String(Math.round(number));}
 function timeAgo(ts){const diff=Math.floor((Date.now()-Number(ts||Date.now()))/1000);if(diff<60)return diff+'s ago';if(diff<3600)return Math.floor(diff/60)+'m ago';if(diff<86400)return Math.floor(diff/3600)+'h ago';return Math.floor(diff/86400)+'d ago';}
 function esc(str){return String(str==null?'':str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+function normalizeSecs(value){const parsed=Number(value);return Number.isFinite(parsed)&&parsed>=0?Math.floor(parsed):300;}
+function currentWalletValue(){const main=document.getElementById('walletInput');const hero=document.getElementById('heroWalletInput');return (main&&main.value.trim())||(hero&&hero.value.trim())||'';}
+function syncWalletInputs(value){const normalized=String(value||'').trim();const main=document.getElementById('walletInput');const hero=document.getElementById('heroWalletInput');if(main) main.value=normalized;if(hero) hero.value=normalized;}
+function syncClockDisplays(){const safe=normalizeSecs(secs);const m=Math.floor(safe/60);const s=String(safe%60).padStart(2,'0');setText('s-countdown',m);setText('s-countdown-s',s);setText('hero-countdown-m',m);setText('hero-countdown-s',s);}
+function getTierByDays(days){const normalized=Math.max(0,Number(days||0));for(const tier of TIER_MODEL){if(normalized>=Number(tier.minDays||0)) return tier;}return TIER_MODEL[TIER_MODEL.length-1];}
+function getBagReward(tokens, days){const safeTokens=Math.max(0,Number(tokens||0));const shares=Math.max(0,Math.floor(safeTokens / MIN_TOKENS));const tier=shares>0?getTierByDays(days):{label:'Locked',multiplier:0};const multiplier=Number(tier.multiplier||0);return {shares,tier:tier.label,multiplier,power:shares*multiplier,qualifies:shares>0};}
 
 function tickClock(){
-  secs--; if(secs<0) secs=294;
-  const m=Math.floor(secs/60), s=String(secs%60).padStart(2,'0');
-  setText('s-countdown',m); setText('s-countdown-s',s);
+  secs--; if(secs<0) secs=300;
+  syncClockDisplays();
 }
 setInterval(tickClock,1000);
 
@@ -1144,15 +1407,24 @@ async function fetchStats(){
     setText('s-paid',fmt(s.allTimeUsd,0));
     setText('s-wbtc',Number(s.allTimeWbtc||0).toFixed(4));
     setText('s-holders',fmtK(s.holdersPaid));
-    setText('s-round',fmt(s.currentRound,0));
+    const currentRound = Number.isFinite(Number(s.currentRound)) ? Number(s.currentRound) : Number(s.roundsCompleted||0);
+    const latestRoundUsd = Number(s.currentRoundUsd || s.latestRoundUsd || 0);
+    const biggestRoundWbtc = Number(s.biggestRoundWbtc || 0);
+    setText('s-round',fmt(currentRound,0));
     setText('s-qualified',fmt(s.qualifiedThisRound,0));
+    setText('hero-round-value','$'+fmt(latestRoundUsd,2));
+    setText('hero-biggest-round',Number(biggestRoundWbtc).toFixed(6)+' WBTC');
+    setText('hero-qualified-now',fmt(s.qualifiedThisRound||0,0)+' holders');
+    setText('hero-paid-now',fmt(s.paidThisRound||0,0));
+    setText('hero-round-wbtc',Number(s.currentRoundWbtc||0).toFixed(6)+' WBTC');
     setText('btcPriceNode','$'+fmt(s.btcPrice||0,0));
     setText('t-btc','$'+fmt(s.btcPrice||0,0));
     setText('t-paid','$'+fmt(s.allTimeUsd,0));
     setText('t-rounds',fmt(s.roundsCompleted,0));
     setText('t-wbtc',Number(s.allTimeWbtc||0).toFixed(5)+' wBTC');
     setText('t-holders',fmt(s.holdersPaid,0));
-    if(Number.isFinite(Number(s.nextCycleSeconds))) secs = Number(s.nextCycleSeconds);
+    secs = normalizeSecs(s.nextCycleSeconds);
+    syncClockDisplays();
   }catch(e){console.warn('[stats]',e);}
 }
 
@@ -1233,14 +1505,16 @@ function loadMoreTxs(){ loadTxs(true); }
 
 function renderCheckResult(result){
   const mount=document.getElementById('checkerResult');
-  if(!mount) return;
+  const heroMount=document.getElementById('heroCheckerResult');
   if(!result || !result.found){
-    mount.innerHTML='<div class="checker-result checker-miss"><div class="checker-state">Wallet not found</div><div class="checker-message">'+esc((result && result.message) || 'Wallet not found in the current qualifying-holder snapshot.')+'</div></div>';
+    const missHtml='<div class="checker-result checker-miss"><div class="checker-state">Wallet not found</div><div class="checker-message">'+esc((result && result.message) || 'Wallet not found in the current qualifying-holder snapshot.')+'</div></div>';
+    if(mount) mount.innerHTML=missHtml;
+    if(heroMount) heroMount.innerHTML='<div class="checker-result checker-miss"><div class="checker-state">No live match yet</div><div class="checker-message">'+esc((result && result.message) || 'Try again in a few seconds or use the full checker below.')+'</div></div>';
     return;
   }
   const readyText = result.hasWbtcAccount === null ? 'Live feed does not expose this yet' : (result.hasWbtcAccount ? 'Ready' : 'Needs one-time wBTC unlock');
   const payableText = result.payableNow === null ? 'Waiting on richer live feed' : (result.payableNow ? 'Yes' : 'Not yet');
-  mount.innerHTML=''
+  if(mount) mount.innerHTML=''
     +'<div class="checker-result checker-hit">'
     +'<div class="checker-topline"><div><div class="checker-state">Wallet found</div><div class="checker-wallet">'+esc(result.wallet)+'</div></div><div class="checker-tier-pill">'+esc(result.holdTier)+'</div></div>'
     +'<div class="checker-metrics">'
@@ -1257,11 +1531,21 @@ function renderCheckResult(result){
     +'<div class="checker-metric"><span>Need to qualify</span><strong>'+esc(result.tokensNeeded)+' BTCBANK</strong></div>'
     +'<div class="checker-metric"><span>wBTC earned</span><strong>'+esc(result.totalWbtcEarned)+' WBTC</strong></div>'
     +'</div><div class="checker-message">'+esc(result.message)+'</div></div>';
+  if(heroMount) heroMount.innerHTML=''
+    +'<div class="checker-result checker-hit">'
+    +'<div class="checker-topline"><div><div class="checker-state">Instant answer</div><div class="checker-wallet">'+esc(result.wallet)+'</div></div><div class="checker-tier-pill">'+esc(result.holdTier)+'</div></div>'
+    +'<div class="checker-metrics">'
+    +'<div class="checker-metric"><span>Qualified</span><strong>'+(result.qualifiesNow?'YES':'NO')+'</strong></div>'
+    +'<div class="checker-metric"><span>Shares</span><strong>'+esc(String(result.shareCount))+'</strong></div>'
+    +'<div class="checker-metric"><span>Hold age</span><strong>'+esc(result.holdAge)+'</strong></div>'
+    +'<div class="checker-metric"><span>Next tier</span><strong>'+esc(result.nextTier || 'Top tier')+'</strong></div>'
+    +'</div></div>';
 }
 
 async function checkWallet(wallet){
   const trimmed=(wallet||'').trim();
   if(!trimmed) return;
+  syncWalletInputs(trimmed);
   try{
     const r=await fetch(API_BASE+'/api/check?wallet='+encodeURIComponent(trimmed),{cache:'no-store'});
     const d=await r.json();
@@ -1275,10 +1559,78 @@ async function checkWallet(wallet){
   }
 }
 
-document.getElementById('walletCheckerForm').addEventListener('submit',function(event){
-  event.preventDefault();
-  checkWallet(document.getElementById('walletInput').value);
-});
+function renderBagCalc(){
+  const tokensInput=document.getElementById('bagTokensInput');
+  const daysInput=document.getElementById('bagDaysInput');
+  const mount=document.getElementById('bagCalcResult');
+  if(!tokensInput||!daysInput||!mount) return;
+  const result=getBagReward(tokensInput.value, daysInput.value);
+  mount.innerHTML='<div class="calc-result-grid">'
+    +'<div><span>Full shares</span><strong>'+result.shares+'</strong></div>'
+    +'<div><span>Tier</span><strong>'+esc(result.tier)+'</strong></div>'
+    +'<div><span>Multiplier</span><strong>'+Number(result.multiplier||0).toFixed(2)+'x</strong></div>'
+    +'<div><span>Reward power</span><strong>'+Number(result.power||0).toFixed(2)+'</strong></div>'
+    +'</div>';
+}
+
+function renderTierCalc(){
+  const daysInput=document.getElementById('tierDaysInput');
+  const mount=document.getElementById('tierCalcResult');
+  if(!daysInput||!mount) return;
+  const days=Math.max(0,Number(daysInput.value||0));
+  const tier=getTierByDays(days);
+  const nextIndex=TIER_MODEL.findIndex(function(entry){return entry.label===tier.label;});
+  const nextTier=nextIndex>0?TIER_MODEL[nextIndex-1]:null;
+  const nextDays=nextTier?Math.max(0,Number(nextTier.minDays||0)-days):0;
+  mount.innerHTML='<div class="calc-result-grid">'
+    +'<div><span>Tier now</span><strong>'+esc(tier.label)+'</strong></div>'
+    +'<div><span>Multiplier</span><strong>'+Number(tier.multiplier||0).toFixed(2)+'x</strong></div>'
+    +'<div><span>Next tier</span><strong>'+esc(nextTier?nextTier.label:'Maxed')+'</strong></div>'
+    +'<div><span>ETA</span><strong>'+(nextTier?(nextDays.toFixed(1)+' days'):'Reached')+'</strong></div>'
+    +'</div>';
+}
+
+function renderSellCalc(){
+  const tokensInput=document.getElementById('sellTokensInput');
+  const sellInput=document.getElementById('sellAmountInput');
+  const mount=document.getElementById('sellCalcResult');
+  if(!tokensInput||!sellInput||!mount) return;
+  const current=Math.max(0,Number(tokensInput.value||0));
+  const sold=Math.max(0,Number(sellInput.value||0));
+  const remaining=Math.max(0,current-sold);
+  const qualifies=remaining>=MIN_TOKENS;
+  mount.innerHTML='<div class="calc-result-grid">'
+    +'<div><span>Remaining bag</span><strong>'+fmt(remaining,0)+' BTCBANK</strong></div>'
+    +'<div><span>Still qualified</span><strong>'+(qualifies?'YES':'NO')+'</strong></div>'
+    +'<div><span>Timer outcome</span><strong>'+(qualifies?'stays alive':'resets to 0')+'</strong></div>'
+    +'<div><span>Need after sell</span><strong>'+(qualifies?'0':fmt(MIN_TOKENS-remaining,0))+' BTCBANK</strong></div>'
+    +'</div>';
+}
+
+function bindCalculators(){
+  ['bagTokensInput','bagDaysInput'].forEach(function(id){const node=document.getElementById(id);if(node) node.addEventListener('input',renderBagCalc);});
+  ['tierDaysInput'].forEach(function(id){const node=document.getElementById(id);if(node) node.addEventListener('input',renderTierCalc);});
+  ['sellTokensInput','sellAmountInput'].forEach(function(id){const node=document.getElementById(id);if(node) node.addEventListener('input',renderSellCalc);});
+  renderBagCalc();
+  renderTierCalc();
+  renderSellCalc();
+}
+
+const walletForm=document.getElementById('walletCheckerForm');
+if(walletForm){
+  walletForm.addEventListener('submit',function(event){
+    event.preventDefault();
+    checkWallet(document.getElementById('walletInput').value);
+  });
+}
+
+const heroWalletForm=document.getElementById('heroWalletCheckerForm');
+if(heroWalletForm){
+  heroWalletForm.addEventListener('submit',function(event){
+    event.preventDefault();
+    checkWallet(document.getElementById('heroWalletInput').value);
+  });
+}
 
 function connect(){
   const es = new EventSource(API_BASE + '/api/stream');
@@ -1286,16 +1638,20 @@ function connect(){
     fetchStats();
     loadLeaderboard(lbSort);
     loadTxs(false);
-    const currentWallet = document.getElementById('walletInput').value.trim();
+    const currentWallet = currentWalletValue();
     if(currentWallet) checkWallet(currentWallet);
   };
   es.addEventListener('reconnect', function(){ es.close(); setTimeout(connect, 2000); });
   es.onerror = function(){ es.close(); setTimeout(connect, 5000); };
 }
 
+syncClockDisplays();
 fetchStats();
 loadLeaderboard('rewards');
 loadTxs(false);
+bindCalculators();
+const initialWallet=currentWalletValue();
+if(initialWallet) checkWallet(initialWallet);
 connect();
 </script>
 </body>
@@ -1316,6 +1672,14 @@ export default async function handler(req, res) {
     data = null;
   }
 
+  let dexSummary = null;
+  try {
+    const holderMint = String(data?.stats?.holderMint ?? process.env.HOLDER_MINT ?? "").trim();
+    dexSummary = await fetchDexScreenerSummary(holderMint);
+  } catch {
+    dexSummary = null;
+  }
+
   res.statusCode = 200;
-  res.end(renderSite(data, wallet));
+  res.end(renderSite(data, wallet, dexSummary));
 }

@@ -3700,7 +3700,7 @@ function renderPaidSummaryHtml(): string {
     let nextCheckAtMs = null;
     let usdFormatter = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 2, maximumFractionDigits: 2 });
     let ageTimer = null;
-    let hardReloadedForStale = false;
+    let stalePollRequested = false;
 
     function formatClock(iso) {
       if (!iso) return "-";
@@ -3750,10 +3750,9 @@ function renderPaidSummaryHtml(): string {
         liveEl.className = "live good";
         syncEl.textContent = "LIVE | last sync " + syncSuffix;
       }
-      if (syncAge >= 45 && !hardReloadedForStale) {
-        hardReloadedForStale = true;
-        window.location.reload();
-        return;
+      if (syncAge >= 45 && !stalePollRequested) {
+        stalePollRequested = true;
+        loadOnce().finally(() => { stalePollRequested = false; }).catch(() => {});
       }
       if (nextCheckAtMs !== null) {
         const seconds = Math.max(0, Math.ceil((nextCheckAtMs - Date.now()) / 1000));
@@ -3812,7 +3811,7 @@ function renderPaidSummaryHtml(): string {
       packetCount += 1;
       lastPushMs = Date.now();
       lastSyncMs = Date.now();
-      hardReloadedForStale = false;
+      stalePollRequested = false;
       nextCheckAtMs = data.nextCheckAt ? new Date(data.nextCheckAt).getTime() : null;
       const round = data.activeRound || data.recentRounds[0] || null;
       document.getElementById("heroUsd").textContent = data.totals.totalPaidUsd === null
@@ -3865,10 +3864,10 @@ function renderPaidSummaryHtml(): string {
       document.getElementById("ruleCost").textContent = data.qualification.approxUsd === null
         ? "pricing..."
         : "~" + usdFormatter.format(data.qualification.approxUsd) + (data.qualification.approxSol === null ? "" : " | " + data.qualification.approxSol.toFixed(3) + " SOL");
-      document.getElementById("ruleShares").textContent = "Every full 300,000 = 1 share";
+      document.getElementById("ruleShares").textContent = "Every full " + data.qualification.minimumTokens + " = 1 share";
       document.getElementById("ruleHold").textContent = "Hold longer = bigger bonus";
       document.getElementById("ruleWbtc").textContent = "No-WBTC accounts need WBTC once";
-      document.getElementById("ruleReset").textContent = "Below 300,000 = timer reset";
+      document.getElementById("ruleReset").textContent = "Below " + data.qualification.minimumTokens + " = timer reset";
       renderTierExamples(round);
       renderRecentTxs(data.recentTxs);
       tickLive();

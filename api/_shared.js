@@ -60,6 +60,19 @@ export function formatUsd(value, digits = 0) {
   })}`;
 }
 
+export function resolveBtcPrice(stats = {}) {
+  const directPrice = safeNumber(stats?.btcPrice, 0);
+  const impliedPrice = safeNumber(stats?.allTimeUsd, 0) / Math.max(safeNumber(stats?.allTimeWbtc, 0), 0.00000001);
+
+  if (directPrice >= 30000) {
+    return directPrice;
+  }
+  if (impliedPrice >= 30000) {
+    return impliedPrice;
+  }
+  return directPrice;
+}
+
 export function formatCount(value) {
   return safeInteger(value, 0).toLocaleString("en-US");
 }
@@ -266,8 +279,10 @@ export function buildWalletCheckResult(holder, wallet, minimumTokens = 300000) {
   };
 }
 
-export function mapLeaderboardHolder(holder, minimumTokens = 300000) {
+export function mapLeaderboardHolder(holder, minimumTokens = 300000, btcPrice = 0) {
   const tier = getHolderTier(holder, minimumTokens);
+  const totalWbtcEarned = safeNumber(holder?.totalWbtcEarned ?? holder?.wbtcEarned ?? holder?.earnedWbtc ?? 0, 0);
+  const price = safeNumber(btcPrice, 0);
   return {
     wallet: getHolderWallet(holder),
     shortAddress: shortenAddress(getHolderWallet(holder), 4, 4),
@@ -275,7 +290,8 @@ export function mapLeaderboardHolder(holder, minimumTokens = 300000) {
     multiplier: getHolderMultiplier(holder),
     tier: tier.label,
     tierIcon: tier.icon,
-    totalWbtcEarned: safeNumber(holder?.totalWbtcEarned ?? holder?.wbtcEarned ?? holder?.earnedWbtc ?? 0, 0),
+    totalWbtcEarned,
+    wbtcUsd: totalWbtcEarned * price,
     roundsQualified: safeInteger(holder?.roundsQualified ?? holder?.rounds ?? holder?.qualifiedRounds ?? 0, 0),
     qualified: holderQualifies(holder, minimumTokens),
     shareCount: getHolderShares(holder, minimumTokens),

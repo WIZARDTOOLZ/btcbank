@@ -12,6 +12,7 @@ import {
   getLivePayload,
   mapLeaderboardHolder,
   mapTransaction,
+  resolveBtcPrice,
   safeInteger,
   safeNumber,
   shortenAddress,
@@ -185,7 +186,7 @@ function renderCheckerResultHtml(result) {
 
 function renderInitialLeaderboardRows(holders) {
   if (!holders.length) {
-    return `<tr><td colspan="7" class="lb-empty">No holder data yet. Data populates as rounds complete.</td></tr>`;
+    return `<tr><td colspan="8" class="lb-empty">No holder data yet. Data populates as rounds complete.</td></tr>`;
   }
 
   return holders.map((holder, index) => {
@@ -198,6 +199,7 @@ function renderInitialLeaderboardRows(holders) {
       <td><span class="addr-cell">${escapeHtml(formatCount(holder.balance))}</span></td>
       <td><span class="mult-val">${escapeHtml(holder.multiplier.toFixed(2))}x</span></td>
       <td><span class="wbtc-val">${escapeHtml(holder.totalWbtcEarned.toFixed(8))}</span></td>
+      <td><span class="usd-val">${escapeHtml(formatUsd(holder.wbtcUsd ?? 0, 2))}</span></td>
       <td><span style="font-family:var(--mono);font-size:11px;color:var(--muted)">${escapeHtml(String(holder.roundsQualified))}</span></td>
     </tr>`;
   }).join("");
@@ -220,6 +222,67 @@ function renderInitialTxRows(txs) {
   return `<div class="tx-empty" id="txEmpty" style="display:none">Loading transactions...</div>${rows}`;
 }
 
+function renderHypeSection(minimumTokens, holderMint) {
+  const minLabel = formatCount(minimumTokens);
+  const posts = [
+    "Most people in crypto eventually realize they should have accumulated more Bitcoin. BTCBANK was built around that exact feeling: hold, earn wBTC automatically, stack Bitcoin exposure over time.",
+    "Stablecoins stay flat. Random reward tokens fade. Bitcoin keeps surviving. That is why BTCBANK routes creator-fee value into wBTC for qualifying holders.",
+    "People laughed at free Bitcoin faucets too. Tiny amounts looked meaningless until time did what time does. Accumulation matters.",
+    "The thesis is simple: Solana speed on the front end, Bitcoin exposure on the reward side. Hold BTCBANK, earn wBTC, stop jeeting.",
+    "No fake APY. No staking maze. No claiming button. Creator-fee SOL in, wrapped Bitcoin out, every 5 minutes.",
+    "Most reward tokens pay assets people want to dump. BTCBANK pays the asset people keep wishing they had more of: Bitcoin exposure through wBTC.",
+    "Bitcoin is the final destination for a lot of crypto profits anyway. BTCBANK skips the rotate-later step and rewards holders with Bitcoin exposure now.",
+    "The simplest pitch is still the strongest one: hold the token, earn Bitcoin exposure automatically.",
+    "Meme coin energy plus Bitcoin legitimacy is a rare combination. BTCBANK lives exactly in that gap.",
+    "People do not emotionally treat BTC rewards like random alt rewards. Bitcoin feels scarce. Bitcoin feels serious. That is the point.",
+    "If Bitcoin headlines keep getting bigger, the BTCBANK story gets easier to understand. Every cycle eventually talks about BTC again.",
+    "BTCBANK is not asking people to believe in complicated farming math. It asks one thing: do you understand why people regret selling Bitcoin too early?",
+  ];
+
+  const postCards = posts.map((post, index) => `<div class="hype-post"><div class="hype-post-num">${String(index + 1).padStart(2, "0")}</div><p>${escapeHtml(post)}</p></div>`).join("");
+
+  return `<section class="hype-section" id="hype">
+  <div class="container">
+    <div class="section-label">Hype Desk</div>
+    <h2 class="section-title">The <span>BTCBANK Pitch</span></h2>
+    <p class="section-desc">Clean copy for the site, the stream, X replies, spaces, and anyone who needs the idea explained without tokenomics soup.</p>
+    <div class="hype-grid">
+      <div class="hype-panel hype-main">
+        <div class="hype-kicker">Professional page description</div>
+        <h3>Bitcoin Bank turns creator rewards into Bitcoin exposure.</h3>
+        <p>BTCBANK is a Solana token built around a simple long-term behavior: people regret not accumulating Bitcoin, not selling random reward tokens too slowly. Every 5 minutes, the distribution bot claims creator rewards in SOL, routes that value into wrapped Bitcoin, and distributes wBTC proportionally to qualifying holders.</p>
+        <p>No claiming. No staking. No fake APY maze. Hold at least ${escapeHtml(minLabel)} BTCBANK, keep your wallet above the reward line, and the system handles the Bitcoin side automatically.</p>
+        <p>Most projects fight for short attention. BTCBANK gives holders a reason to stay: your bag size creates shares, your hold time improves your multiplier, and your rewards point back at the crypto asset the world already understands.</p>
+        <div class="hype-contract">Ticker: $BTCBANK<br/>CA: ${escapeHtml(holderMint || "9s96G11xGsHczudfJqKQzQxzvubQgJXSySJ1wRgxpump")}<br/>CoinGecko: live | CoinMarketCap: in process</div>
+      </div>
+      <div class="hype-panel">
+        <div class="hype-kicker">Eligibility note</div>
+        <h3>The reward line can evolve.</h3>
+        <p>The current eligibility line is ${escapeHtml(minLabel)} BTCBANK. That line exists to keep rewards meaningful, prevent dust spam, and make distributions practical as the project grows.</p>
+        <p>If market cap, holder count, liquidity, or payout scale changes enough, the line may be adjusted slightly up or down. Any adjustment should be announced clearly and framed around fairness, payout quality, and keeping the system healthy.</p>
+        <div class="hype-rule">Current rule: every full ${escapeHtml(minLabel)} BTCBANK = 1 base share.</div>
+      </div>
+    </div>
+    <div class="hype-script">
+      <div class="hype-kicker">Stream script</div>
+      <h3>Use this when people ask why it matters.</h3>
+      <p>Take two minutes and really think about what this is doing.</p>
+      <p>Most of crypto is built around the same behavior: flip fast, dump fast, chase the next thing, forget yesterday's chart. Nobody holds. Nobody builds patience. Everybody says they want conviction until the first red candle shows up.</p>
+      <p>But Bitcoin history already taught the lesson. The biggest winners usually were not perfect traders. They were the people who accumulated the strongest asset while everyone else laughed, got bored, sold too early, or moved on.</p>
+      <p>That is why BTCBANK is psychologically different. The system is not paying you some random farm token that everybody rushes to dump. It is routing creator-fee value into wrapped Bitcoin. wBTC tracks Bitcoin exposure 1:1, but it moves with Solana speed and low fees.</p>
+      <p>So while you are holding a Solana token, the reward side points back at Bitcoin. SOL rewards in. wBTC distributed out. Every 5 minutes. No claiming. No staking dashboard. No fake APY promise. Just accumulation.</p>
+      <p>And that matters because people already understand the regret. They regret not buying Bitcoin earlier. They regret selling too soon. They regret treating tiny Bitcoin amounts like they were meaningless. BTCBANK was built directly around that feeling.</p>
+      <p>This is meme energy connected to the most recognized asset in crypto. It is simple enough for a brand-new person to understand and strong enough for a Bitcoin-minded person to respect: hold the token, earn Bitcoin exposure.</p>
+      <p>That is the whole point. Stop jeeting. Stop selling. Let the timer live. Let the Bitcoin side build.</p>
+    </div>
+    <div class="hype-posts">
+      <div class="hype-kicker">Short X replies</div>
+      <div class="hype-post-grid">${postCards}</div>
+    </div>
+  </div>
+</section>`;
+}
+
 function renderSite(data, wallet, dexSummary) {
   const stats = data?.stats ?? {};
   const holders = Array.isArray(data?.holders) ? data.holders : [];
@@ -231,12 +294,12 @@ function renderSite(data, wallet, dexSummary) {
   const roundsCompleted = safeInteger(stats.roundsCompleted, 0);
   const currentRound = safeInteger(stats.currentRound, roundsCompleted);
   const qualifiedThisRound = safeInteger(stats.qualifiedThisRound, 0);
-  const btcPrice = safeNumber(stats.btcPrice, 103240);
+  const btcPrice = resolveBtcPrice(stats) || 103240;
   const nextCycleSeconds = safeInteger(stats.nextCycleSeconds, 300);
   const holderMint = String(stats.holderMint ?? process.env.HOLDER_MINT ?? "").trim();
   const rewardMint = String(stats.rewardMint ?? process.env.REWARD_MINT ?? "").trim();
   const topHolders = holders
-    .map((holder) => mapLeaderboardHolder(holder, minimumTokens))
+    .map((holder) => mapLeaderboardHolder(holder, minimumTokens, btcPrice))
     .filter((holder) => holder.qualified)
     .sort((a, b) => b.totalWbtcEarned - a.totalWbtcEarned)
     .slice(0, 50);
@@ -271,21 +334,26 @@ function renderSite(data, wallet, dexSummary) {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>$BTCBANK - Bitcoin Bank. Real Rewards.</title>
-<meta name="description" content="Bitcoin Bank on Solana. Live creator-fee flow converts into wrapped Bitcoin for qualifying holders every cycle. Stop jeeting. Stop selling. Hold enough and hold long enough." />
-<meta name="keywords" content="BTCBANK, Bitcoin Bank, wrapped bitcoin rewards, Solana, wBTC, Bitcoin rewards token, crypto holder rewards" />
+<meta name="description" content="$BTCBANK is Bitcoin Bank on Solana. CA: ${escapeHtml(holderMint || "9s96G11xGsHczudfJqKQzQxzvubQgJXSySJ1wRgxpump")}. Creator-fee SOL is routed into wrapped Bitcoin for qualifying holders every 5 minutes. Stop jeeting. Stop selling." />
+<meta name="keywords" content="BTCBANK, Bitcoin Bank, $BTCBANK, ${escapeHtml(holderMint)}, wrapped bitcoin rewards, Solana, wBTC, Bitcoin rewards token, crypto holder rewards, CoinGecko BTCBANK" />
+<meta name="application-name" content="BTCBANK" />
+<meta name="author" content="BTCBANK" />
+<meta name="contract-address" content="${escapeHtml(holderMint)}" />
+<meta name="ticker" content="BTCBANK" />
 <meta name="theme-color" content="#080808" />
 <meta name="robots" content="index,follow,max-image-preview:large" />
 <link rel="canonical" href="${SITE_URL}/" />
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="BTCBANK" />
-<meta property="og:title" content="BTCBANK | Bitcoin Bank. Real Rewards." />
-<meta property="og:description" content="The Bitcoin-bank thesis on Solana: creator-fee flow in, wrapped Bitcoin out. Live rounds, public proof, real holder tiers, and nonstop distribution." />
+<meta property="og:title" content="$BTCBANK | Bitcoin Bank on Solana" />
+<meta property="og:description" content="Hold BTCBANK. Earn wrapped Bitcoin exposure automatically every 5 minutes. CA: ${escapeHtml(holderMint || "9s96G11xGsHczudfJqKQzQxzvubQgJXSySJ1wRgxpump")}. Listed on CoinGecko. CMC in process." />
 <meta property="og:url" content="${SITE_URL}/" />
 <meta property="og:image" content="${SITE_URL}/api/og" />
-<meta property="og:image:alt" content="BTCBANK - Bitcoin Bank. Real Rewards." />
+<meta property="og:image:alt" content="BTCBANK - Bitcoin Bank on Solana. Hold token, earn wBTC." />
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="BTCBANK | Bitcoin Bank. Real Rewards." />
-<meta name="twitter:description" content="Hold enough. Hold long enough. Creator-fee flow gets routed into wrapped Bitcoin for qualifying BTCBANK holders." />
+<meta name="twitter:title" content="$BTCBANK | Bitcoin Bank on Solana" />
+<meta name="twitter:description" content="Creator-fee SOL in. wBTC distributed out. No claiming, no staking, no fake APY. Stop jeeting. Stop selling." />
 <meta name="twitter:image" content="${SITE_URL}/api/og" />
 <script type="application/ld+json">${JSON.stringify({
   "@context": "https://schema.org",
@@ -293,7 +361,9 @@ function renderSite(data, wallet, dexSummary) {
   name: "BTCBANK",
   alternateName: "Bitcoin Bank",
   url: SITE_URL,
-  description: "A Solana-based Bitcoin reward system routing creator-fee flow into wrapped Bitcoin for qualifying holders.",
+  description: "A Solana-based Bitcoin reward system routing creator-fee flow into wrapped Bitcoin for qualifying holders every 5 minutes.",
+  identifier: holderMint,
+  tickerSymbol: "BTCBANK",
   sameAs: [COINGECKO_URL],
 })}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -500,8 +570,8 @@ section{padding:clamp(60px,8vw,100px) clamp(16px,4vw,40px)}
 .lb-controls{display:flex;gap:8px;margin:24px 0 16px;flex-wrap:wrap}
 .lb-btn{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:6px 14px;font-size:12px;color:var(--muted);cursor:pointer;transition:all .2s;font-family:var(--body)}
 .lb-btn.active,.lb-btn:hover{background:rgba(247,147,26,.1);border-color:rgba(247,147,26,.3);color:var(--btc)}
-.lb-table-wrap{background:var(--bg3);border:1px solid var(--border);border-radius:12px;overflow:hidden}
-.lb-table{width:100%;border-collapse:collapse;font-size:13px}
+.lb-table-wrap{background:var(--bg3);border:1px solid var(--border);border-radius:12px;overflow-x:auto;overflow-y:hidden}
+.lb-table{width:100%;min-width:860px;border-collapse:collapse;font-size:13px}
 .lb-table th{background:var(--bg);padding:10px 16px;text-align:left;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border)}
 .lb-table td{padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle}
 .lb-table tr:last-child td{border-bottom:none}
@@ -514,6 +584,7 @@ section{padding:clamp(60px,8vw,100px) clamp(16px,4vw,40px)}
 .tier-pill{display:inline-flex;align-items:center;gap:4px;background:rgba(247,147,26,.1);border:1px solid rgba(247,147,26,.2);border-radius:4px;padding:2px 7px;font-size:10px;color:var(--btc);font-weight:600}
 .tier-pill.satoshi{background:rgba(247,147,26,.2);border-color:rgba(247,147,26,.4)}
 .wbtc-val{font-family:var(--mono);font-size:12px;color:var(--btc);font-weight:600}
+.usd-val{font-family:var(--mono);font-size:12px;color:#fff;font-weight:600}
 .mult-val{font-family:var(--mono);font-size:12px;color:var(--green)}
 .lb-empty{text-align:center;padding:48px;color:var(--muted);font-size:14px}
 .lb-loading{text-align:center;padding:32px;color:var(--muted);font-size:13px}
@@ -573,6 +644,22 @@ section{padding:clamp(60px,8vw,100px) clamp(16px,4vw,40px)}
 .mini-link{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:999px;border:1px solid var(--border2);background:#0d0d0d;color:#d7d7d7;text-decoration:none;font-size:12px}
 .mini-link:hover{border-color:rgba(247,147,26,.35);color:#fff}
 .proof-section,.calc-section,.faq-section,.manifesto-section,.brand-teaser-section{background:var(--bg)}
+.hype-section{background:linear-gradient(180deg,var(--bg2),var(--bg));position:relative;overflow:hidden}
+.hype-section::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 80% 10%,rgba(247,147,26,.08),transparent 34%);pointer-events:none}
+.hype-grid{display:grid;grid-template-columns:1.25fr .75fr;gap:18px;margin-top:30px;position:relative}
+.hype-panel,.hype-script,.hype-posts{background:var(--bg3);border:1px solid var(--border);border-radius:14px;padding:24px}
+.hype-panel.hype-main{border-color:rgba(247,147,26,.24);background:linear-gradient(180deg,rgba(247,147,26,.06),var(--bg3))}
+.hype-kicker{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--btc);margin-bottom:10px}
+.hype-panel h3,.hype-script h3{font-family:var(--display);font-size:34px;line-height:1;letter-spacing:1px;margin-bottom:12px;color:#fff}
+.hype-panel p,.hype-script p{font-size:14px;color:var(--muted);line-height:1.85;margin-bottom:12px}
+.hype-contract,.hype-rule{margin-top:16px;background:#0d0d0d;border:1px solid rgba(247,147,26,.2);border-radius:10px;padding:14px 16px;font-family:var(--mono);font-size:12px;color:#fff;line-height:1.8;word-break:break-word}
+.hype-script{margin-top:18px;border-left:3px solid var(--btc)}
+.hype-script p{font-size:16px;color:#d8d0c4}
+.hype-posts{margin-top:18px}
+.hype-post-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.hype-post{background:#0d0d0d;border:1px solid var(--border2);border-radius:12px;padding:16px;min-height:150px}
+.hype-post-num{font-family:var(--mono);font-size:11px;color:var(--btc);margin-bottom:8px}
+.hype-post p{font-size:13px;color:#d7d7d7;line-height:1.7}
 .proof-panel,.calc-panel,.faq-panel,.manifesto-panel,.brand-teaser-panel{background:var(--bg3);border:1px solid var(--border);border-radius:14px}
 .proof-panel{overflow:hidden;margin-top:28px}
 .proof-head{display:grid;grid-template-columns:1.2fr auto auto auto;gap:14px;padding:12px 18px;background:var(--bg);border-bottom:1px solid var(--border);font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}
@@ -645,7 +732,7 @@ footer{background:var(--bg3);border-top:1px solid var(--border);padding:48px cla
 .footer-disc{max-width:1100px;margin:12px auto 0;font-size:11px;color:var(--muted2);line-height:1.6}
 @media(max-width:768px){
   .nav-links{display:none}
-  .problem-grid,.story-grid,.wbtc-grid,.why-grid,.footer-grid,.checker-shell,.tier-check-grid,.tier-notes,.hero-qualify,.compare-grid,.faq-grid,.manifesto-grid,.brand-grid{grid-template-columns:1fr}
+  .problem-grid,.story-grid,.wbtc-grid,.why-grid,.footer-grid,.checker-shell,.tier-check-grid,.tier-notes,.hero-qualify,.compare-grid,.faq-grid,.manifesto-grid,.brand-grid,.hype-grid,.hype-post-grid{grid-template-columns:1fr}
   .loop-grid{grid-template-columns:1fr}
   .loop-arr{display:none}
   .hero-live-strip,.proof-summary,.calc-grid,.roadmap-wrap{grid-template-columns:1fr}
@@ -660,8 +747,17 @@ footer{background:var(--bg3);border-top:1px solid var(--border);padding:48px cla
   .checker-metrics{grid-template-columns:1fr 1fr}
   .checker-card.sticky{position:static}
 }
+@media(max-width:1120px){
+  .nav-links{display:none}
+  .nav-mobile-menu{display:block}
+}
 @media(max-width:480px){
   .hero h1{font-size:48px}
+  section{padding-left:14px;padding-right:14px}
+  .hero{padding-left:14px;padding-right:14px}
+  .checker-form input{min-width:100%;width:100%}
+  .checker-form .btn-primary{width:100%;text-align:center;border:0}
+  .chart-shell iframe{height:300px}
   .stats-grid,.checker-metrics,.hero-live-strip,.proof-summary,.calc-grid,.roadmap-wrap,.calc-result-grid{grid-template-columns:1fr}
   .tiers-grid{grid-template-columns:1fr 1fr}
   .buy-grid{grid-template-columns:1fr}
@@ -717,6 +813,7 @@ footer{background:var(--bg3);border-top:1px solid var(--border);padding:48px cla
   </a>
   <ul class="nav-links">
     <li><a href="#problem">Fix Rewards</a></li>
+    <li><a href="#hype">Hype</a></li>
     <li><a href="#lore">The Story</a></li>
     <li><a href="#buy">How to Buy</a></li>
     <li><a href="#tiers">Tiers</a></li>
@@ -732,6 +829,7 @@ footer{background:var(--bg3);border-top:1px solid var(--border);padding:48px cla
 </nav>
 <div class="mobile-nav" id="mobileNav">
   <a href="#problem" onclick="closeMobileNav()">Fix Rewards</a>
+  <a href="#hype" onclick="closeMobileNav()">Hype</a>
   <a href="#lore" onclick="closeMobileNav()">The Bitcoin Story</a>
   <a href="#wbtc" onclick="closeMobileNav()">What is wBTC?</a>
   <a href="#buy" onclick="closeMobileNav()">How to Buy</a>
@@ -805,6 +903,8 @@ footer{background:var(--bg3);border-top:1px solid var(--border);padding:48px cla
     </div>
   </div>
 </section>
+
+${renderHypeSection(minimumTokens, holderMint)}
 
 <section class="problem-section" id="problem">
   <div class="container">
@@ -1067,7 +1167,7 @@ footer{background:var(--bg3);border-top:1px solid var(--border);padding:48px cla
     </div>
     <div class="lb-table-wrap">
       <table class="lb-table">
-        <thead><tr><th>#</th><th>Wallet</th><th>Tier</th><th>Balance</th><th>Multiplier</th><th>wBTC Earned</th><th>Rounds</th></tr></thead>
+        <thead><tr><th>#</th><th>Wallet</th><th>Tier</th><th>Balance</th><th>Multiplier</th><th>wBTC Earned</th><th>USD Value</th><th>Rounds</th></tr></thead>
         <tbody id="lbBody">${renderInitialLeaderboardRows(topHolders)}</tbody>
       </table>
     </div>
@@ -1262,6 +1362,10 @@ footer{background:var(--bg3);border-top:1px solid var(--border);padding:48px cla
         <p>Falling below ${escapeHtml(formatCount(minimumTokens))} BTCBANK. The bag qualifies you; the clock boosts you. If the bag drops under the reward line, the hold timer resets and you start from base again.</p>
       </div>
       <div class="faq-panel">
+        <h3>Can the ${escapeHtml(formatCount(minimumTokens))} line change?</h3>
+        <p>Yes, if the project scale demands it. The reward line may be adjusted slightly up or down as market cap, holder count, liquidity, and payout quality change. The point is to keep distributions meaningful and fair, not to trap people with a random number.</p>
+      </div>
+      <div class="faq-panel">
         <h3>How often does the worker check?</h3>
         <p>Main claim checks run every 5 minutes. Background replay runs much faster so old payout rounds keep clearing while the next reward cycle is already forming. The public site feed updates every 30 seconds.</p>
       </div>
@@ -1342,6 +1446,7 @@ footer{background:var(--bg3);border-top:1px solid var(--border);padding:48px cla
       <h4>Learn</h4>
       <ul>
         <li><a href="#problem">Fix wBTC display</a></li>
+        <li><a href="#hype">Hype copy</a></li>
         <li><a href="#lore">Bitcoin history</a></li>
         <li><a href="/history">Bitcoin vs Memes</a></li>
         <li><a href="#wbtc">What is wBTC?</a></li>
@@ -1433,12 +1538,12 @@ async function loadLeaderboard(sort, btn){
   document.querySelectorAll('.lb-btn').forEach(function(node){ node.classList.remove('active'); });
   if(btn) btn.classList.add('active');
   const body=document.getElementById('lbBody');
-  body.innerHTML='<tr><td colspan="7" class="lb-loading">Loading...</td></tr>';
+  body.innerHTML='<tr><td colspan="8" class="lb-loading">Loading...</td></tr>';
   try{
     const r=await fetch(API_BASE+'/api/holders?sort='+encodeURIComponent(sort)+'&limit=50',{cache:'no-store'});
     const d=await r.json();
     if(!d.ok || !Array.isArray(d.holders) || !d.holders.length){
-      body.innerHTML='<tr><td colspan="7" class="lb-empty">No holder data yet. Data populates as rounds complete.</td></tr>';
+      body.innerHTML='<tr><td colspan="8" class="lb-empty">No holder data yet. Data populates as rounds complete.</td></tr>';
       return;
     }
     body.innerHTML=d.holders.map(function(h,i){
@@ -1451,12 +1556,13 @@ async function loadLeaderboard(sort, btn){
         +'<td><span class="addr-cell">'+fmt(h.balance,0)+'</span></td>'
         +'<td><span class="mult-val">'+Number(h.multiplier||0).toFixed(2)+'x</span></td>'
         +'<td><span class="wbtc-val">'+Number(h.totalWbtcEarned||0).toFixed(8)+'</span></td>'
+        +'<td><span class="usd-val">$'+fmt(h.wbtcUsd||0,2)+'</span></td>'
         +'<td><span style="font-family:var(--mono);font-size:11px;color:var(--muted)">'+fmt(h.roundsQualified||0,0)+'</span></td>'
         +'</tr>';
     }).join('');
     setText('lbTotal',fmt(d.total||0,0)+' total qualifying wallets');
   }catch(e){
-    body.innerHTML='<tr><td colspan="7" class="lb-empty">Could not load leaderboard.</td></tr>';
+    body.innerHTML='<tr><td colspan="8" class="lb-empty">Could not load leaderboard.</td></tr>';
   }
 }
 

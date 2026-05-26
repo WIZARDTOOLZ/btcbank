@@ -1,4 +1,4 @@
-import { getLivePayload, safeInteger, safeNumber } from "./_shared.js";
+import { getLivePayload, resolveBtcPrice, safeInteger, safeNumber } from "./_shared.js";
 
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
@@ -26,7 +26,7 @@ export default async function handler(req, res) {
         biggestRoundPaid: safeInteger(stats.biggestRoundPaid, 0),
         biggestRoundWbtc: safeNumber(stats.biggestRoundWbtc, 0),
         nextCycleSeconds: safeInteger(stats.nextCycleSeconds, 294),
-        btcPrice: safeNumber(stats.btcPrice, 0),
+        btcPrice: resolveBtcPrice(stats),
       },
     }));
   } catch (error) {

@@ -4,72 +4,71 @@ import {
   getLivePayload,
   safeInteger,
 } from "./_shared.js";
-import { getMint, getAssociatedTokenAddressSync, TOKEN_PROGRAM_ID, TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
-import { Connection, PublicKey } from "@solana/web3.js";
 
-async function buildDirectWalletCheck(wallet, minimumTokens) {
+async function buildDirectWalletCheck(wallet, minimumTokens, stats = {}) {
   const rpcUrl = (process.env.SOLANA_RPC_URLS ?? "")
     .split(",")
     .map((entry) => entry.trim())
-    .filter(Boolean)[0];
-  const holderMintRaw = process.env.HOLDER_MINT?.trim();
-  const rewardMintRaw = process.env.REWARD_MINT?.trim();
+    .filter(Boolean)[0] || process.env.SOLANA_RPC_URL?.trim() || "https://api.mainnet-beta.solana.com";
+  const holderMintRaw = process.env.HOLDER_MINT?.trim() || String(stats.holderMint ?? "").trim();
+  const rewardMintRaw = process.env.REWARD_MINT?.trim() || String(stats.rewardMint ?? "").trim();
 
-  if (!rpcUrl || !holderMintRaw || !rewardMintRaw) {
+  if (!holderMintRaw || !rewardMintRaw) {
     return null;
   }
 
-  const connection = new Connection(rpcUrl, "confirmed");
-  const owner = new PublicKey(wallet);
-  const holderMint = new PublicKey(holderMintRaw);
-  const rewardMint = new PublicKey(rewardMintRaw);
-  const holderMintAccount = await connection.getAccountInfo(holderMint, "confirmed");
-
-  if (!holderMintAccount) {
-    return null;
+  let id = 1;
+  async function rpc(method, params) {
+    const response = await fetch(rpcUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ jsonrpc: "2.0", id: id++, method, params }),
+      cache: "no-store",
+    });
+    if (!response.ok) {
+      throw new Error(`RPC ${method} failed with HTTP ${response.status}`);
+    }
+    const body = await response.json();
+    if (body?.error) {
+      throw new Error(body.error.message ?? `${method} RPC error`);
+    }
+    return body?.result;
   }
 
-  const holderTokenProgram = holderMintAccount.owner.equals(TOKEN_2022_PROGRAM_ID)
-    ? TOKEN_2022_PROGRAM_ID
-    : TOKEN_PROGRAM_ID;
-  const holderMintInfo = await getMint(connection, holderMint, "confirmed", holderTokenProgram);
-  const holderAccounts = await connection.getParsedTokenAccountsByOwner(
-    owner,
-    { programId: holderTokenProgram },
-    "confirmed",
-  );
+  const holderAccounts = await rpc("getTokenAccountsByOwner", [
+    wallet,
+    { mint: holderMintRaw },
+    { encoding: "jsonParsed", commitment: "confirmed" },
+  ]);
 
-  let holderBalanceRaw = 0n;
-  for (const account of holderAccounts.value) {
-    const parsed = account.account.data?.parsed?.info;
-    if (parsed?.mint !== holderMint.toBase58()) {
+  let tokens = 0;
+  for (const account of holderAccounts?.value ?? []) {
+    const tokenAmount = account?.account?.data?.parsed?.info?.tokenAmount;
+    const uiAmount = Number(tokenAmount?.uiAmountString ?? tokenAmount?.uiAmount ?? 0);
+    if (Number.isFinite(uiAmount)) {
+      tokens += uiAmount;
       continue;
     }
-    holderBalanceRaw += BigInt(parsed?.tokenAmount?.amount ?? "0");
+    const amount = Number(tokenAmount?.amount ?? 0);
+    const decimals = Number(tokenAmount?.decimals ?? 0);
+    if (Number.isFinite(amount) && Number.isFinite(decimals)) {
+      tokens += amount / 10 ** decimals;
+    }
   }
 
-  const minimumRaw = BigInt(Math.floor(minimumTokens * 10 ** holderMintInfo.decimals));
-  const qualifiesNow = holderBalanceRaw >= minimumRaw;
-  const shareCount = qualifiesNow && minimumRaw > 0n ? holderBalanceRaw / minimumRaw : 0n;
-
-  const rewardMintAccount = await connection.getAccountInfo(rewardMint, "confirmed");
-  let hasWbtcAccount = null;
-  if (rewardMintAccount) {
-    const rewardAta = getAssociatedTokenAddressSync(
-      rewardMint,
-      owner,
-      true,
-      rewardMintAccount.owner,
-    );
-    hasWbtcAccount = (await connection.getAccountInfo(rewardAta, "confirmed")) !== null;
-  }
-
-  const tokens = Number(holderBalanceRaw) / 10 ** holderMintInfo.decimals;
+  const qualifiesNow = tokens >= minimumTokens;
+  const shareCount = qualifiesNow ? Math.floor(tokens / minimumTokens) : 0;
   const tokensNeeded = qualifiesNow ? 0 : Math.max(0, minimumTokens - tokens);
+  const rewardAccounts = await rpc("getTokenAccountsByOwner", [
+    wallet,
+    { mint: rewardMintRaw },
+    { encoding: "jsonParsed", commitment: "confirmed" },
+  ]);
+  const hasWbtcAccount = (rewardAccounts?.value ?? []).length > 0;
 
   return {
     found: true,
-    wallet: owner.toBase58(),
+    wallet,
     minimumTokens,
     balanceTokens: tokens.toLocaleString("en-US", {
       minimumFractionDigits: 0,
@@ -77,7 +76,7 @@ async function buildDirectWalletCheck(wallet, minimumTokens) {
     }),
     balanceRaw: tokens,
     qualifiesNow,
-    shareCount: Number(shareCount),
+    shareCount,
     holdAge: qualifiesNow ? "timer active after live sync" : "timer inactive",
     holdTier: qualifiesNow ? "Holder" : "below minimum",
     holdMultiplier: qualifiesNow ? "1.00x" : "0.00x",
@@ -117,9 +116,17 @@ export default async function handler(req, res) {
     const holders = payload?.holders ?? [];
     let result = buildWalletCheckResult(findHolderByWallet(holders, wallet), wallet, minimumTokens);
     if (!result.found) {
-      const directResult = await buildDirectWalletCheck(wallet, minimumTokens);
-      if (directResult) {
-        result = directResult;
+      try {
+        const directResult = await buildDirectWalletCheck(wallet, minimumTokens, stats);
+        if (directResult) {
+          result = directResult;
+        }
+      } catch (error) {
+        result = {
+          found: false,
+          wallet,
+          message: `Wallet was not in the live holder snapshot, and the on-chain fallback could not complete: ${error?.message ?? "unknown error"}`,
+        };
       }
     }
 

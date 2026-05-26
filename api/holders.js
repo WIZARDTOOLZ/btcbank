@@ -4,6 +4,7 @@ import {
   getHolderTokens,
   getLivePayload,
   mapLeaderboardHolder,
+  resolveBtcPrice,
   safeInteger,
 } from "./_shared.js";
 
@@ -18,8 +19,9 @@ export default async function handler(req, res) {
     const payload = await getLivePayload();
     const stats = payload?.stats ?? {};
     const minimumTokens = safeInteger(stats.holderMinTokens ?? 300000, 300000);
+    const btcPrice = resolveBtcPrice(stats);
     const holders = (payload?.holders ?? [])
-      .map((holder) => mapLeaderboardHolder(holder, minimumTokens))
+      .map((holder) => mapLeaderboardHolder(holder, minimumTokens, btcPrice))
       .filter((holder) => holder.qualified);
 
     holders.sort((a, b) => {

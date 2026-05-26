@@ -1,4 +1,4 @@
-import { kv } from "@vercel/kv";
+import { getLivePayload } from "./_shared.js";
 
 function fmtWbtc(val) {
   const n = parseFloat(val ?? 0);
@@ -1217,7 +1217,7 @@ export default async function handler(req, res) {
 
   let data = null;
   try {
-    data = await kv.get("btcbank:live");
+    data = await getLivePayload();
   } catch {
     // serve page with null data (shows OFFLINE, dashes)
   }

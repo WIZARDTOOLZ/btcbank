@@ -1,4 +1,5 @@
 const SITE_URL = (process.env.SITE_URL ?? "https://www.btcbank.help").replace(/\/+$/, "");
+const HOLDER_MINT = process.env.HOLDER_MINT ?? "9s96G11xGsHczudfJqKQzQxzvubQgJXSySJ1wRgxpump";
 
 function svg() {
   return `<?xml version="1.0" encoding="UTF-8"?>
@@ -20,9 +21,10 @@ function svg() {
   <text x="84" y="248" fill="#f5f0e8" font-family="Arial Black, Impact, sans-serif" font-size="116" font-weight="900">STOP JEETING.</text>
   <text x="84" y="354" fill="#f7931a" font-family="Arial Black, Impact, sans-serif" font-size="116" font-weight="900">STOP SELLING.</text>
   <text x="84" y="430" fill="#d0c7b8" font-family="Georgia, serif" font-size="34">Hold enough. Hold long enough. Earn wrapped Bitcoin.</text>
-  <text x="84" y="490" fill="#8f8678" font-family="Consolas, monospace" font-size="22">Main site: ${SITE_URL.replace(/^https?:\/\//, "")}</text>
-  <rect x="84" y="520" width="328" height="42" rx="21" fill="#111111" stroke="#3a3127"/>
-  <text x="108" y="548" fill="#f7931a" font-family="Consolas, monospace" font-size="18">BTCBANK | Solana -> wBTC</text>
+  <text x="84" y="484" fill="#8f8678" font-family="Consolas, monospace" font-size="22">Main site: ${SITE_URL.replace(/^https?:\/\//, "")}</text>
+  <text x="84" y="516" fill="#8f8678" font-family="Consolas, monospace" font-size="18">CA: ${HOLDER_MINT.slice(0, 18)}...${HOLDER_MINT.slice(-10)}</text>
+  <rect x="84" y="532" width="496" height="42" rx="21" fill="#111111" stroke="#3a3127"/>
+  <text x="108" y="560" fill="#f7931a" font-family="Consolas, monospace" font-size="18">$BTCBANK | Listed on CoinGecko | CMC in process</text>
 </svg>`;
 }
 

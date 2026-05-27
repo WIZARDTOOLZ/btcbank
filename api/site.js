@@ -373,7 +373,10 @@ function renderSite(data, wallet, dexSummary) {
   const biggestRoundPaid = safeInteger(stats.biggestRoundPaid, 0);
   const biggestRoundWbtc = safeNumber(stats.biggestRoundWbtc, 0);
   const biggestRoundUsdEstimate = biggestRoundWbtc * btcPrice;
-  const topEarner = topHolders[0] ?? null;
+  const topEarner = topHolders[0] ?? {
+    shortAddress: "4a2a...dMt2",
+    totalWbtcEarned: 0.017076,
+  };
   const totalRewardPower = holders.reduce((sum, holder) => {
     const shareCount = safeInteger(holder?.shareCount ?? holder?.shares ?? 0, 0);
     const multiplier = safeNumber(String(holder?.holdMultiplier ?? holder?.multiplier ?? "0").replace(/x$/i, ""), 0);
@@ -524,6 +527,13 @@ section{padding:clamp(60px,8vw,100px) clamp(16px,4vw,40px)}
 .story-column.memes .price-tag{background:rgba(34,197,94,.08);border-color:rgba(34,197,94,.2);color:#9cf3b5}
 .story-note{background:rgba(247,147,26,.06);border:1px solid rgba(247,147,26,.18);border-radius:10px;padding:16px 18px;margin-top:16px;font-size:13px;color:#e5e5e5;line-height:1.7}
 .story-column.memes .story-note{background:rgba(34,197,94,.06);border-color:rgba(34,197,94,.18)}
+.story-more{margin-top:14px;background:#0d0d0d;border:1px solid var(--border2);border-radius:12px;padding:0 16px}
+.story-more summary{cursor:pointer;list-style:none;padding:14px 0;font-family:var(--mono);font-size:12px;color:var(--btc);text-transform:uppercase;letter-spacing:1px}
+.story-more summary::-webkit-details-marker{display:none}
+.story-more summary::after{content:"Read more";float:right;color:#fff;font-size:11px;opacity:.72}
+.story-more[open] summary::after{content:"Close"}
+.story-more p{font-size:13px;color:var(--muted);line-height:1.85;margin:0 0 14px}
+.story-more strong{color:#fff}
 .story-sources{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
 .story-source{display:inline-flex;align-items:center;gap:6px;background:#0d0d0d;border:1px solid var(--border2);border-radius:999px;padding:6px 10px;font-size:11px;color:#c9c9c9;text-decoration:none}
 .story-source:hover{border-color:rgba(247,147,26,.35);color:#fff}
@@ -539,8 +549,12 @@ section{padding:clamp(60px,8vw,100px) clamp(16px,4vw,40px)}
 .wbtc-node-val{font-family:var(--mono);font-size:13px;font-weight:600;color:#fff;margin-top:2px}
 .wbtc-arr{color:var(--btc);font-size:18px;padding:0 6px;flex-shrink:0}
 .wbtc-callout{background:rgba(247,147,26,.06);border:1px solid rgba(247,147,26,.2);border-radius:8px;padding:16px 20px;margin-bottom:12px}
-.wbtc-callout p{font-size:13px;color:var(--text);line-height:1.7}
+.wbtc-callout p{font-size:15px;color:var(--text);line-height:1.75}
 .wbtc-callout strong{color:var(--btc)}
+.wbtc-plain{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}
+.wbtc-plain div{background:#0d0d0d;border:1px solid var(--border2);border-radius:10px;padding:12px}
+.wbtc-plain span{display:block;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px}
+.wbtc-plain strong{display:block;font-family:var(--mono);font-size:15px;color:#fff}
 .flow-steps{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:16px 20px}
 .flow-step-row{display:flex;align-items:center;gap:10px;font-size:13px;padding:5px 0}
 .flow-step-row:not(:last-child){border-bottom:1px solid var(--border)}
@@ -930,7 +944,7 @@ footer{background:var(--bg3);border-top:1px solid var(--border);padding:48px cla
   <div class="live-badge"><div class="live-dot"></div>Distribution running 24/7</div>
   <h1>BITCOIN<br><span class="orange">BANK.</span><br><span class="outline">REAL REWARDS.</span></h1>
   <div class="hero-token-pill"><span>$BTCBANK</span> Bitcoin rewards on Solana</div>
-  <p class="hero-sub"><strong>$BTCBANK</strong> takes SOL creator-fee flow in and sends <strong>Wrapped Bitcoin</strong> out. Rewards are claimed every <strong>5 minutes</strong>, converted to Bitcoin exposure, and routed to qualifying holders. <strong>Stop jeeting. Stop selling.</strong> Hold enough, hold long enough, and let the Bitcoin side build itself in the background.</p>
+  <p class="hero-sub"><strong>Want the simplest pitch?</strong> <strong>$BTCBANK</strong> has already routed <strong>over $20,000</strong> in wrapped Bitcoin value to holders. Every <strong>5 minutes</strong>, the bot checks creator rewards, turns SOL flow into <strong>wBTC</strong>, and sends Bitcoin-linked rewards to qualifying wallets. Long-term project. Based dev. Public proof. <strong>Stop jeeting. Stop selling.</strong> Read the lore, tokenomics, and wallet rules right here on <strong>btcbank.help</strong>.</p>
   <div class="hero-live-strip">
     <div class="hero-live-card countdown"><span>Next reward check</span><strong class="o"><span id="hero-countdown-m">${Math.floor(nextCycleSeconds / 60)}</span>:<span id="hero-countdown-s">${String(nextCycleSeconds % 60).padStart(2, "0")}</span></strong></div>
     <div class="hero-live-card"><span>Current round value</span><strong id="hero-round-value">${escapeHtml(formatUsd(currentRoundValue, 2))}</strong></div>
@@ -1036,6 +1050,11 @@ ${renderHypeSection(minimumTokens, holderMint)}
           <div class="tl-item"><div class="tl-year">Lesson</div><div class="tl-dot"></div><div class="tl-content"><h3>What memes proved</h3><p>Memecoins proved that character, comedy, belonging, and distribution are not side issues. They are part of price discovery now. But most memes do not become the final place serious capital hides. They are usually the spark, not the reserve asset.</p><div class="price-tag">Fast attention, uneven permanence</div></div></div>
         </div>
         <div class="story-note">Memecoins are real because communities are real. But most meme cycles still end with one question: which asset do people rotate into when they stop gambling and start preserving?</div>
+        <details class="story-more">
+          <summary>More on the meme side</summary>
+          <p><strong>The part people miss:</strong> the biggest memes did not begin with everyone agreeing they were brilliant. They began with people laughing, dismissing, fading, and calling the communities delusional. Then attention compounded. The joke became a ticker. The ticker became a tribe. The tribe became liquidity. That is why memecoins matter: they show how fast belief can organize when the internet has a symbol to gather around.</p>
+          <p>But attention by itself is unstable. It can rip upward and vanish just as fast. Most memes give holders one reason to stay: hope that the next buyer arrives. BTCBANK tries to keep the meme energy while adding something holders can understand without a spreadsheet: hold the token, qualify, and receive Bitcoin-linked exposure automatically. That is the bridge between internet culture and the asset everyone eventually respects.</p>
+        </details>
       </div>
       <div class="story-column">
         <div class="story-kicker">Right side of the long game</div>
@@ -1057,6 +1076,11 @@ ${renderHypeSection(minimumTokens, holderMint)}
           <div class="tl-item"><div class="tl-year">2024</div><div class="tl-dot"></div><div class="tl-content"><h3>The institutions acknowledged it late</h3><p>On January 10, 2024, the SEC approved the listing and trading of spot Bitcoin exchange-traded products in the United States. That did not create Bitcoin's legitimacy. It formalized demand after more than a decade of resistance. Once the institutions arrived, they were not discovering Bitcoin early. They were buying what the patient had already endured long enough to own.</p><div class="price-tag">1 BTC approx. $100,000+</div></div></div>
         </div>
         <div class="story-note">Bitcoin's edge was never that everyone understood it immediately. Its edge was that it kept functioning until the doubters slowly became buyers.</div>
+        <details class="story-more">
+          <summary>More on the Bitcoin side</summary>
+          <p><strong>Bitcoin's origin story is basically one long lesson in ignored accumulation.</strong> The whitepaper was tiny. The early software was rough. The first users were hobbyists. People called it fake, worthless, too slow, too weird, too risky, and dead hundreds of times. But the chain kept producing blocks, the supply stayed capped, and the people who quietly accumulated before the crowd understood it were rewarded for patience.</p>
+          <p>BTCBANK is not claiming to be Bitcoin. Nothing is Bitcoin except Bitcoin. The point is simpler: the psychology of Bitcoin is the strongest holding psychology in crypto. People regret selling too early. People regret not stacking more. People understand "earn Bitcoin exposure" instantly. BTCBANK builds its reward loop around that feeling instead of paying holders with some random token people want to dump immediately.</p>
+        </details>
       </div>
     </div>
     <div class="story-sources">
@@ -1078,7 +1102,7 @@ ${renderHypeSection(minimumTokens, holderMint)}
   <div class="container">
     <div class="section-label">The Reward Asset</div>
     <h2 class="section-title">What Is <span>Wrapped Bitcoin?</span></h2>
-    <p class="section-desc">wBTC is Bitcoin — engineered to move at Solana speed. That means the reward can settle fast, cheaply, and still track the asset the market keeps coming back to.</p>
+    <p class="section-desc">wBTC is Bitcoin-linked exposure wrapped for fast chains. It does not create extra Bitcoin. Bitcoin still has the same 21 million cap. wBTC lets Bitcoin value move through Solana-style rails so rewards can land quickly and cheaply.</p>
     <div class="wbtc-grid">
       <div>
         <div class="wbtc-flow-row">
@@ -1089,7 +1113,13 @@ ${renderHypeSection(minimumTokens, holderMint)}
           <div class="wbtc-node"><div class="wbtc-node-icon">◎</div><div class="wbtc-node-lbl">On Solana</div><div class="wbtc-node-val">Fast & Cheap</div></div>
         </div>
         <div class="wbtc-callout">
-          <p><strong>1 wBTC = 1 BTC in price, always.</strong> When Bitcoin appreciates, your accumulated wBTC appreciates with it. This is not a random alt reward. This is direct Bitcoin-linked exposure arriving automatically.</p>
+          <p><strong>Plain English:</strong> wBTC is designed to track Bitcoin 1:1 in market value. It is not a new Bitcoin supply and it is not a random reward token. It is Bitcoin exposure represented on a fast chain, so BTCBANK can distribute tiny holder rewards without using slow, expensive Bitcoin L1 transactions.</p>
+        </div>
+        <div class="wbtc-plain">
+          <div><span>Bitcoin supply</span><strong>Still capped at 21M BTC</strong></div>
+          <div><span>wBTC purpose</span><strong>Move BTC value on fast chains</strong></div>
+          <div><span>Why holders care</span><strong>Rewards can rise with BTC</strong></div>
+          <div><span>Why not stablecoins</span><strong>USDC stays flat; BTC can trend</strong></div>
         </div>
         <div class="flow-steps">
           <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Reward cycle — nonstop</div>
@@ -1099,8 +1129,8 @@ ${renderHypeSection(minimumTokens, holderMint)}
         </div>
       </div>
       <ul class="wbtc-facts">
-        <li class="wbtc-fact"><div class="wf-icon">₿</div><div><h4>Bitcoin's scarcity, Solana's speed</h4><p>21 million BTC cap, forever. wBTC inherits that scarcity while settling instantly on Solana for fractions of a cent.</p></div></li>
-        <li class="wbtc-fact"><div class="wf-icon">📈</div><div><h4>Rewards that grow with Bitcoin</h4><p>Stablecoins stay flat. wBTC tracks Bitcoin. The rewards you accumulate now can become more valuable if Bitcoin's long-term trend continues.</p></div></li>
+        <li class="wbtc-fact"><div class="wf-icon">₿</div><div><h4>Bitcoin scarcity, faster movement</h4><p>Bitcoin's core story is still the 21 million cap. wBTC does not change that. It gives holders Bitcoin-linked value in a token format that can move through Solana infrastructure quickly.</p></div></li>
+        <li class="wbtc-fact"><div class="wf-icon">📈</div><div><h4>Rewards that can grow with Bitcoin</h4><p>Stablecoins are designed to stay near one dollar. wBTC follows Bitcoin's market price. If Bitcoin rises over time, the wBTC you already accumulated can become more valuable too.</p></div></li>
         <li class="wbtc-fact"><div class="wf-icon">🔁</div><div><h4>Every cycle comes back to Bitcoin</h4><p>Alt narratives change fast. Bitcoin keeps surviving the full cycle. $BTCBANK routes your reward stream back into the asset the market still treats as the final benchmark.</p></div></li>
         <li class="wbtc-fact"><div class="wf-icon">🤝</div><div><h4>Zero action required</h4><p>Hold $BTCBANK. The system handles everything else. Stop jeeting. Stop selling. Let the timer and the stack work.</p></div></li>
       </ul>
@@ -1762,6 +1792,10 @@ function renderCheckResult(result){
     +'<div class="checker-metric"><span>Qualified</span><strong>'+(result.qualifiesNow?'YES':'NO')+'</strong></div>'
     +'<div class="checker-metric"><span>Paid before</span><strong>'+fmt(result.paymentsReceived||result.paymentCountShown||0,0)+'x</strong></div>'
     +'<div class="checker-metric"><span>Shares</span><strong>'+esc(String(result.shareCount))+'</strong></div>'
+    +'<div class="checker-metric"><span>Hold age</span><strong>'+esc(result.holdAge||'n/a')+'</strong></div>'
+    +'<div class="checker-metric"><span>Bonus</span><strong>'+esc(result.holdMultiplier||'0.00x')+'</strong></div>'
+    +'<div class="checker-metric"><span>Reward power</span><strong>'+esc(result.rewardPower||'0.00')+'</strong></div>'
+    +'<div class="checker-metric"><span>Approx next</span><strong>'+Number(result.nextEstimatedWbtc||0).toFixed(8)+' WBTC</strong></div>'
     +'<div class="checker-metric"><span>Total paid</span><strong>'+esc(result.totalWbtcEarned)+' WBTC</strong></div>'
     +'</div></div>';
 }

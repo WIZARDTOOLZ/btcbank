@@ -128,6 +128,10 @@ async function buildDirectWalletCheck(wallet, minimumTokens, stats = {}) {
   const tokensNeeded = qualifiesNow ? 0 : Math.max(0, minimumTokens - tokens);
   const rewardAccounts = await getTokenAccountsForMint(wallet, rewardMintRaw);
   const hasWbtcAccount = rewardAccounts.length > 0;
+  const fallbackRoundWbtc = safeNumber(stats.currentRoundWbtc || stats.latestRoundWbtc || stats.biggestRoundWbtc || 0, 0);
+  const fallbackQualified = Math.max(1, safeInteger(stats.qualifiedThisRound || stats.paidThisRound || 1, 1));
+  const directEstimatedWbtc = qualifiesNow ? (fallbackRoundWbtc * Math.max(shareCount, 1)) / fallbackQualified : 0;
+  const btcPrice = resolveBtcPrice(stats);
 
   return {
     found: true,
@@ -155,8 +159,8 @@ async function buildDirectWalletCheck(wallet, minimumTokens, stats = {}) {
     payableNow: hasWbtcAccount === null ? null : qualifiesNow && hasWbtcAccount,
     totalWbtcEarned: "0.00000000",
     totalWbtcUsd: 0,
-    nextEstimatedWbtc: "0.00000000",
-    nextEstimatedUsd: 0,
+    nextEstimatedWbtc: directEstimatedWbtc.toFixed(8),
+    nextEstimatedUsd: directEstimatedWbtc * btcPrice,
     paymentsReceived: 0,
     roundsQualified: 0,
     lastPaidAt: null,

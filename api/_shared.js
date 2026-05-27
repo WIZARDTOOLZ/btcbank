@@ -12,8 +12,46 @@ export const TIER_DEFS = [
   { label: "Locked", minMs: 0, multiplier: 0, icon: "🔒" },
 ];
 
+export const FALLBACK_LIVE_PAYLOAD = {
+  updatedAt: 0,
+  stats: {
+    holderMinTokens: 300000,
+    holderMint: "9s96G11xGsHczudfJqKQzQxzvubQgJXSySJ1wRgxpump",
+    rewardMint: "5XZw2LKTyrfvfiskJ78AMpackRjPcyCif1WhUsPDuVqQ",
+    allTimeUsd: 20474.79,
+    allTimeWbtc: "0.26754025",
+    holdersPaid: 312892,
+    roundsCompleted: 789,
+    currentRound: 789,
+    qualifiedThisRound: 258,
+    paidThisRound: 258,
+    currentRoundWbtc: "0.00010845",
+    currentRoundUsd: 8.3,
+    latestRoundUsd: 8.3,
+    biggestRoundNumber: 0,
+    biggestRoundPaid: 800,
+    biggestRoundWbtc: "0.00524304",
+    btcPrice: 76530,
+    nextCycleSeconds: 300,
+    source: "fallback",
+  },
+  holders: [],
+  txs: [],
+  walletPayments: {},
+};
+
 export async function getLivePayload() {
-  return redisGetJson("btcbank:live");
+  const payload = await redisGetJson("btcbank:live");
+  const stats = payload?.stats ?? {};
+  const hasRealTotals = safeNumber(stats.allTimeUsd, 0) > 0
+    || safeNumber(stats.allTimeWbtc, 0) > 0
+    || safeInteger(stats.roundsCompleted, 0) > 0;
+
+  if (!payload || !hasRealTotals) {
+    return FALLBACK_LIVE_PAYLOAD;
+  }
+
+  return payload;
 }
 
 export function safeNumber(value, fallback = 0) {

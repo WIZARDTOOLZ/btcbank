@@ -52,7 +52,7 @@ export class Logger {
   }
 
   public banner(title: string, details: string[]): void {
-    const line = "═".repeat(BANNER_WIDTH);
+    const line = "=".repeat(BANNER_WIDTH);
     console.log(chalk.hex("#8a5b14")(line));
     console.log(chalk.bgHex("#0b0907").hex("#fb923c").bold(`  ${title}`));
     for (const detail of details) {
@@ -128,7 +128,7 @@ export class Logger {
     const safeTotal = Math.max(total, 1);
     const width = 14;
     const filled = Math.max(0, Math.min(width, Math.round((current / safeTotal) * width)));
-    const bar = `${"■".repeat(filled)}${"·".repeat(width - filled)}`;
+    const bar = `${"#".repeat(filled)}${"-".repeat(width - filled)}`;
     const prefix = `${label} ${current}/${total}`;
     const suffix = detail ? ` ${detail}` : "";
     console.log(
@@ -162,17 +162,17 @@ export class Logger {
       BOX_MAX_WIDTH,
       Math.max(title.length + 4, ...rawWidths, BOX_MIN_WIDTH),
     );
-    const top = `┌${"─".repeat(width - 2)}┐`;
-    const bottom = `└${"─".repeat(width - 2)}┘`;
+    const top = `+${"-".repeat(width - 2)}+`;
+    const bottom = top;
     console.log(style(top));
     console.log(style(this.padBoxLine(` ${title}`, width)));
-    console.log(style(`├${"─".repeat(width - 2)}┤`));
+    console.log(style(`+${"-".repeat(width - 2)}+`));
     for (const row of rows) {
       const wrapped = this.wrapText(row.value, Math.max(12, width - 2 - BOX_LABEL_WIDTH - 1));
       wrapped.forEach((line, index) => {
         const label = index === 0 ? row.label.padEnd(BOX_LABEL_WIDTH) : "".padEnd(BOX_LABEL_WIDTH);
         const body = `${chalk.hex("#e7d7bf")(label)} ${chalk.whiteBright(line)}`;
-        console.log(style("│") + this.padMixedBoxLine(body, width - 2) + style("│"));
+        console.log(style("|") + this.padMixedBoxLine(body, width - 2) + style("|"));
       });
     }
     console.log(style(bottom));
@@ -205,7 +205,7 @@ export class Logger {
 
   private padBoxLine(text: string, width: number): string {
     const bodyWidth = width - 2;
-    return `│${text.padEnd(bodyWidth)}│`;
+    return `|${text.padEnd(bodyWidth)}|`;
   }
 
   private padMixedBoxLine(text: string, bodyWidth: number): string {

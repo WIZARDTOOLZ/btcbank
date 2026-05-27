@@ -87,6 +87,7 @@ type OverlayPayload = {
     totalPaidUsd: number | null;
     totalHandledUsd: number | null;
     carryForwardSol: string;
+    carryForwardUsd: number | null;
     txCount: number;
   };
   queue: {
@@ -708,11 +709,13 @@ async function computeOverlayPayload(): Promise<OverlayPayload> {
       }, 0n),
       0n,
     );
+    const solMint = new PublicKey("So11111111111111111111111111111111111111112");
+    const carryForwardRaw = parseBigInt(state.carryForwardRewardLamports);
     const totalPaidUsd = await getTotalPaidUsd(state);
-    const totalHandledUsd = await quoteTokenToUsd(
-      new PublicKey("So11111111111111111111111111111111111111112"),
-      totalClaimedLamports,
-    );
+    const [totalHandledUsd, carryForwardUsd] = await Promise.all([
+      quoteTokenToUsd(solMint, totalClaimedLamports),
+      quoteTokenToUsd(solMint, carryForwardRaw),
+    ]);
     const holdersPaidTotal = state.rounds.reduce(
       (total, round) => total + round.recipients.filter((recipient) => recipient.status === "paid").length,
       0,
@@ -767,7 +770,8 @@ async function computeOverlayPayload(): Promise<OverlayPayload> {
         totalPaidWbtc: formatTokenAmount(totalPaidWbtcRaw, 8),
         totalPaidUsd,
         totalHandledUsd,
-        carryForwardSol: formatSolAmount(parseBigInt(state.carryForwardRewardLamports)),
+        carryForwardSol: formatSolAmount(carryForwardRaw),
+        carryForwardUsd,
         txCount: recentTxs.length,
       },
       queue: {
@@ -2013,7 +2017,7 @@ function renderOverlayHtml(): string {
     .status.complete { color: var(--green); }
     .metrics {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 6px;
     }
     .metric {
@@ -3043,7 +3047,7 @@ function renderPaidSummaryHtml(): string {
 
     .stats-strip {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 10px;
     }
 
@@ -3621,6 +3625,10 @@ function renderPaidSummaryHtml(): string {
           <div class="mini-label">Rounds</div>
           <div class="mini-value cyan" id="heroRounds">-</div>
         </div>
+        <div class="mini">
+          <div class="mini-label">Pool Building</div>
+          <div class="mini-value orange" id="heroPool">-</div>
+        </div>
       </div>
     </div>
     <div class="status-ribbon" id="botNow">
@@ -3772,6 +3780,11 @@ function renderPaidSummaryHtml(): string {
     }
 
     function describeBot(data, round) {
+      const poolSol = Number(data.totals.carryForwardSol || 0);
+      if (poolSol > 0) {
+        const poolUsd = data.totals.carryForwardUsd === null ? "" : " (" + usdFormatter.format(data.totals.carryForwardUsd) + ")";
+        return "Reward pool building now: " + data.totals.carryForwardSol + " SOL" + poolUsd + ". All-time paid jumps when this swaps to WBTC and lands on-chain.";
+      }
       if (round && round.pendingRecipients > 0) {
         return "Current round is active. " + round.pendingRecipients + " payout" + (round.pendingRecipients === 1 ? "" : "s") + " still need to land.";
       }
@@ -3831,6 +3844,9 @@ function renderPaidSummaryHtml(): string {
       document.getElementById("heroWbtc").textContent = data.totals.totalPaidWbtc;
       document.getElementById("heroHolders").textContent = data.totals.holdersPaidTotal.toLocaleString();
       document.getElementById("heroRounds").textContent = data.totals.roundsTotal.toLocaleString();
+      document.getElementById("heroPool").textContent = Number(data.totals.carryForwardSol || 0) > 0
+        ? (data.totals.carryForwardUsd === null ? data.totals.carryForwardSol + " SOL" : usdFormatter.format(data.totals.carryForwardUsd))
+        : "empty";
       document.getElementById("marketBtc").textContent = data.market.btcUsd === null ? "pricing..." : usdFormatter.format(data.market.btcUsd);
       document.getElementById("marketWbtc").textContent = data.market.wbtcUsd === null ? "pricing..." : usdFormatter.format(data.market.wbtcUsd);
       document.getElementById("heroRound").textContent = round

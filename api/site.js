@@ -265,59 +265,120 @@ function renderInitialTxRows(txs) {
 
 function renderHypeSection(minimumTokens, holderMint) {
   const minLabel = formatCount(minimumTokens);
+  const grandfatherLabel = formatCount(300000);
   const posts = [
-    "Most people in crypto eventually realize they should have accumulated more Bitcoin. BTCBANK was built around that exact feeling: hold, earn wBTC automatically, stack Bitcoin exposure over time.",
-    "Stablecoins stay flat. Random reward tokens fade. Bitcoin keeps surviving. That is why BTCBANK routes creator-fee value into wBTC for qualifying holders.",
-    "People laughed at free Bitcoin faucets too. Tiny amounts looked meaningless until time did what time does. Accumulation matters.",
-    "The thesis is simple: Solana speed on the front end, Bitcoin exposure on the reward side. Hold BTCBANK, earn wBTC, stop jeeting.",
-    "No fake APY. No staking maze. No claiming button. Creator-fee SOL in, wrapped Bitcoin out, every 5 minutes.",
-    "Most reward tokens pay assets people want to dump. BTCBANK pays the asset people keep wishing they had more of: Bitcoin exposure through wBTC.",
-    "Bitcoin is the final destination for a lot of crypto profits anyway. BTCBANK skips the rotate-later step and rewards holders with Bitcoin exposure now.",
-    "The simplest pitch is still the strongest one: hold the token, earn Bitcoin exposure automatically.",
-    "Meme coin energy plus Bitcoin legitimacy is a rare combination. BTCBANK lives exactly in that gap.",
-    "People do not emotionally treat BTC rewards like random alt rewards. Bitcoin feels scarce. Bitcoin feels serious. That is the point.",
-    "If Bitcoin headlines keep getting bigger, the BTCBANK story gets easier to understand. Every cycle eventually talks about BTC again.",
-    "BTCBANK is not asking people to believe in complicated farming math. It asks one thing: do you understand why people regret selling Bitcoin too early?",
+    "Most people in crypto eventually learn the same lesson: they should have accumulated more Bitcoin and panic-sold less. BTCBANK was built around that feeling.",
+    "Hold BTCBANK. Earn wBTC automatically. Stack Bitcoin-linked exposure while everyone else keeps rotating every 20 minutes.",
+    "The bot does not care if you are asleep. If a qualifying round pays, qualifying holders get routed wBTC. That is the point.",
+    "Hundreds of sleeping baggers already got paid while they were doing nothing. That is a very different feeling from chasing candles all night.",
+    "Trenchers struggle to hold because most coins give them no reason to. BTCBANK gives holders a reason: stay qualified and let wBTC accumulate.",
+    "This is the simplest crypto sentence: hold the token, earn Bitcoin exposure.",
+    "No fake APY. No staking maze. No claim button. SOL creator rewards in, wrapped Bitcoin out.",
+    "Stablecoins preserve value. Bitcoin has historically created value. BTCBANK chose the reward asset people actually want to stack.",
+    "People laughed at Bitcoin faucets too. Tiny amounts looked meaningless until time made them legendary.",
+    "BTCBANK is not Bitcoin. Nothing is Bitcoin except Bitcoin. BTCBANK is a Solana reward loop built around the psychology of stacking Bitcoin exposure.",
+    "Most meme coins only ask people to hope. BTCBANK adds a live reward reason to hold.",
+    "Most reward tokens pay assets people dump instantly. BTCBANK pays wBTC, the asset people regret not accumulating.",
+    "Every Bitcoin headline makes this narrative easier: the coin that pays holders in Bitcoin-linked rewards.",
+    "If Bitcoin is the destination for most crypto profits anyway, BTCBANK skips the rotate-later step.",
+    "The market understands Bitcoin. Normies understand Bitcoin. Institutions understand Bitcoin. That is why wBTC rewards hit different.",
+    "Solana gives speed. Bitcoin gives the strongest asset narrative. BTCBANK connects both in one simple holder loop.",
+    "This is not complicated farming math. It is creator-fee SOL becoming wBTC for qualifying holders.",
+    "The longer you hold above the line, the more your timer matters. Stop resetting your own advantage.",
+    "Selling below the line kills the timer. Holding keeps the clock alive. The system is designed to make patience visible.",
+    "People call every early thing fake until the proof becomes too loud to ignore. BTCBANK has public payout proof.",
+    "The dashboard is not a promise board. It is a receipt board: rounds, wallets paid, wBTC distributed, signatures.",
+    "A lot of coins tell you to believe. BTCBANK shows transactions.",
+    "The emotional difference is huge: receiving Bitcoin exposure feels different from receiving a random alt reward.",
+    "Bitcoin has survived every cycle. Most reward tokens have not. That is why the reward asset matters.",
+    "BTCBANK is meme energy with a Bitcoin reward spine.",
+    "People are tired of coins that punish holders. BTCBANK was designed to make holding feel productive.",
+    "You do not need to be a perfect trader if the system rewards patience. That is the whole psychology.",
+    "The regret is universal: I should have held more Bitcoin. BTCBANK turns that regret into a holder thesis.",
+    "The reward line exists to keep payouts meaningful. Bigger bag, longer hold, bigger share.",
+    "This is not about pretending every payout is huge today. It is about building a live accumulation machine early.",
+    "Tiny Bitcoin amounts were laughed at before. History made the joke expensive.",
+    "BTCBANK holders are not farming a mystery token. They are accumulating wBTC rewards from real trading activity.",
+    "Every five minutes the bot checks. Every round that clears becomes another proof point.",
+    "No weekends off. No manual claim drama. The bot keeps watching the reward flow.",
+    "Most people sell because there is no reason to stay. BTCBANK gives a reason to stay.",
+    "The best holder behavior is simple: qualify, unlock wBTC once, stop jeeting, let the system work.",
+    "BTCBANK is easy to explain because the reward is Bitcoin-linked. That matters more than people think.",
+    "The idea sounds obvious after you hear it: why are reward coins paying everything except Bitcoin?",
+    "A Solana token rewarding wBTC is easy for the market to understand. That is rare.",
+    "Hype brings attention. Bitcoin rewards create a reason to keep paying attention.",
+    "The strongest narratives are simple. BTCBANK: hold coin, earn wBTC.",
+    "If you believe Bitcoin keeps mattering long term, you should understand why this concept hits.",
+    "This project is built for people who are tired of watching everyone jeet the second something works.",
+    "Respectful profit-taking is normal. Killing your whole timer and then complaining is different.",
+    "BTCBANK does not need people to become Bitcoin maxis. It just needs them to understand why Bitcoin rewards are premium.",
+    "The reward asset is the message.",
+    "People slept and got paid. That is the kind of mechanic trench culture is not used to.",
+    "BTCBANK rewards patience in a market addicted to impatience.",
+    "The earlier people understand the loop, the easier the story becomes.",
+    "Creator rewards are the fuel. wBTC is the output. Holders are the destination.",
+    "This is a long-term experiment in making holders act like Bitcoin accumulators instead of 20-minute gamblers.",
+    "If the chain keeps proving payouts, the market eventually has to respect the receipts.",
+    "BTCBANK is for people who understand that the best crypto stories usually look obvious only after they are already moving.",
+    "You do not need to overcomplicate it. Stop jeeting. Stay qualified. Stack wBTC exposure.",
   ];
 
   const postCards = posts.map((post, index) => `<div class="hype-post"><div class="hype-post-num">${String(index + 1).padStart(2, "0")}</div><p>${escapeHtml(post)}</p></div>`).join("");
 
   return `<section class="hype-section" id="hype">
   <div class="container">
-    <div class="section-label">Hype Desk</div>
-    <h2 class="section-title">The <span>BTCBANK Pitch</span></h2>
-    <p class="section-desc">Clean copy for the site, the stream, X replies, spaces, and anyone who needs the idea explained without tokenomics soup.</p>
+    <div class="section-label">Hype</div>
+    <h2 class="section-title">Why This <span>Actually Matters</span></h2>
+    <p class="section-desc">This is the part to read out loud, send to skeptics, or sit with when people forget what made Bitcoin winners different: they accumulated while everyone else laughed, sold early, or got bored.</p>
     <div class="hype-grid">
       <div class="hype-panel hype-main">
-        <div class="hype-kicker">Professional page description</div>
-        <h3>Bitcoin Bank turns creator rewards into Bitcoin exposure.</h3>
-        <p>BTCBANK is a Solana token built around a simple long-term behavior: people regret not accumulating Bitcoin, not selling random reward tokens too slowly. Every 5 minutes, the distribution bot claims creator rewards in SOL, routes that value into wrapped Bitcoin, and distributes wBTC proportionally to qualifying holders.</p>
-        <p>No claiming. No staking. No fake APY maze. Hold at least ${escapeHtml(minLabel)} BTCBANK, keep your wallet above the reward line, and the system handles the Bitcoin side automatically.</p>
-        <p>Most projects fight for short attention. BTCBANK gives holders a reason to stay: your bag size creates shares, your hold time improves your multiplier, and your rewards point back at the crypto asset the world already understands.</p>
+        <div class="hype-kicker">The real pitch</div>
+        <h3>BTCBANK turns impatient meme culture into automatic Bitcoin accumulation.</h3>
+        <p>Crypto has a holding problem. People buy, panic, rotate, jeet, complain, and chase the next chart before the first idea even has time to breathe. BTCBANK was built directly against that behavior.</p>
+        <p>Every 5 minutes, the bot checks creator rewards in SOL. When there is enough value to run a clean round, that SOL gets routed into wrapped Bitcoin and distributed to qualifying holders. No claiming. No staking. No fake APY. No dashboard chore. The reward side points at Bitcoin-linked exposure.</p>
+        <p>That is why this feels different. Most projects reward holders with something the market wants to dump. BTCBANK rewards holders with wBTC, the kind of asset people already wish they had accumulated earlier.</p>
+        <p>People keep asking why this matters. The answer is simple: Bitcoin history rewarded accumulation, patience, and conviction. BTCBANK takes that psychology and puts it inside a live Solana reward loop.</p>
         <div class="hype-contract">Ticker: $BTCBANK<br/>CA: ${escapeHtml(holderMint || "9s96G11xGsHczudfJqKQzQxzvubQgJXSySJ1wRgxpump")}<br/>CoinGecko: live | CoinMarketCap: in process</div>
       </div>
       <div class="hype-panel">
-        <div class="hype-kicker">Eligibility note</div>
-        <h3>The reward line can evolve.</h3>
-        <p>The current eligibility line is ${escapeHtml(minLabel)} BTCBANK. That line exists to keep rewards meaningful, prevent dust spam, and make distributions practical as the project grows.</p>
-        <p>If market cap, holder count, liquidity, or payout scale changes enough, the line may be adjusted slightly up or down. Any adjustment should be announced clearly and framed around fairness, payout quality, and keeping the system healthy.</p>
-        <div class="hype-rule">Current rule: every full ${escapeHtml(minLabel)} BTCBANK = 1 base share.</div>
+        <div class="hype-kicker">Reward line</div>
+        <h3>${escapeHtml(minLabel)} to enter. Current ${escapeHtml(grandfatherLabel)} holders are protected.</h3>
+        <p>The public reward line is moving back to ${escapeHtml(minLabel)} BTCBANK so payouts stay cleaner and more meaningful as the project grows.</p>
+        <p>Anyone already grandfathered from the old ${escapeHtml(grandfatherLabel)} line stays eligible as long as they remain above the grandfather floor. Going from ${escapeHtml(grandfatherLabel)} to ${escapeHtml(minLabel)} does not create a special extra bonus. It simply keeps or reaches the first base share.</p>
+        <div class="hype-rule">Share math: every full ${escapeHtml(minLabel)} BTCBANK = 1 base share. Grandfathered ${escapeHtml(grandfatherLabel)}-${escapeHtml(formatCount(minimumTokens - 1))} wallets keep 1 base share.</div>
       </div>
     </div>
     <div class="hype-script">
-      <div class="hype-kicker">Stream script</div>
-      <h3>Use this when people ask why it matters.</h3>
-      <p>Take two minutes and really think about what this is doing.</p>
-      <p>Most of crypto is built around the same behavior: flip fast, dump fast, chase the next thing, forget yesterday's chart. Nobody holds. Nobody builds patience. Everybody says they want conviction until the first red candle shows up.</p>
-      <p>But Bitcoin history already taught the lesson. The biggest winners usually were not perfect traders. They were the people who accumulated the strongest asset while everyone else laughed, got bored, sold too early, or moved on.</p>
-      <p>That is why BTCBANK is psychologically different. The system is not paying you some random farm token that everybody rushes to dump. It is routing creator-fee value into wrapped Bitcoin. wBTC tracks Bitcoin exposure 1:1, but it moves with Solana speed and low fees.</p>
-      <p>So while you are holding a Solana token, the reward side points back at Bitcoin. SOL rewards in. wBTC distributed out. Every 5 minutes. No claiming. No staking dashboard. No fake APY promise. Just accumulation.</p>
-      <p>And that matters because people already understand the regret. They regret not buying Bitcoin earlier. They regret selling too soon. They regret treating tiny Bitcoin amounts like they were meaningless. BTCBANK was built directly around that feeling.</p>
-      <p>This is meme energy connected to the most recognized asset in crypto. It is simple enough for a brand-new person to understand and strong enough for a Bitcoin-minded person to respect: hold the token, earn Bitcoin exposure.</p>
-      <p>That is the whole point. Stop jeeting. Stop selling. Let the timer live. Let the Bitcoin side build.</p>
+      <div class="hype-kicker">Read this out loud</div>
+      <h3>The holder speech.</h3>
+      <p>Take two minutes and actually understand what BTCBANK is doing.</p>
+      <p>Most coins in the trenches are built around the same broken loop: buy fast, scream in chat, dump into the next guy, move on, then complain that nothing holds. Everybody says they want a real community, but the second there is a red candle, they become the exact sell pressure they complain about.</p>
+      <p>BTCBANK is built around a different behavior: accumulation.</p>
+      <p>Bitcoin already taught the market this lesson. The people who changed their lives usually were not perfect traders. They were the people who accumulated the strongest asset while everyone else called it fake, laughed at it, sold it too early, or got bored before the world caught up.</p>
+      <p>That is the psychology BTCBANK is tapping into. Not fake yield. Not a random farm reward. Not some token people instantly dump. The bot routes creator-fee value into wBTC, which tracks Bitcoin exposure, and sends it to qualifying holders automatically.</p>
+      <p>That means people can hold a Solana meme coin and slowly build Bitcoin-linked rewards in the background. While they sleep. While they work. While they are not staring at a chart. Hundreds of sleeping baggers have already been paid. That matters.</p>
+      <p>Is every payout life-changing today? No. That is not the honest pitch. The honest pitch is that tiny Bitcoin accumulation systems have been underestimated before, and the market has a long history of laughing early and respecting later.</p>
+      <p>BTCBANK is simple enough for anyone to understand: SOL creator rewards in, wrapped Bitcoin out. Hold enough, stay qualified, unlock wBTC once, and let the system do the boring accumulation work people usually wish they had done years earlier.</p>
+      <p>So yes, take profits respectfully if you need to. Nobody is pretending people should never manage risk. But if you dump your whole bag, kill your timer, lose your place, and then complain that you are not getting paid, that is not the bot failing. That is you choosing impatience over the entire point of the project.</p>
+      <p>BTCBANK is meme energy tied to Bitcoin psychology. It is public. It is on-chain. It has already paid real holders. The thesis is not complicated: stop jeeting, stay qualified, and let the Bitcoin side build.</p>
     </div>
+    <details class="story-more">
+      <summary>Read more: why wBTC rewards feel different</summary>
+      <p>Stablecoin rewards feel safe but flat. Random token rewards feel exciting until everyone dumps the same reward at the same time. Bitcoin-linked rewards hit differently because Bitcoin already has the strongest cultural memory in crypto. People know the regret. They know the stories. They know what it felt like to watch tiny BTC amounts become serious over time.</p>
+      <p>wBTC lets that Bitcoin exposure move through faster ecosystems like Solana. That is the BTCBANK angle: take Solana creator-fee flow and point the reward output at the asset people already respect most.</p>
+    </details>
+    <details class="story-more">
+      <summary>Read more: why holding matters here</summary>
+      <p>The system is designed to make holding matter. Your bag creates shares. Your hold time creates the multiplier. If you fall below the reward line, the timer resets. That is intentional. The project is not trying to reward panic. It is trying to make patience productive.</p>
+      <p>The market is full of people who want rewards without discipline. BTCBANK is simple, but it is not magic: qualify, keep your wBTC wallet ready, stay above the line, and let the rounds build.</p>
+    </details>
+    <details class="story-more">
+      <summary>Read more: what skeptics should check</summary>
+      <p>Do not just listen to hype. Check the public proof. Look at rounds completed, wallets paid, wBTC distributed, and transaction signatures. The best version of this project is not "trust me." It is "watch the receipts."</p>
+      <p>If someone says it is fake, send them to the wallet checker, payout proof, and live stats. If someone says they are not paid, check whether they qualify, whether they have a wBTC token account, and whether they sold below the line.</p>
+    </details>
     <div class="hype-posts">
-      <div class="hype-kicker">Short X replies</div>
+      <div class="hype-kicker">50+ short X replies</div>
       <div class="hype-post-grid">${postCards}</div>
     </div>
   </div>
@@ -328,7 +389,7 @@ function renderSite(data, wallet, dexSummary) {
   const stats = data?.stats ?? {};
   const holders = Array.isArray(data?.holders) ? data.holders : [];
   const txs = Array.isArray(data?.txs) ? data.txs : [];
-  const minimumTokens = safeInteger(stats.holderMinTokens ?? 300000, 300000);
+  const minimumTokens = Math.max(500000, safeInteger(stats.holderMinTokens ?? 500000, 500000));
   const allTimeUsd = safeNumber(stats.allTimeUsd, 0);
   const allTimeWbtc = safeNumber(stats.allTimeWbtc, 0);
   const holdersPaid = safeInteger(stats.holdersPaid, 0);

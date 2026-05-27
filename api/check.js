@@ -1,4 +1,8 @@
 import {
+  readFileSync,
+} from "node:fs";
+
+import {
   buildWalletCheckResult,
   findHolderByWallet,
   getHolderMultiplier,
@@ -22,20 +26,53 @@ const PUBLIC_RPC_FALLBACKS = [
   "https://solana.drpc.org",
   "https://rpc.ankr.com/solana",
 ];
+const RPC_REQUEST_TIMEOUT_MS = 7000;
+const MAX_RPC_URLS_PER_CHECK = 4;
+let grandfatherCache = null;
+
+function getGrandfatherOwners(stats = {}) {
+  if (grandfatherCache) {
+    return grandfatherCache;
+  }
+
+  try {
+    let raw;
+    try {
+      raw = readFileSync("api/grandfathered.json", "utf8");
+    } catch {
+      raw = readFileSync("data/grandfathered.json", "utf8");
+    }
+    const snapshot = JSON.parse(raw);
+    const minTokens = safeInteger(stats.grandfatherMinTokens ?? snapshot.grandfatherMinimumTokens ?? 300000, 300000);
+    const holderMint = String(stats.holderMint ?? DEFAULT_HOLDER_MINT);
+    const owners = new Set(
+      snapshot?.holderMint === holderMint
+        ? (snapshot.wallets ?? [])
+            .filter((wallet) => safeNumber(wallet.snapshotUiBalance, 0) >= minTokens)
+            .map((wallet) => wallet.owner)
+        : [],
+    );
+    grandfatherCache = { owners, minTokens };
+  } catch {
+    grandfatherCache = { owners: new Set(), minTokens: safeInteger(stats.grandfatherMinTokens ?? 300000, 300000) };
+  }
+
+  return grandfatherCache;
+}
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 async function buildDirectWalletCheck(wallet, minimumTokens, stats = {}) {
-  const rpcUrls = [
+  const rpcUrls = [...new Set([
     ...(process.env.SOLANA_RPC_URLS ?? "")
     .split(",")
     .map((entry) => entry.trim())
       .filter(Boolean),
     process.env.SOLANA_RPC_URL?.trim(),
     ...PUBLIC_RPC_FALLBACKS,
-  ].filter(Boolean);
+  ].filter(Boolean))].slice(0, MAX_RPC_URLS_PER_CHECK);
   const holderMintRaw = process.env.HOLDER_MINT?.trim() || String(stats.holderMint ?? "").trim() || DEFAULT_HOLDER_MINT;
   const rewardMintRaw = process.env.REWARD_MINT?.trim() || String(stats.rewardMint ?? "").trim() || DEFAULT_REWARD_MINT;
 
@@ -47,14 +84,20 @@ async function buildDirectWalletCheck(wallet, minimumTokens, stats = {}) {
   async function rpc(method, params) {
     let lastError = null;
     for (const rpcUrl of rpcUrls) {
-      for (let attempt = 0; attempt < 3; attempt += 1) {
+      for (let attempt = 0; attempt < 2; attempt += 1) {
+        let timeout = null;
         try {
+          const controller = new AbortController();
+          timeout = setTimeout(() => controller.abort(), RPC_REQUEST_TIMEOUT_MS);
           const response = await fetch(rpcUrl, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ jsonrpc: "2.0", id: id++, method, params }),
             cache: "no-store",
+            signal: controller.signal,
           });
+          clearTimeout(timeout);
+          timeout = null;
           if (!response.ok) {
             throw new Error(`RPC ${method} failed with HTTP ${response.status}`);
           }
@@ -64,9 +107,12 @@ async function buildDirectWalletCheck(wallet, minimumTokens, stats = {}) {
           }
           return body?.result;
         } catch (error) {
+          if (timeout) {
+            clearTimeout(timeout);
+          }
           lastError = error;
           const message = error instanceof Error ? error.message : String(error);
-          if (!/too many requests|429|rate|timeout|fetch failed/i.test(message) || attempt === 2) {
+          if (!/too many requests|429|rate|timeout|fetch failed|abort/i.test(message) || attempt === 1) {
             break;
           }
           await sleep(250 * (attempt + 1));
@@ -122,9 +168,11 @@ async function buildDirectWalletCheck(wallet, minimumTokens, stats = {}) {
 
   const holderAccounts = await getTokenAccountsForMint(wallet, holderMintRaw);
   const tokens = sumTokenAccounts(holderAccounts);
-
-  const qualifiesNow = tokens >= minimumTokens;
-  const shareCount = qualifiesNow ? Math.floor(tokens / minimumTokens) : 0;
+  const grandfather = getGrandfatherOwners(stats);
+  const isGrandfathered = grandfather.owners.has(wallet);
+  const qualifiesNow = tokens >= minimumTokens || (isGrandfathered && tokens >= grandfather.minTokens);
+  const normalShares = Math.floor(tokens / minimumTokens);
+  const shareCount = qualifiesNow ? Math.max(1, normalShares) : 0;
   const tokensNeeded = qualifiesNow ? 0 : Math.max(0, minimumTokens - tokens);
   const rewardAccounts = await getTokenAccountsForMint(wallet, rewardMintRaw);
   const hasWbtcAccount = rewardAccounts.length > 0;
@@ -144,6 +192,7 @@ async function buildDirectWalletCheck(wallet, minimumTokens, stats = {}) {
     balanceRaw: tokens,
     qualifiesNow,
     shareCount,
+    isGrandfathered,
     holdAge: qualifiesNow ? "timer active after live sync" : "timer inactive",
     holdTier: qualifiesNow ? "Holder" : "below minimum",
     holdMultiplier: qualifiesNow ? "1.00x" : "0.00x",
@@ -169,7 +218,9 @@ async function buildDirectWalletCheck(wallet, minimumTokens, stats = {}) {
     lastPaidTx: null,
     payments: [],
     message: qualifiesNow
-      ? "This wallet qualifies on-chain right now. Hold-time bonus details appear once the live tracker syncs it."
+      ? isGrandfathered
+        ? "This wallet is grandfathered from the 300,000 BTCBANK line and still qualifies as long as it stays above the grandfather floor."
+        : "This wallet qualifies on-chain right now. Hold-time bonus details appear once the live tracker syncs it."
       : `This wallet is below the ${minimumTokens.toLocaleString("en-US")} BTCBANK reward line right now.`,
   };
 }
@@ -201,7 +252,7 @@ function attachPaymentDetails(result, payload, wallet) {
   const publishedLastPaidWbtc = Number(result?.lastPaidWbtc ?? 0);
   let nextEstimatedWbtc = Number(result?.nextEstimatedWbtc ?? 0);
   if (!nextEstimatedWbtc && result?.qualifiesNow) {
-    const minimumTokens = safeInteger(stats.holderMinTokens ?? 300000, 300000);
+    const minimumTokens = Math.max(500000, safeInteger(stats.holderMinTokens ?? 500000, 500000));
     const totalRewardPower = (payload?.holders ?? []).reduce((sum, holder) => {
       return sum + getHolderShares(holder, minimumTokens) * getHolderMultiplier(holder);
     }, 0);
@@ -277,7 +328,7 @@ export default async function handler(req, res) {
       payload = { stats: {}, holders: [], txs: [], walletPayments: {} };
     }
     const stats = payload?.stats ?? {};
-    const minimumTokens = safeInteger(stats.holderMinTokens ?? 300000, 300000);
+    const minimumTokens = Math.max(500000, safeInteger(stats.holderMinTokens ?? 500000, 500000));
     const holders = payload?.holders ?? [];
     let result = buildWalletCheckResult(findHolderByWallet(holders, wallet), wallet, minimumTokens);
     if (!result.found) {

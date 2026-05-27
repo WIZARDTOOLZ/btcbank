@@ -10,6 +10,7 @@ import { Connection, PublicKey } from "@solana/web3.js";
 
 import { config } from "./config.js";
 import { shorten } from "./lib/format.js";
+import { loadGrandfatherSnapshot } from "./lib/grandfather.js";
 import { HoldTrackingStore } from "./lib/holdTracking.js";
 import { getHolderSummary } from "./lib/holders.js";
 import { quoteTokenToUsd } from "./lib/jupiter.js";
@@ -1425,6 +1426,14 @@ async function buildDashboardPayload(): Promise<DashboardPayload> {
     config.treasuryAddress,
     ...config.excludedHolderAddresses,
   ]);
+  const grandfatherSnapshot = await loadGrandfatherSnapshot(config.grandfatherFilePath);
+  const grandfatheredOwners = new Set<string>(
+    grandfatherSnapshot?.holderMint === config.holderMint
+      ? grandfatherSnapshot.wallets
+          .filter((wallet) => Number(wallet.snapshotUiBalance) >= config.grandfatherMinTokens)
+          .map((wallet) => wallet.owner)
+      : [],
+  );
 
   const connection = new Connection(config.rpcUrls[0]!, "confirmed");
   const holderSummary = await getHolderSummary(
@@ -1433,6 +1442,8 @@ async function buildDashboardPayload(): Promise<DashboardPayload> {
     config.holderMinTokens,
     excludedOwners,
     config.skipOffCurveOwners,
+    grandfatheredOwners,
+    config.grandfatherMinTokens,
   );
 
   const now = Date.now();

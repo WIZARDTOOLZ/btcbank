@@ -60,7 +60,7 @@ export const config = {
   minSwapSol: parseNumber("MIN_SWAP_SOL", "0.005"),
   minPayoutRoundUsd: parseNumber("MIN_PAYOUT_ROUND_USD", "10"),
   holderMinTokens: parseNumber("HOLDER_MIN_TOKENS", "500000"),
-  grandfatherMinTokens: parseNumber("GRANDFATHER_MIN_TOKENS", "250000"),
+  grandfatherMinTokens: parseNumber("GRANDFATHER_MIN_TOKENS", "300000"),
   treasuryBps: parseNumber("TREASURY_BPS", "2000"),
   holderRewardBps: parseNumber("HOLDER_REWARD_BPS", "8000"),
   slippageBps: parseNumber("SLIPPAGE_BPS", "100"),

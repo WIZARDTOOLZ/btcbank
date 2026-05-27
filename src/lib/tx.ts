@@ -7,7 +7,7 @@ import {
   VersionedTransaction,
 } from "@solana/web3.js";
 
-const TX_STEP_TIMEOUT_MS = 30_000;
+const TX_STEP_TIMEOUT_MS = Number(process.env.TX_STEP_TIMEOUT_MS ?? "60000");
 
 export interface SentTransaction {
   signature: string;
@@ -54,7 +54,7 @@ export async function sendInstructions(
     "send transaction",
     connection.sendTransaction(transaction, {
       skipPreflight: false,
-      maxRetries: 3,
+      maxRetries: 5,
     }),
   );
 

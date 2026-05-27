@@ -1,0 +1,1628 @@
+{
+  "createdAt": "2026-05-27T02:21:26.209Z",
+  "holderMint": "9s96G11xGsHczudfJqKQzQxzvubQgJXSySJ1wRgxpump",
+  "normalMinimumTokens": 500000,
+  "grandfatherMinimumTokens": 300000,
+  "wallets": [
+    {
+      "owner": "Cs3s6kCcQwMXwauWNiEUzjA5RApz7hX5UeNj236ZraBv",
+      "snapshotRawBalance": "38279465035263",
+      "snapshotUiBalance": "38279465.035263"
+    },
+    {
+      "owner": "DRNF9YE5nWNXrxke9286prNe7MkFYG4fUDmo34RDhGAk",
+      "snapshotRawBalance": "32077758518822",
+      "snapshotUiBalance": "32077758.518822"
+    },
+    {
+      "owner": "6Cz7XQ6UzncxiEPgQDEv1L41iCs7pCLZHhxobALSqzeq",
+      "snapshotRawBalance": "31212587121043",
+      "snapshotUiBalance": "31212587.121043"
+    },
+    {
+      "owner": "Cvhiohq5KiToaVeJrTrQtg2aGbHENKagr1F7ez9hZAMm",
+      "snapshotRawBalance": "23959361260880",
+      "snapshotUiBalance": "23959361.260880"
+    },
+    {
+      "owner": "2ef798NoG1TtfE3NgUQqrEKoLRrXRrNszS11avHexJDs",
+      "snapshotRawBalance": "21503239582203",
+      "snapshotUiBalance": "21503239.582203"
+    },
+    {
+      "owner": "HguT2RFLosJzskhQ7mBWUja1MS9AogThRKBHpZB9JVAg",
+      "snapshotRawBalance": "21000000000000",
+      "snapshotUiBalance": "21000000.000000"
+    },
+    {
+      "owner": "8gDfdBmUvik4jgQTyEJFb3dWXrpUNHJtQJyreRcuKpFr",
+      "snapshotRawBalance": "16822300319600",
+      "snapshotUiBalance": "16822300.319600"
+    },
+    {
+      "owner": "3Apkykzmkq14A2penK9kQ79VYCLBiMaJ75VhrDEeCvzK",
+      "snapshotRawBalance": "16140255213688",
+      "snapshotUiBalance": "16140255.213688"
+    },
+    {
+      "owner": "4HyHBpvj9je5AfURBwQvKqXusrFLsPnaxwWtHTyuwjp7",
+      "snapshotRawBalance": "15945534681861",
+      "snapshotUiBalance": "15945534.681861"
+    },
+    {
+      "owner": "Bx6Gp6BhJuV7syoSmdpyEAH4gttZxAYzKSg3P19DuB25",
+      "snapshotRawBalance": "13969285329159",
+      "snapshotUiBalance": "13969285.329159"
+    },
+    {
+      "owner": "7tUibs3izoDMNkyGncmf6NABzJTaJiadRnc6K6YpF78D",
+      "snapshotRawBalance": "13385676829523",
+      "snapshotUiBalance": "13385676.829523"
+    },
+    {
+      "owner": "432GsZYGt9dN8FbvNVm2nN1ygovkugSDJqbfgnfngCke",
+      "snapshotRawBalance": "12565480561304",
+      "snapshotUiBalance": "12565480.561304"
+    },
+    {
+      "owner": "2xyWAUqtVz7BEasuhijELhoKdgFghbqsQyD6K8wwKboD",
+      "snapshotRawBalance": "10516382915445",
+      "snapshotUiBalance": "10516382.915445"
+    },
+    {
+      "owner": "9JQWaHwpKNYpZ8mehhoCodtbXuP5iJ77xhcxxqWkJsi6",
+      "snapshotRawBalance": "10471700815636",
+      "snapshotUiBalance": "10471700.815636"
+    },
+    {
+      "owner": "GMK6qXwwpTE4kvYYb447p2GuUZSZUex4W7ZmhSQdJQUi",
+      "snapshotRawBalance": "10332581663137",
+      "snapshotUiBalance": "10332581.663137"
+    },
+    {
+      "owner": "6ZJxghj6TujCKPMndqzhdkzHEpPxR1UAfbNSNgnE2W8t",
+      "snapshotRawBalance": "10193999029380",
+      "snapshotUiBalance": "10193999.029380"
+    },
+    {
+      "owner": "FmUnfFHW9hh1K3zquTByGHir6uMrSypWbDBocdkX2vMa",
+      "snapshotRawBalance": "10099123832858",
+      "snapshotUiBalance": "10099123.832858"
+    },
+    {
+      "owner": "GHJRiSjKvHwFtWKaUJes2rJM7QnFsoDQo5CWj49yrGCn",
+      "snapshotRawBalance": "10000000000000",
+      "snapshotUiBalance": "10000000.000000"
+    },
+    {
+      "owner": "DW5hF5sbnPwxEYDEWBYcM8PzT7gxkV4kWFV8zVqZw1fg",
+      "snapshotRawBalance": "9952205883004",
+      "snapshotUiBalance": "9952205.883004"
+    },
+    {
+      "owner": "BFkCpa3ZemppYF7qhnqWNB53r6NSRpkNfMUbN72pAWHa",
+      "snapshotRawBalance": "9641465765258",
+      "snapshotUiBalance": "9641465.765258"
+    },
+    {
+      "owner": "FM5gnP9M2tNZov97zCvq3nrcWsaTPiWQYju2nLuhC7Dh",
+      "snapshotRawBalance": "9256275603767",
+      "snapshotUiBalance": "9256275.603767"
+    },
+    {
+      "owner": "2ogkuiZoQ8qq4vrni888QEWw1gt296uMBcNrEp4rLEnb",
+      "snapshotRawBalance": "9075555542926",
+      "snapshotUiBalance": "9075555.542926"
+    },
+    {
+      "owner": "6izb1SrDbUASZzBHEgNaN83kCCzjo1mMAYAjEzxLvikY",
+      "snapshotRawBalance": "9004030294249",
+      "snapshotUiBalance": "9004030.294249"
+    },
+    {
+      "owner": "5Cg2a1y3sBdcWhmE9cK9nSMSwNh9u8bYcQBREDczLXxg",
+      "snapshotRawBalance": "8723024970389",
+      "snapshotUiBalance": "8723024.970389"
+    },
+    {
+      "owner": "9YF8JMH1hPybQR5wGpuJbqobYwSt7HazgAYBMoDS3RqY",
+      "snapshotRawBalance": "7650601236939",
+      "snapshotUiBalance": "7650601.236939"
+    },
+    {
+      "owner": "ENe2s5y4eNCKSQhHmvXTRcXRD8em2UEGaMJ9XWt2pPqV",
+      "snapshotRawBalance": "7591558892229",
+      "snapshotUiBalance": "7591558.892229"
+    },
+    {
+      "owner": "sLEknxa4c41YiEtNkPA4e6shXn1gQzLkjq6vzP8gsNA",
+      "snapshotRawBalance": "6963107833290",
+      "snapshotUiBalance": "6963107.833290"
+    },
+    {
+      "owner": "HTrZHozAw2Hha9KkPmArS38fKD2qdC5JmHmptuQrnTMK",
+      "snapshotRawBalance": "6504549228344",
+      "snapshotUiBalance": "6504549.228344"
+    },
+    {
+      "owner": "EAKtiDUFFdeEfEGouCQhA87QipHhvoJozsAdbEuaELjQ",
+      "snapshotRawBalance": "6332789959858",
+      "snapshotUiBalance": "6332789.959858"
+    },
+    {
+      "owner": "SLUTVGWg4BxxQc4EvP6DT58497nRuZDYgXZdMfHV1Cy",
+      "snapshotRawBalance": "6098678929244",
+      "snapshotUiBalance": "6098678.929244"
+    },
+    {
+      "owner": "5ojAbArWKKrksHuRDUs7MET1TFhPhi7bNPDYTvCJaHVS",
+      "snapshotRawBalance": "6003838293428",
+      "snapshotUiBalance": "6003838.293428"
+    },
+    {
+      "owner": "AMWZ7UkDX3FYAG9GAs8db4SqdB2FpM7rhoKLyRF3Vag9",
+      "snapshotRawBalance": "5940361670273",
+      "snapshotUiBalance": "5940361.670273"
+    },
+    {
+      "owner": "CMi3TKX5PTQ4GRYseWC3HQM7CmboPHZHURc1Xg1Np5Gs",
+      "snapshotRawBalance": "5826603337610",
+      "snapshotUiBalance": "5826603.337610"
+    },
+    {
+      "owner": "NAZiS56wqiS8RK7Mqe8jeFPzGSAo74amwYT5Cnqd18t",
+      "snapshotRawBalance": "5780102004879",
+      "snapshotUiBalance": "5780102.004879"
+    },
+    {
+      "owner": "7RPiQTnEKMcfWXo4bG3sosTeKSDvsy3RGaQLo2TaQihw",
+      "snapshotRawBalance": "5522310916594",
+      "snapshotUiBalance": "5522310.916594"
+    },
+    {
+      "owner": "64QFaAUXxfAxg7GbAYsCaK9xePSCnMnxtuY3pHDUGeV1",
+      "snapshotRawBalance": "5440418562127",
+      "snapshotUiBalance": "5440418.562127"
+    },
+    {
+      "owner": "7WFbxGGUL5EPHipHxES4F9vFH7n8HPBDRLTdqXrDzXpP",
+      "snapshotRawBalance": "5365911513267",
+      "snapshotUiBalance": "5365911.513267"
+    },
+    {
+      "owner": "2zzx6T7tcc7otbC9XBWCRgCERGXYEkoQiKLLDCR14q1k",
+      "snapshotRawBalance": "5090926104577",
+      "snapshotUiBalance": "5090926.104577"
+    },
+    {
+      "owner": "98ALmUyaUMVfiZ4i9hguW4RRDFG5TducDwjRNSSDEjC1",
+      "snapshotRawBalance": "4990335489841",
+      "snapshotUiBalance": "4990335.489841"
+    },
+    {
+      "owner": "6cC7rRTj6fhWhCnswFg7afUEe3xdCWsU5a6tNAeeWE9T",
+      "snapshotRawBalance": "4836475351553",
+      "snapshotUiBalance": "4836475.351553"
+    },
+    {
+      "owner": "HUqUpkKDSbqqt4JVZqAFwWxgSdmYTAjXEG1YVsuKam3R",
+      "snapshotRawBalance": "4834844087355",
+      "snapshotUiBalance": "4834844.087355"
+    },
+    {
+      "owner": "BNp8GY73SCXbENZk2SivtLHwPK2aLfvWJxbXAtCVSfJk",
+      "snapshotRawBalance": "4702631431559",
+      "snapshotUiBalance": "4702631.431559"
+    },
+    {
+      "owner": "AfBydtboaVg56kuSQwevej5Apdoue3dgqpGp6tnTqjSH",
+      "snapshotRawBalance": "4625391268415",
+      "snapshotUiBalance": "4625391.268415"
+    },
+    {
+      "owner": "9a2A4sK1AmQQ2RKr1LftSru4JSopWepuAjfoxWwJX51G",
+      "snapshotRawBalance": "4511834767631",
+      "snapshotUiBalance": "4511834.767631"
+    },
+    {
+      "owner": "8PDzCTNeZqpW7hAqKxMh6ogEz3Sv3u5m8ZWmUGXTbJ3r",
+      "snapshotRawBalance": "4465352696499",
+      "snapshotUiBalance": "4465352.696499"
+    },
+    {
+      "owner": "4uvmacrdMXEktBc3jRZgsVmdXniMZYZDiBAUjTTaK3GN",
+      "snapshotRawBalance": "4368058187827",
+      "snapshotUiBalance": "4368058.187827"
+    },
+    {
+      "owner": "BeCEQdNXHuCu8d32NLdNLYgWymVkjtruEQ58cmnqyadH",
+      "snapshotRawBalance": "4214777030550",
+      "snapshotUiBalance": "4214777.030550"
+    },
+    {
+      "owner": "FQSFteD5ppmAx93LUXQFAA29NC7huwU5J21TEau3bFji",
+      "snapshotRawBalance": "4204785204271",
+      "snapshotUiBalance": "4204785.204271"
+    },
+    {
+      "owner": "FshAjth3kyoa6ynXsRh8vTriecWM18e6KyxSBkC94xVk",
+      "snapshotRawBalance": "4077802526411",
+      "snapshotUiBalance": "4077802.526411"
+    },
+    {
+      "owner": "4eGFJ7LMaFLtaq5kVqyBC69QJtz9JaaZQEXdGPy7RQcq",
+      "snapshotRawBalance": "4076510770131",
+      "snapshotUiBalance": "4076510.770131"
+    },
+    {
+      "owner": "CyggceoUXoeaJAW3UQYxCvZQUZur35A5maWpMjRo3JC7",
+      "snapshotRawBalance": "4000000000000",
+      "snapshotUiBalance": "4000000.000000"
+    },
+    {
+      "owner": "B1qfWjbGTGNboTwgkrFNkfDW56JbCRBBMr4sNPYCkAut",
+      "snapshotRawBalance": "3947523078935",
+      "snapshotUiBalance": "3947523.078935"
+    },
+    {
+      "owner": "9NsuJJBsCsSHLfbXa5a2pzkt4QZ2mbpNJjiXWAGsjEcD",
+      "snapshotRawBalance": "3703479883875",
+      "snapshotUiBalance": "3703479.883875"
+    },
+    {
+      "owner": "HjeAEftH4zke65ZJ4Jty5UGRYGyhM4YCxTm3RcvR3kDX",
+      "snapshotRawBalance": "3562672220576",
+      "snapshotUiBalance": "3562672.220576"
+    },
+    {
+      "owner": "rFRxaQogsYi6hSA41eE767jLzZEDkjEEgMbvXQQFqjx",
+      "snapshotRawBalance": "3362046179838",
+      "snapshotUiBalance": "3362046.179838"
+    },
+    {
+      "owner": "Cvjwqqu6Zu7mK3xkNzSeY4zd3fcbWgzHjBvu6Ao75wfi",
+      "snapshotRawBalance": "3357635791090",
+      "snapshotUiBalance": "3357635.791090"
+    },
+    {
+      "owner": "xET4UyyApui88tMMas5ciwzW8oVL6wgjpmQ6mubXfB7",
+      "snapshotRawBalance": "3290726710948",
+      "snapshotUiBalance": "3290726.710948"
+    },
+    {
+      "owner": "D2u2z3jNUvtudM2zi9gHxurfeBNu1Yrc8V21PHma9gd4",
+      "snapshotRawBalance": "3271630642682",
+      "snapshotUiBalance": "3271630.642682"
+    },
+    {
+      "owner": "7wpEgD5q6JKVVJz4oXiUDyenEdpc8MKkXbQZXGXr8wEJ",
+      "snapshotRawBalance": "3269608412537",
+      "snapshotUiBalance": "3269608.412537"
+    },
+    {
+      "owner": "71MFyz9zwmhSwd4HMsNg5cAVf4VmysVZeg4MqncAH4Hg",
+      "snapshotRawBalance": "3243404065324",
+      "snapshotUiBalance": "3243404.065324"
+    },
+    {
+      "owner": "HfZxPiYpUTNQRkz9GXeC9YtarTAVmduFppw1B6g6VNPD",
+      "snapshotRawBalance": "3193224585034",
+      "snapshotUiBalance": "3193224.585034"
+    },
+    {
+      "owner": "9ErCEFASavxRh3BBD4bxCkvZEjnnas7BcmB1BwioV9d7",
+      "snapshotRawBalance": "3048808526667",
+      "snapshotUiBalance": "3048808.526667"
+    },
+    {
+      "owner": "2q1nhi3mFwCyDkLPpqRw6MiUuUqD3sjdv9Jcdbs42jz5",
+      "snapshotRawBalance": "3003416287476",
+      "snapshotUiBalance": "3003416.287476"
+    },
+    {
+      "owner": "3RakwPTueDQoKZz7ZVdVi9a1ggzXwidrqnyGBswpCXU3",
+      "snapshotRawBalance": "3002234668112",
+      "snapshotUiBalance": "3002234.668112"
+    },
+    {
+      "owner": "64v1KEa3gzAy8kaiqWXKiopnboW9axHw754svoFo6Lpi",
+      "snapshotRawBalance": "3000000000000",
+      "snapshotUiBalance": "3000000.000000"
+    },
+    {
+      "owner": "ypC2HrRzy32xoTrPsFxM1o8toH53JW2hRaR9Db2Rbsh",
+      "snapshotRawBalance": "2996315451647",
+      "snapshotUiBalance": "2996315.451647"
+    },
+    {
+      "owner": "D5Y9QA64KPVXKy6NSkhweMcvfFatMYtXHPNBhS5xDnyB",
+      "snapshotRawBalance": "2816219721822",
+      "snapshotUiBalance": "2816219.721822"
+    },
+    {
+      "owner": "DAdzh4YPS8DrTPNuL5qsJNvfq4bjGXjMq9GvomoWLRYi",
+      "snapshotRawBalance": "2810489837552",
+      "snapshotUiBalance": "2810489.837552"
+    },
+    {
+      "owner": "DGkqL3caWrxWfyv1cGZJzDFta6CKYexbMgvbnZVwEFqA",
+      "snapshotRawBalance": "2689888240521",
+      "snapshotUiBalance": "2689888.240521"
+    },
+    {
+      "owner": "4c5KtzXCJtxSDnLHjE39MFikhv2jDyYkyjz1HKKWxfjr",
+      "snapshotRawBalance": "2636339119803",
+      "snapshotUiBalance": "2636339.119803"
+    },
+    {
+      "owner": "8nTHaSaC7Th9NKWR1tnMZ6bgr7cVunDitpES4Kbhjugu",
+      "snapshotRawBalance": "2568340380555",
+      "snapshotUiBalance": "2568340.380555"
+    },
+    {
+      "owner": "Dy9NFy9WWh2kWD5c2ovuj55YvVFai5ymjfMtmfWkw8p9",
+      "snapshotRawBalance": "2562303865547",
+      "snapshotUiBalance": "2562303.865547"
+    },
+    {
+      "owner": "nhaeafd38xuM1fqHRDLjB9HDeTfM11t8r4hqpuMjHNp",
+      "snapshotRawBalance": "2534256389260",
+      "snapshotUiBalance": "2534256.389260"
+    },
+    {
+      "owner": "EF7fuMtYGq2LuCoY3tNxXqVAnkr765p4gMZjm26tdyQo",
+      "snapshotRawBalance": "2496363201750",
+      "snapshotUiBalance": "2496363.201750"
+    },
+    {
+      "owner": "HfUkKRYdjv3kAHACQGV1Q6GUPPFhXiYekpkb65gsh3pu",
+      "snapshotRawBalance": "2481154873375",
+      "snapshotUiBalance": "2481154.873375"
+    },
+    {
+      "owner": "EWGkw7vZvoghjiKFEyD5bzSUzikAAe8B2j5sBFEfTMjg",
+      "snapshotRawBalance": "2463528137806",
+      "snapshotUiBalance": "2463528.137806"
+    },
+    {
+      "owner": "GrvZwjJFD6uEEw5CFGiLXF8FLYNxVP1TcoTTQkrqbLq2",
+      "snapshotRawBalance": "2453209347673",
+      "snapshotUiBalance": "2453209.347673"
+    },
+    {
+      "owner": "Gq8f43NnaLiYMTP9Y7Zok651vRkmPraAcMYDMRmz9hdP",
+      "snapshotRawBalance": "2439149985770",
+      "snapshotUiBalance": "2439149.985770"
+    },
+    {
+      "owner": "6mFLhL5a2CDDmNkLWqHkXDrzGaunxwqmW2XAyLwYXzPR",
+      "snapshotRawBalance": "2388199593751",
+      "snapshotUiBalance": "2388199.593751"
+    },
+    {
+      "owner": "4J2zcPAisHrePtjspcaBLq6PuV3vq6ZDCPWvcJJtpMfw",
+      "snapshotRawBalance": "2193448431040",
+      "snapshotUiBalance": "2193448.431040"
+    },
+    {
+      "owner": "54FkXYNJxPz8HssULZ9Vgj9PoqgVXZcrcGjVoSHfNnj2",
+      "snapshotRawBalance": "2127227768818",
+      "snapshotUiBalance": "2127227.768818"
+    },
+    {
+      "owner": "JgDkL7puNdToBFvMZsCWM4PLJAV7QX7oEp22LvmNGsH",
+      "snapshotRawBalance": "2109253665794",
+      "snapshotUiBalance": "2109253.665794"
+    },
+    {
+      "owner": "GUpmZLnuy5vtxFckAY7LXSWA5cDs5SJymxVW34416ggt",
+      "snapshotRawBalance": "2108497053606",
+      "snapshotUiBalance": "2108497.053606"
+    },
+    {
+      "owner": "JDUnzspEfghZNcvfM6uVmorEomkkEY3xSKJiQVityE4T",
+      "snapshotRawBalance": "2045129049660",
+      "snapshotUiBalance": "2045129.049660"
+    },
+    {
+      "owner": "HnvrtCjWnDKJcWFG8APb6ZTo6LEb2ChgUruQuKWFDN6R",
+      "snapshotRawBalance": "2025680515910",
+      "snapshotUiBalance": "2025680.515910"
+    },
+    {
+      "owner": "7j7a8aHoKiFMiywfEkvUcPoUNk3oPaVuLxsZobEGbwFL",
+      "snapshotRawBalance": "2013223198673",
+      "snapshotUiBalance": "2013223.198673"
+    },
+    {
+      "owner": "BQ3kTzzK1efK7eQCqrwZfe7C1eNXMA1uEWUYgVKosdsH",
+      "snapshotRawBalance": "2010570388088",
+      "snapshotUiBalance": "2010570.388088"
+    },
+    {
+      "owner": "EBBwkNDz2uRJnqFxgwpEW2RZfgkxVoPEA3Y8apA3Yyyr",
+      "snapshotRawBalance": "2009094670105",
+      "snapshotUiBalance": "2009094.670105"
+    },
+    {
+      "owner": "GmTETTSRGSf7B4UrT94BPKG5aN4qxyQHjhyh2rNG4oDg",
+      "snapshotRawBalance": "2005748605520",
+      "snapshotUiBalance": "2005748.605520"
+    },
+    {
+      "owner": "H9cNiFhwTRYFhd5J7FjVmyra3wVbWds22HcsELKNtqRj",
+      "snapshotRawBalance": "1928190662740",
+      "snapshotUiBalance": "1928190.662740"
+    },
+    {
+      "owner": "1h9HxwiGoAkRY6eUJGDm9sP8gNfeQ4PDz85fk36Xif9",
+      "snapshotRawBalance": "1926966180676",
+      "snapshotUiBalance": "1926966.180676"
+    },
+    {
+      "owner": "4BRHS8Gyx5vk2Dd83xp8YaK1i6KLw2qPDaJmiSdNhD2K",
+      "snapshotRawBalance": "1803533692135",
+      "snapshotUiBalance": "1803533.692135"
+    },
+    {
+      "owner": "J8iiPnDUgRMiA7FREy1mxGWpCaBna9nCxam1voEVHBCB",
+      "snapshotRawBalance": "1796719527709",
+      "snapshotUiBalance": "1796719.527709"
+    },
+    {
+      "owner": "7YEWu86EWWZC7qugmzYX9GoX9QXxBwBJFRt4EEPMXuqR",
+      "snapshotRawBalance": "1775344421920",
+      "snapshotUiBalance": "1775344.421920"
+    },
+    {
+      "owner": "1eveYYxZ2mDiAnmCh3fnAbJwjgErzokRA1b6UrRybSM",
+      "snapshotRawBalance": "1748480419659",
+      "snapshotUiBalance": "1748480.419659"
+    },
+    {
+      "owner": "9t864zWmV5ZdmHgPKEdUuEapXP1qkPgUFRkcytiBcTcq",
+      "snapshotRawBalance": "1742829604762",
+      "snapshotUiBalance": "1742829.604762"
+    },
+    {
+      "owner": "CSMNJAwKbVYhkvycMbSkd5hwu1rFbYzL3nJ8zqJ2wcMf",
+      "snapshotRawBalance": "1731168514683",
+      "snapshotUiBalance": "1731168.514683"
+    },
+    {
+      "owner": "86jr8BRTfn8jdoRWuU4FXC4hE8Kq1DFG71hTM94TGCX8",
+      "snapshotRawBalance": "1702543736438",
+      "snapshotUiBalance": "1702543.736438"
+    },
+    {
+      "owner": "GvFZvabMdaMWQfSb6n3gHBihoitvBkQBy5VNSKo3krZ9",
+      "snapshotRawBalance": "1678429565888",
+      "snapshotUiBalance": "1678429.565888"
+    },
+    {
+      "owner": "5wqjqhA22FdrXyhTmj9enJdRDiGc3vYTijHknvxAzuw9",
+      "snapshotRawBalance": "1678339275435",
+      "snapshotUiBalance": "1678339.275435"
+    },
+    {
+      "owner": "C5y6Pbr5NQfZb3Qnoin86yXGbdQK6P4d8ny2fNyy5qJW",
+      "snapshotRawBalance": "1646664715988",
+      "snapshotUiBalance": "1646664.715988"
+    },
+    {
+      "owner": "DrmeQt5SYtjkn8ichwu3LBYQmMLnq5NJ39zAtB5pVDKr",
+      "snapshotRawBalance": "1644719971844",
+      "snapshotUiBalance": "1644719.971844"
+    },
+    {
+      "owner": "AgaRnrca1ZPHcndPwoTtzNwTpANifEHjVcm1ZshC8vM9",
+      "snapshotRawBalance": "1635545081933",
+      "snapshotUiBalance": "1635545.081933"
+    },
+    {
+      "owner": "KWowFXBAUqf6TEvtPqYB1nTLFszRZ5upiZPmry8qfMX",
+      "snapshotRawBalance": "1629941740329",
+      "snapshotUiBalance": "1629941.740329"
+    },
+    {
+      "owner": "vUAFtiTvcmX7QWkAf74SGXgyB1oc9fS2oG7EmBjivEj",
+      "snapshotRawBalance": "1600018612193",
+      "snapshotUiBalance": "1600018.612193"
+    },
+    {
+      "owner": "HKDz4MytitCLiYL4Z7JDUz6HqUtieNCtK5unXbZjosM9",
+      "snapshotRawBalance": "1565045659583",
+      "snapshotUiBalance": "1565045.659583"
+    },
+    {
+      "owner": "4sfVBKnft1bFrm9vAQ76yGG5rSdPcomFeV1ULUcUkVMe",
+      "snapshotRawBalance": "1561421185653",
+      "snapshotUiBalance": "1561421.185653"
+    },
+    {
+      "owner": "5f5yQgoXSP8ifF9Qw1W25aiHVuzcSsGbHxqFB3AujLyB",
+      "snapshotRawBalance": "1550375840371",
+      "snapshotUiBalance": "1550375.840371"
+    },
+    {
+      "owner": "AGEzDf8mhi3pJFkFux9AkDNcfZCxtEfJwS2xgJ5orGd6",
+      "snapshotRawBalance": "1536903964121",
+      "snapshotUiBalance": "1536903.964121"
+    },
+    {
+      "owner": "HutbvF5qixRsWmuDFutV76WMVii7C5oSUw7ThJFQ9U5i",
+      "snapshotRawBalance": "1529389679664",
+      "snapshotUiBalance": "1529389.679664"
+    },
+    {
+      "owner": "8f4cxMFL83Zbxrg5qnDVwWaJ3DE4HHYqHFpX86hqqz25",
+      "snapshotRawBalance": "1508411551008",
+      "snapshotUiBalance": "1508411.551008"
+    },
+    {
+      "owner": "ngtHABRz5CS2rZYy1JBidfGEgzjsZQWvHcY58Jrx1UD",
+      "snapshotRawBalance": "1501115089423",
+      "snapshotUiBalance": "1501115.089423"
+    },
+    {
+      "owner": "Fqd8WH6Wh86d9F63D2uW9hGyhGphTdigQj7F5GVt6tEF",
+      "snapshotRawBalance": "1475149626467",
+      "snapshotUiBalance": "1475149.626467"
+    },
+    {
+      "owner": "FUc2z2ViWAJXT7oP6sXn44W8pBcdTGPSThiRcLNvEAey",
+      "snapshotRawBalance": "1459747596838",
+      "snapshotUiBalance": "1459747.596838"
+    },
+    {
+      "owner": "2bBwU5HcRk2Hor2FBxvwWB7WxKcQrqyxaccTD3vmALx4",
+      "snapshotRawBalance": "1437165788375",
+      "snapshotUiBalance": "1437165.788375"
+    },
+    {
+      "owner": "Dj5YTBbBrtzRCot7XQcsp74dE49ARr5Vp1jUaRkRP4GA",
+      "snapshotRawBalance": "1386945973537",
+      "snapshotUiBalance": "1386945.973537"
+    },
+    {
+      "owner": "CouBJDg4G75Q8bm18idK7xhnniZMhrcRs9jQ7rzbXEdv",
+      "snapshotRawBalance": "1363900870261",
+      "snapshotUiBalance": "1363900.870261"
+    },
+    {
+      "owner": "5YrQWpXG2NQJkpgVEssXStSK2dagaByboDcRBckJxhEW",
+      "snapshotRawBalance": "1340546487579",
+      "snapshotUiBalance": "1340546.487579"
+    },
+    {
+      "owner": "88DqTDeST8VV2qwRy3Q4Z2r2g3qrD7aS2XhsB6fAedZx",
+      "snapshotRawBalance": "1333241411230",
+      "snapshotUiBalance": "1333241.411230"
+    },
+    {
+      "owner": "3PSyDkaAoz1nkwvt9sZMWUPxvfLeTMBmSAUjwM9zSrKZ",
+      "snapshotRawBalance": "1328710018397",
+      "snapshotUiBalance": "1328710.018397"
+    },
+    {
+      "owner": "J4Tf964emWsiKtES4CHowrcMa3dyffMnADaHbvNDnKoT",
+      "snapshotRawBalance": "1313430696703",
+      "snapshotUiBalance": "1313430.696703"
+    },
+    {
+      "owner": "4NsHKyWaM9B46EG4NvvmVWCy2YipLYCcv9kEzrHczX8E",
+      "snapshotRawBalance": "1301716367072",
+      "snapshotUiBalance": "1301716.367072"
+    },
+    {
+      "owner": "zTKyEzq526AnUdxNMxhEAJgmo6koozGhY7j8N7jGcix",
+      "snapshotRawBalance": "1297222880198",
+      "snapshotUiBalance": "1297222.880198"
+    },
+    {
+      "owner": "7qnu7uzdnBehnDk1HbTa9LHgFEYk4FHegisPVJap28Df",
+      "snapshotRawBalance": "1295182954897",
+      "snapshotUiBalance": "1295182.954897"
+    },
+    {
+      "owner": "GxGboZhAfKfS1k72Uw7PF8WG7EptjuajGWeDtvQLK5b1",
+      "snapshotRawBalance": "1266577582805",
+      "snapshotUiBalance": "1266577.582805"
+    },
+    {
+      "owner": "BnzRrdKgYTCXJAL4UwAZmoJeXeMwr9gCeFd6fFtGRy2Y",
+      "snapshotRawBalance": "1242214088448",
+      "snapshotUiBalance": "1242214.088448"
+    },
+    {
+      "owner": "D9bRMDz9SRY5yFw2GnU5yRszuPjvNL86kMf3H37y2SyD",
+      "snapshotRawBalance": "1227300639761",
+      "snapshotUiBalance": "1227300.639761"
+    },
+    {
+      "owner": "5ZEjZru7tuVyRpRvvUNtrFzpaxvGzG1e9CdE49iJbsjk",
+      "snapshotRawBalance": "1189643077942",
+      "snapshotUiBalance": "1189643.077942"
+    },
+    {
+      "owner": "H1sBE6HcDQ3KnfnBz2KVzcUFgXG7JbXuW7WJZzMgnpQZ",
+      "snapshotRawBalance": "1164066233431",
+      "snapshotUiBalance": "1164066.233431"
+    },
+    {
+      "owner": "9nQzvoHJM6guUtNNSV9dNP63jQEYtX4v1gzwnuD4HqXA",
+      "snapshotRawBalance": "1119667679439",
+      "snapshotUiBalance": "1119667.679439"
+    },
+    {
+      "owner": "GEMe9oLA7h7bFQog9Ay2ZSkeWBpReZVYFGkenUC5FuE6",
+      "snapshotRawBalance": "1117239350252",
+      "snapshotUiBalance": "1117239.350252"
+    },
+    {
+      "owner": "87eW62Cc9iVZe7suTPkgd5hhEhJKTUbgjvNR8FHjxjQx",
+      "snapshotRawBalance": "1092305774472",
+      "snapshotUiBalance": "1092305.774472"
+    },
+    {
+      "owner": "BqzMwCkKwUHyUMxcCUFAE72yinW49RKwtcLdXmrd6PDT",
+      "snapshotRawBalance": "1076533157039",
+      "snapshotUiBalance": "1076533.157039"
+    },
+    {
+      "owner": "3bYhGmovcFTbzFCMUYqGTokaCfDjjq8hses1haSPYESn",
+      "snapshotRawBalance": "1074784703745",
+      "snapshotUiBalance": "1074784.703745"
+    },
+    {
+      "owner": "Gbnyp3og4hZiF67wdTiqAE7ieiNgM4FjLWAM9UmoRRzS",
+      "snapshotRawBalance": "1065752478180",
+      "snapshotUiBalance": "1065752.478180"
+    },
+    {
+      "owner": "7V62g6D9YfEbK39J4Ah75QQKiEQYqFifVrDbTbSfDaSW",
+      "snapshotRawBalance": "1061146992580",
+      "snapshotUiBalance": "1061146.992580"
+    },
+    {
+      "owner": "56CV5XjZgzdsKRM55QVyG8KVmDzTLnpN2gxjdHumKzDY",
+      "snapshotRawBalance": "1060386667051",
+      "snapshotUiBalance": "1060386.667051"
+    },
+    {
+      "owner": "4r2ef8nAwsKYEtbnw5ZehKx45Ls6mSQddMmYS1Yf9RFj",
+      "snapshotRawBalance": "1024731573275",
+      "snapshotUiBalance": "1024731.573275"
+    },
+    {
+      "owner": "FBTPewNF9gBuz3RbREPwwiP5Py4HDqKpNaYy6Kbo5k7X",
+      "snapshotRawBalance": "1019106738938",
+      "snapshotUiBalance": "1019106.738938"
+    },
+    {
+      "owner": "2stgVvGhLB2y3toKgnZZs1P5sCDZ7Swrv4MABeVKZeob",
+      "snapshotRawBalance": "1016263811270",
+      "snapshotUiBalance": "1016263.811270"
+    },
+    {
+      "owner": "BaYu4KfzQ3ZpJ2zeMEvxh25ghEnMmcbJ7tGYkLqvX4e4",
+      "snapshotRawBalance": "1016223300863",
+      "snapshotUiBalance": "1016223.300863"
+    },
+    {
+      "owner": "68XHN1EDETQUiLnmK9TsRCGsRwiSyStbyaTz7kqJTDRe",
+      "snapshotRawBalance": "1015144985171",
+      "snapshotUiBalance": "1015144.985171"
+    },
+    {
+      "owner": "2uz59m78Zn63vmv46rYs1kXzwjyE1s84Ldoq6J6zk8Tc",
+      "snapshotRawBalance": "1010358869061",
+      "snapshotUiBalance": "1010358.869061"
+    },
+    {
+      "owner": "HttTvDMiRbBEFmv4wtygkuyZFSmFGbpy77xCNiPxSkEF",
+      "snapshotRawBalance": "1007006849989",
+      "snapshotUiBalance": "1007006.849989"
+    },
+    {
+      "owner": "ErDWRn9Bp1bmqMrDAmFbGoXHprRoKYu7mFDSRFLp8D7n",
+      "snapshotRawBalance": "1006706010396",
+      "snapshotUiBalance": "1006706.010396"
+    },
+    {
+      "owner": "AdHeAMR6UUWGUMVp1NY7cZkMepYoZvrZhFnS5K8qFbbh",
+      "snapshotRawBalance": "1003057738833",
+      "snapshotUiBalance": "1003057.738833"
+    },
+    {
+      "owner": "5ESqPYPvkuMsLmnpn8dYNYQC39ayWJKzdF8XSA9qjUE1",
+      "snapshotRawBalance": "1002532905795",
+      "snapshotUiBalance": "1002532.905795"
+    },
+    {
+      "owner": "9DMyECpReg4sjcNtP6E3b584wnDk7839Be47D1whR1Eq",
+      "snapshotRawBalance": "1001428253365",
+      "snapshotUiBalance": "1001428.253365"
+    },
+    {
+      "owner": "8VSTs2hk2AXhRkRJUahpBaJaDRfJqrFxh4ZtdAAajMRX",
+      "snapshotRawBalance": "1000458019553",
+      "snapshotUiBalance": "1000458.019553"
+    },
+    {
+      "owner": "FS8dLKwAK7Jm8sa5Kx3cJ5GnbAyGnyiDVBs5zTafzT5x",
+      "snapshotRawBalance": "1000421670985",
+      "snapshotUiBalance": "1000421.670985"
+    },
+    {
+      "owner": "GgEHQXVYshvJVGUDi8WFcqzDqTefvSADNbbbVLm67SQ1",
+      "snapshotRawBalance": "1000000489358",
+      "snapshotUiBalance": "1000000.489358"
+    },
+    {
+      "owner": "6CyTEw8rod7MAeGj9AsRisc5ey4XoY2wEoYupUAW9z3N",
+      "snapshotRawBalance": "1000000000000",
+      "snapshotUiBalance": "1000000.000000"
+    },
+    {
+      "owner": "GY6UbNNNFWqqYSE4qnBUEXkvxosQLwH5maHyi5n2jwkv",
+      "snapshotRawBalance": "1000000000000",
+      "snapshotUiBalance": "1000000.000000"
+    },
+    {
+      "owner": "7Kw4mdrWHrmyFgw885JTrqbWmaHZq2X5AQbMaWpXYTp3",
+      "snapshotRawBalance": "999562770356",
+      "snapshotUiBalance": "999562.770356"
+    },
+    {
+      "owner": "4a1AraQWubZccyFGNg3wcFUzgi444BycZFi5hB1QP4im",
+      "snapshotRawBalance": "986157439252",
+      "snapshotUiBalance": "986157.439252"
+    },
+    {
+      "owner": "C3bd45v1LmT4sDDq9u3KHV9ZqFFXrVcQPujtm5ru5KK5",
+      "snapshotRawBalance": "984163635324",
+      "snapshotUiBalance": "984163.635324"
+    },
+    {
+      "owner": "J1tK2SEwGR4DcqxPpkfuHXbaX9g7ZkEqME9mQwQ3vv2e",
+      "snapshotRawBalance": "979302512912",
+      "snapshotUiBalance": "979302.512912"
+    },
+    {
+      "owner": "2mPjeCVQEHyFcSRAgKNkvjYVRptjWj4mcBQaRDw5LzEX",
+      "snapshotRawBalance": "977552298521",
+      "snapshotUiBalance": "977552.298521"
+    },
+    {
+      "owner": "3wqrJpuvJmYscYK1rPtGRx6LCxjr7tnEvExR1fyopgwa",
+      "snapshotRawBalance": "955201305875",
+      "snapshotUiBalance": "955201.305875"
+    },
+    {
+      "owner": "4jzGU1RvTYwJWCxnRXeqoD1aWmNEQFxArbnQ6nZtAWPV",
+      "snapshotRawBalance": "938494024766",
+      "snapshotUiBalance": "938494.024766"
+    },
+    {
+      "owner": "5GpBKWyuKuTDVKdqguViyWvgBR6j3Wye3wPEgKU9EqX",
+      "snapshotRawBalance": "933161850910",
+      "snapshotUiBalance": "933161.850910"
+    },
+    {
+      "owner": "Hxnjm8v9sV5N2DJRr9ccmjSgSL57KQ1sfuv2WNukhz2M",
+      "snapshotRawBalance": "919678964619",
+      "snapshotUiBalance": "919678.964619"
+    },
+    {
+      "owner": "2NaK6yy34miPU7cdeuHNFM2xUSKKXBpATRA75YCwVTj4",
+      "snapshotRawBalance": "913211723835",
+      "snapshotUiBalance": "913211.723835"
+    },
+    {
+      "owner": "B1sPihiD5FpZFZBNUjT4wnuMuHNeLhZNr6587SLJDah2",
+      "snapshotRawBalance": "904016494424",
+      "snapshotUiBalance": "904016.494424"
+    },
+    {
+      "owner": "8zfpyM9mUgD9ZcMwuz7rQGRKoLMSmEDHwsJTVvNNrvZC",
+      "snapshotRawBalance": "900471517318",
+      "snapshotUiBalance": "900471.517318"
+    },
+    {
+      "owner": "6SpodkmY4inLjmLLjZY217QUGEhYLyivZoagmPjUVNNE",
+      "snapshotRawBalance": "862103795729",
+      "snapshotUiBalance": "862103.795729"
+    },
+    {
+      "owner": "BDPoUQ8MjcQz7w8SaCSC5RfUpfCMYyPm4dwaPmwbDhbA",
+      "snapshotRawBalance": "848808148253",
+      "snapshotUiBalance": "848808.148253"
+    },
+    {
+      "owner": "5kMnZodaVdLVcwo9pzfQQ1SVdsAAsqKWUKShT5WH79Qq",
+      "snapshotRawBalance": "847385552853",
+      "snapshotUiBalance": "847385.552853"
+    },
+    {
+      "owner": "5SMoSe3HGL1eMhYgkAgzV9GfPG5vWicPK5Mop8MW4pq6",
+      "snapshotRawBalance": "846407696440",
+      "snapshotUiBalance": "846407.696440"
+    },
+    {
+      "owner": "3VojjmhbKPRWcmugFqVgAQ4U6sYJRegsMjkQZyTMQaAb",
+      "snapshotRawBalance": "843806941994",
+      "snapshotUiBalance": "843806.941994"
+    },
+    {
+      "owner": "7e4dqQdb8AUdD89tpcULAJ5A3B8L9isZBsUsGFXhjpwA",
+      "snapshotRawBalance": "835462000701",
+      "snapshotUiBalance": "835462.000701"
+    },
+    {
+      "owner": "DeeKjHTKQLA4FoXKb5NkNc5BcHZkzPwHDQSdSKzeJVGh",
+      "snapshotRawBalance": "820221226599",
+      "snapshotUiBalance": "820221.226599"
+    },
+    {
+      "owner": "B2Y912C7At8WGi8DDvCttVp74r3AG8QviMeiGGp9iSsG",
+      "snapshotRawBalance": "802987334507",
+      "snapshotUiBalance": "802987.334507"
+    },
+    {
+      "owner": "pzix8h9XCvgTBfu44sryC4RqMCv5qbrsBZ2xF8Sn26K",
+      "snapshotRawBalance": "781039798612",
+      "snapshotUiBalance": "781039.798612"
+    },
+    {
+      "owner": "GyUp3ExwkKRDQC5X1tk4Wsdqz5LKBYEKh9N3FZYMf1g9",
+      "snapshotRawBalance": "767483645200",
+      "snapshotUiBalance": "767483.645200"
+    },
+    {
+      "owner": "Ds18ZQcjNUnFFKcbJY8gR8nx74z5vtvyKZ9tpNFZryNj",
+      "snapshotRawBalance": "762612066821",
+      "snapshotUiBalance": "762612.066821"
+    },
+    {
+      "owner": "6MTpExmnW4fm9LQu4ABj34VLRLk2os5VLup6MxtQKhkQ",
+      "snapshotRawBalance": "762060731878",
+      "snapshotUiBalance": "762060.731878"
+    },
+    {
+      "owner": "4b56WU7rJMf7pxCMiA3UkNzj6n8Q5mdXY26sVWMUj8hK",
+      "snapshotRawBalance": "761628355725",
+      "snapshotUiBalance": "761628.355725"
+    },
+    {
+      "owner": "7G45xqjekp3Qo4dJDnqSSxPQfpmJuhNXgqmDnGqEhrzM",
+      "snapshotRawBalance": "752556870086",
+      "snapshotUiBalance": "752556.870086"
+    },
+    {
+      "owner": "99c9mk5EtotHZusqu5wWGMEbwbaLAqpnGNq9zeCyZyqH",
+      "snapshotRawBalance": "750722023484",
+      "snapshotUiBalance": "750722.023484"
+    },
+    {
+      "owner": "DbjGjTMdZXFTZRDsx6bxwv2yqeeWFWrahpY8fK2wmtTF",
+      "snapshotRawBalance": "749490393030",
+      "snapshotUiBalance": "749490.393030"
+    },
+    {
+      "owner": "HYi3mttQ1Ywa6STTziygzXtb3Cu6BpYE5nBMbGRBbrqa",
+      "snapshotRawBalance": "734457534791",
+      "snapshotUiBalance": "734457.534791"
+    },
+    {
+      "owner": "Gkq4Pvvdt4otiKUXp4FXSvoVgdjSh4qLYGg2HzpDfFU6",
+      "snapshotRawBalance": "731929495733",
+      "snapshotUiBalance": "731929.495733"
+    },
+    {
+      "owner": "31LAwBtSz4X9vXbCbeV8vJaTkEYJMzc1s2X84isb9Uvq",
+      "snapshotRawBalance": "727933578230",
+      "snapshotUiBalance": "727933.578230"
+    },
+    {
+      "owner": "D3h6ksasnSrePKktLrp4bANV1jDexscy9MvWXzARoMv8",
+      "snapshotRawBalance": "722175353737",
+      "snapshotUiBalance": "722175.353737"
+    },
+    {
+      "owner": "AG9nANfMxFWY38S1pHxHZhuxmv8nrJH9W4iDWLEnWgfP",
+      "snapshotRawBalance": "718984586250",
+      "snapshotUiBalance": "718984.586250"
+    },
+    {
+      "owner": "4k3hdDHrsfAkCMTccJU7GUyhiiKHHVja4ykn6RmA5txC",
+      "snapshotRawBalance": "718712407843",
+      "snapshotUiBalance": "718712.407843"
+    },
+    {
+      "owner": "EVGx9rVTUjWQMRT3Y8VRZyjzFuiVRmiXyPLsmCuTK1Xf",
+      "snapshotRawBalance": "704945177963",
+      "snapshotUiBalance": "704945.177963"
+    },
+    {
+      "owner": "ANB6jWJvs8yQZHNdkmHnS6sMyWppfz7eXkU3Mvm3sijw",
+      "snapshotRawBalance": "695025618684",
+      "snapshotUiBalance": "695025.618684"
+    },
+    {
+      "owner": "73AozxC3nsVddQnBmpT9sbFfnxsU2tbs7nLTiLWzdvJG",
+      "snapshotRawBalance": "692824819096",
+      "snapshotUiBalance": "692824.819096"
+    },
+    {
+      "owner": "4fSxy9TdA3U3hB1y9UMQquwwmjTKK3AmXvmTaBwpsNto",
+      "snapshotRawBalance": "681043762640",
+      "snapshotUiBalance": "681043.762640"
+    },
+    {
+      "owner": "1kciYL8AyuhWTofpFfVQC5imWjXieTZLkWhiJBuqRvV",
+      "snapshotRawBalance": "675117595682",
+      "snapshotUiBalance": "675117.595682"
+    },
+    {
+      "owner": "DXmSPqPuuDMX1TkQMJfzAEoaGqJ1muRUDC55SvCErSsw",
+      "snapshotRawBalance": "672986159370",
+      "snapshotUiBalance": "672986.159370"
+    },
+    {
+      "owner": "B4rS9VjmMomHLmxx3woZnAjqPdZiMoLXXL7rYy4M3aa5",
+      "snapshotRawBalance": "668832975713",
+      "snapshotUiBalance": "668832.975713"
+    },
+    {
+      "owner": "4gDtNqrSUSVsftQyQnaDi8tqF5HNRpxaTMq8JpYXJiVu",
+      "snapshotRawBalance": "665917957040",
+      "snapshotUiBalance": "665917.957040"
+    },
+    {
+      "owner": "6qqrscvCnRJXrspFTh5uevFWUNqKYrwePMdNDZAdS5gp",
+      "snapshotRawBalance": "665396326706",
+      "snapshotUiBalance": "665396.326706"
+    },
+    {
+      "owner": "AqFkAF7QDyVL1c2fSuGqHoZM4JWsm2JqtAd7fv9FnpiL",
+      "snapshotRawBalance": "648248560490",
+      "snapshotUiBalance": "648248.560490"
+    },
+    {
+      "owner": "6okwAbYAXgCjkEJN5rAWiZC4DuEDnQrtowgZQecECRLR",
+      "snapshotRawBalance": "646749072196",
+      "snapshotUiBalance": "646749.072196"
+    },
+    {
+      "owner": "Bu9EFM2FJX2vr7gaTH36QwLtPS3b5ttttr7i3vc6uqq4",
+      "snapshotRawBalance": "640417601922",
+      "snapshotUiBalance": "640417.601922"
+    },
+    {
+      "owner": "92mpW8TcBnM3cRh76LfWteJbS4vmDxjPffNxZvST2k1d",
+      "snapshotRawBalance": "640000000000",
+      "snapshotUiBalance": "640000.000000"
+    },
+    {
+      "owner": "5qbYqdxeuLUPfKCNHXrF4sP7qnDHreMZtGgrc4aaX15d",
+      "snapshotRawBalance": "632740858904",
+      "snapshotUiBalance": "632740.858904"
+    },
+    {
+      "owner": "8mahGn5BKC6CKdLRhpYgyD56f7KEDLotAFFjg9KvRwQ1",
+      "snapshotRawBalance": "628802810600",
+      "snapshotUiBalance": "628802.810600"
+    },
+    {
+      "owner": "Aow5WLJoK56Sgu68MNnA2srPvGzHYBTcw78ygs2seo4N",
+      "snapshotRawBalance": "627172214446",
+      "snapshotUiBalance": "627172.214446"
+    },
+    {
+      "owner": "DDHyvDosWXv47YWBSCtgrCptBVHi1zZVtCp7cxrMJMST",
+      "snapshotRawBalance": "626833811268",
+      "snapshotUiBalance": "626833.811268"
+    },
+    {
+      "owner": "5sjt1SChLXHUj21oirsFZAuKG7bm5M47XXyU2fcfcXYt",
+      "snapshotRawBalance": "626777276249",
+      "snapshotUiBalance": "626777.276249"
+    },
+    {
+      "owner": "BLvJpG2svg1JxW4H2GiAztqsAVd3UdvGP96ho6cRg7Ha",
+      "snapshotRawBalance": "616533717786",
+      "snapshotUiBalance": "616533.717786"
+    },
+    {
+      "owner": "HVKsbfkuK37PsFSteFxcNBd4pfMnE3YaFsUgdtXsoDJo",
+      "snapshotRawBalance": "604258710037",
+      "snapshotUiBalance": "604258.710037"
+    },
+    {
+      "owner": "7FVT3uxh9bFAYHUB2X2cd6yMwQBgZ6xpvxWwdN3Zx5FH",
+      "snapshotRawBalance": "603049387673",
+      "snapshotUiBalance": "603049.387673"
+    },
+    {
+      "owner": "Epw9ysUEveGskL1tDdMa1n79cDmGSqQSwRZqxhjQAcec",
+      "snapshotRawBalance": "603023446471",
+      "snapshotUiBalance": "603023.446471"
+    },
+    {
+      "owner": "BoNos1JMGGbDE5sUZfZmkb8BCsahV7AXXBFTcPGL4ZhL",
+      "snapshotRawBalance": "594900503475",
+      "snapshotUiBalance": "594900.503475"
+    },
+    {
+      "owner": "26G1LcRZvgKjxgYmxrmrDFLr4pzSvVcUjHz1aqYc1Qeo",
+      "snapshotRawBalance": "593798773581",
+      "snapshotUiBalance": "593798.773581"
+    },
+    {
+      "owner": "7KNpcVybDnuiz1EqkWpD6z2tabEiejUW7kNkPcTUAH86",
+      "snapshotRawBalance": "582144952825",
+      "snapshotUiBalance": "582144.952825"
+    },
+    {
+      "owner": "21PDCpTaKGkWu6zZWqYxCPavKskhPU3qsCxTe92uYro4",
+      "snapshotRawBalance": "579952357797",
+      "snapshotUiBalance": "579952.357797"
+    },
+    {
+      "owner": "4naR1mKKSd8DEwJEeYznxEnTgC7ivm2RWNffohxUS19f",
+      "snapshotRawBalance": "572005276894",
+      "snapshotUiBalance": "572005.276894"
+    },
+    {
+      "owner": "B2Erm7SWMHaGc2aRuXa71ib4xjKfJ1TGDwVhzjErv4v6",
+      "snapshotRawBalance": "570331232149",
+      "snapshotUiBalance": "570331.232149"
+    },
+    {
+      "owner": "EAS198DcMt1rxNvhHMoZbtCqyjxLkKA535yiDokPU1yq",
+      "snapshotRawBalance": "563205136275",
+      "snapshotUiBalance": "563205.136275"
+    },
+    {
+      "owner": "9YT7AgjWSZnB6Woq2mfK8Wkfd9T1hYZ2GgckrwHAVnvx",
+      "snapshotRawBalance": "563186031657",
+      "snapshotUiBalance": "563186.031657"
+    },
+    {
+      "owner": "7WcNUuEJ6NSz8ApmnL1aPbwjxbuQxDuyo5tLzt2rJPXh",
+      "snapshotRawBalance": "559460172940",
+      "snapshotUiBalance": "559460.172940"
+    },
+    {
+      "owner": "Az1aNiiV9E9U4fsdsu6ZJu1fYPQoXC81qUPraNyvV8Ce",
+      "snapshotRawBalance": "556219928945",
+      "snapshotUiBalance": "556219.928945"
+    },
+    {
+      "owner": "8K6kWUx9ro9T7cgRvDGUEe4ua21oWuCufKvZhP79ncwM",
+      "snapshotRawBalance": "555391420928",
+      "snapshotUiBalance": "555391.420928"
+    },
+    {
+      "owner": "4D4NVrMqo7JTzWc5mewzjJzeFV5nbZDAHo8qHceDxwJK",
+      "snapshotRawBalance": "553781897017",
+      "snapshotUiBalance": "553781.897017"
+    },
+    {
+      "owner": "84SQPGUNgHncjNC9M4GvZR57Sno7X8VQ2hVeBxRcGxTF",
+      "snapshotRawBalance": "553615426772",
+      "snapshotUiBalance": "553615.426772"
+    },
+    {
+      "owner": "3PqjUH4U5qTZe1oFRd5okXL5ZUMU9ETMFzTUMiMAdkUf",
+      "snapshotRawBalance": "551826542859",
+      "snapshotUiBalance": "551826.542859"
+    },
+    {
+      "owner": "AMtdJJJa3sGPW6mFpdf1889wi3FoefjydU7BFjFuPWTD",
+      "snapshotRawBalance": "549604637760",
+      "snapshotUiBalance": "549604.637760"
+    },
+    {
+      "owner": "Daa93eZJFLw2UtG9RJkUQrarQw5AioJJFufPkCHYuc5N",
+      "snapshotRawBalance": "547582380302",
+      "snapshotUiBalance": "547582.380302"
+    },
+    {
+      "owner": "A6XTLY17u8TDA4wndKpqPbhRkpcngsizSi6LH9wTZt95",
+      "snapshotRawBalance": "540859256991",
+      "snapshotUiBalance": "540859.256991"
+    },
+    {
+      "owner": "FtPVhCVnpE3XLVRzrd9yasgwysbzgj3FckS21S9WUs33",
+      "snapshotRawBalance": "540152946743",
+      "snapshotUiBalance": "540152.946743"
+    },
+    {
+      "owner": "9kscFLnSpZvxLwoFUsYU45he3J9nQfdbHFNKM7nauwg2",
+      "snapshotRawBalance": "539851792402",
+      "snapshotUiBalance": "539851.792402"
+    },
+    {
+      "owner": "7yKA9owGGF87H5Eeqp5r9xrrwvDqNxLWtG9j4e217che",
+      "snapshotRawBalance": "539450265337",
+      "snapshotUiBalance": "539450.265337"
+    },
+    {
+      "owner": "6d5oL7HyqXeM4TeZAKiXLez7zaRdccC5XTZefpXofNaC",
+      "snapshotRawBalance": "538355280016",
+      "snapshotUiBalance": "538355.280016"
+    },
+    {
+      "owner": "H9wTx5yRTCvcqgE3WbHa2qp7UZABh41r3G9XuZorqFrB",
+      "snapshotRawBalance": "537037058413",
+      "snapshotUiBalance": "537037.058413"
+    },
+    {
+      "owner": "G3e49risByaYpRxtG9JqzRDpq7ppuUx3weifN1XmBahf",
+      "snapshotRawBalance": "536876324706",
+      "snapshotUiBalance": "536876.324706"
+    },
+    {
+      "owner": "2fHQa3j9k8ANMz8uS6ETnc7BVGczT6GfC8TE5jtxZ5QG",
+      "snapshotRawBalance": "536176077573",
+      "snapshotUiBalance": "536176.077573"
+    },
+    {
+      "owner": "DQ7k2xeK3RBUbVBsHkh7o1GT6VD1yQLzpMrNCcdEB6Vw",
+      "snapshotRawBalance": "534862657497",
+      "snapshotUiBalance": "534862.657497"
+    },
+    {
+      "owner": "2FYi3HEC97zDXT7YgWCfNx8ZzCaHg7rFV1PHm7EfGfjQ",
+      "snapshotRawBalance": "534085151427",
+      "snapshotUiBalance": "534085.151427"
+    },
+    {
+      "owner": "6R3Seh43ppMFG6Jamv9Rr4JtyFoPNF9pjtvzzoyeMo3",
+      "snapshotRawBalance": "530187403670",
+      "snapshotUiBalance": "530187.403670"
+    },
+    {
+      "owner": "DNGASVLvdLEmcXnW9cn8gt7qsoL1FE3vGBm9PhTWSirs",
+      "snapshotRawBalance": "530149730305",
+      "snapshotUiBalance": "530149.730305"
+    },
+    {
+      "owner": "DU9bX1Jc2vZBqEM2zm4WMzkYZvDLQGb5baSnhrKgecQf",
+      "snapshotRawBalance": "528963556736",
+      "snapshotUiBalance": "528963.556736"
+    },
+    {
+      "owner": "4H5nqvMfkxzSNjS7CvS9eiH5SiHaasfYAEphhawqnjua",
+      "snapshotRawBalance": "526706154469",
+      "snapshotUiBalance": "526706.154469"
+    },
+    {
+      "owner": "9bmRDdvLaTaBAkrXdU788ucxL7XSQDq3mdMsGm7F1T3o",
+      "snapshotRawBalance": "525731795157",
+      "snapshotUiBalance": "525731.795157"
+    },
+    {
+      "owner": "DA1MSqQ9Je5yLRDxZcwPLFxo4fkBRidhmRmY8fCNde99",
+      "snapshotRawBalance": "518924162010",
+      "snapshotUiBalance": "518924.162010"
+    },
+    {
+      "owner": "HPevmnzYQUjK7dWdXGqviNPSVukYd3Db9Ffw9QFrSorG",
+      "snapshotRawBalance": "517734940375",
+      "snapshotUiBalance": "517734.940375"
+    },
+    {
+      "owner": "Fg3xpHYLThuy8KByYNQpyRvYeV9iBNNpUo1kDZjaq46d",
+      "snapshotRawBalance": "517401876560",
+      "snapshotUiBalance": "517401.876560"
+    },
+    {
+      "owner": "DjQENZ3tmMspbPF32SPc35WgT51Evb8VV2kbknVf1NW1",
+      "snapshotRawBalance": "516603517810",
+      "snapshotUiBalance": "516603.517810"
+    },
+    {
+      "owner": "9uUQQoDczqqdpt1m29KetzHimgMVQ8ku3d8BVndAPAC8",
+      "snapshotRawBalance": "515390661161",
+      "snapshotUiBalance": "515390.661161"
+    },
+    {
+      "owner": "4oG6ZAmtZ4DC7jsufiS7273ob2QmmshkfRFi4HcuRugE",
+      "snapshotRawBalance": "513422174513",
+      "snapshotUiBalance": "513422.174513"
+    },
+    {
+      "owner": "HG71nUBWQSMQ98HCUMcU5mfAFMskomquXaMSDWYZxCsm",
+      "snapshotRawBalance": "512871522494",
+      "snapshotUiBalance": "512871.522494"
+    },
+    {
+      "owner": "V2H179pLeCKznXXqDXxo2dN2KdcaP2NfvfLid1ou6f7",
+      "snapshotRawBalance": "512474277041",
+      "snapshotUiBalance": "512474.277041"
+    },
+    {
+      "owner": "E2StddK3zn9S5NDFvibUQicZ26xjseosqUxfxEzZTFDk",
+      "snapshotRawBalance": "512285662822",
+      "snapshotUiBalance": "512285.662822"
+    },
+    {
+      "owner": "8zrknZGq22XRksaQB1TYLTsby3CPiL2oVnAfu2A9awNB",
+      "snapshotRawBalance": "510698865592",
+      "snapshotUiBalance": "510698.865592"
+    },
+    {
+      "owner": "89tE7bfHZnE5SFjXe9ytx51ghzxXWa4tJmLbfx2WD69u",
+      "snapshotRawBalance": "507639603170",
+      "snapshotUiBalance": "507639.603170"
+    },
+    {
+      "owner": "21sy5JHLYjwvhB2pr2MnQcrUrtx9PDHUJcR4DExy6kdX",
+      "snapshotRawBalance": "504459112976",
+      "snapshotUiBalance": "504459.112976"
+    },
+    {
+      "owner": "52h87wLUY2k68vKNxkbnv6HYac8b6Km8yyxQy4x8tH6g",
+      "snapshotRawBalance": "502391119893",
+      "snapshotUiBalance": "502391.119893"
+    },
+    {
+      "owner": "2piwJ9Jpi27RrJWV6Le1ttZkWG9DLZuUppk3aYQswfeF",
+      "snapshotRawBalance": "502183892068",
+      "snapshotUiBalance": "502183.892068"
+    },
+    {
+      "owner": "EbKGHp6D3trinL25TM6fg493PynudkqnnjVxUGAn8bCC",
+      "snapshotRawBalance": "500648211905",
+      "snapshotUiBalance": "500648.211905"
+    },
+    {
+      "owner": "FDQkAEM5hGWXtpxfXrkcmziu1peNXdD2NSzVcYnVSjgt",
+      "snapshotRawBalance": "500016842622",
+      "snapshotUiBalance": "500016.842622"
+    },
+    {
+      "owner": "HphmWMdwQ2t6wd5Cio8LzyqyU7sKtZ7cAo6yt1FfLx1w",
+      "snapshotRawBalance": "494768615433",
+      "snapshotUiBalance": "494768.615433"
+    },
+    {
+      "owner": "CggVrpwJXVHCHHYogkUvzuLN5QNcffKUyCpPU98Wb2VL",
+      "snapshotRawBalance": "491094194140",
+      "snapshotUiBalance": "491094.194140"
+    },
+    {
+      "owner": "5s4GgSH2ngfHKbiZFSXyT2mUcCDGvfTke6pqjV8SQMRf",
+      "snapshotRawBalance": "490214352508",
+      "snapshotUiBalance": "490214.352508"
+    },
+    {
+      "owner": "AtrYdNLzTb1cNp8SG3dWZ6Eyyt4rAsuUiVnh6Nwpe7Df",
+      "snapshotRawBalance": "487785454372",
+      "snapshotUiBalance": "487785.454372"
+    },
+    {
+      "owner": "CZwx4joPea4Tvbhpxhtv2EriXdvfEnWekj4jcW48Smxa",
+      "snapshotRawBalance": "487767037634",
+      "snapshotUiBalance": "487767.037634"
+    },
+    {
+      "owner": "9bNkZdMGBVd4FQqWyPrdZcBGHyoLahqDffuUxdfsmJWM",
+      "snapshotRawBalance": "480428063207",
+      "snapshotUiBalance": "480428.063207"
+    },
+    {
+      "owner": "Gcgnvo593TTQdEEDumjTJQKLUKVE2cpokWHCE5tv1hAq",
+      "snapshotRawBalance": "474602968574",
+      "snapshotUiBalance": "474602.968574"
+    },
+    {
+      "owner": "E6wEorkMqf8eS9bLPpnUsQSZ7XjepwVS7cQWUe3cBGEd",
+      "snapshotRawBalance": "470187597782",
+      "snapshotUiBalance": "470187.597782"
+    },
+    {
+      "owner": "DCipQxj3aruZcth8Qoq4RFcUXdM5hZV5WbmMz2qy2wq",
+      "snapshotRawBalance": "466986729253",
+      "snapshotUiBalance": "466986.729253"
+    },
+    {
+      "owner": "DW8reshgNazirQqGcQN2RXba3YH1ng7A1d4tiQ9hvyN8",
+      "snapshotRawBalance": "466280707913",
+      "snapshotUiBalance": "466280.707913"
+    },
+    {
+      "owner": "Efn67NkDh2gVQ7TVDyEzN33tFFXjmYsVi6KtDhH9ZpX6",
+      "snapshotRawBalance": "465252588560",
+      "snapshotUiBalance": "465252.588560"
+    },
+    {
+      "owner": "7XH3sV5PqaPW3DJ55c5xC3fFNWJaY4yMBibHZpES5CXw",
+      "snapshotRawBalance": "463845819008",
+      "snapshotUiBalance": "463845.819008"
+    },
+    {
+      "owner": "BgBXyjb1LDKtRrNpML82ApFdC2oiXXuLjC3zoGGgeDK7",
+      "snapshotRawBalance": "461300433963",
+      "snapshotUiBalance": "461300.433963"
+    },
+    {
+      "owner": "DiX5zUHZ2xQff9aymD9WUjjPcoo8ahiMhsoVXwjfQYJc",
+      "snapshotRawBalance": "458735214748",
+      "snapshotUiBalance": "458735.214748"
+    },
+    {
+      "owner": "BxnqAWeJiLS9Tgzq7jMPYig2pJKawJLvZK8xibv3BBGm",
+      "snapshotRawBalance": "454979331927",
+      "snapshotUiBalance": "454979.331927"
+    },
+    {
+      "owner": "5tvTZmXFVv8T7zFDUvtj5JxRnLGSXnN5VytbUzu2typj",
+      "snapshotRawBalance": "436585049045",
+      "snapshotUiBalance": "436585.049045"
+    },
+    {
+      "owner": "A3dK6sm1KH9dicvpVUFvRiMV7U1NQsMGuvjfMHCLcWBN",
+      "snapshotRawBalance": "436375233798",
+      "snapshotUiBalance": "436375.233798"
+    },
+    {
+      "owner": "GLXmu5kBr2ZwbnG5ExphAMnjQqqpYzvRD7zh5qoK42BG",
+      "snapshotRawBalance": "435180410777",
+      "snapshotUiBalance": "435180.410777"
+    },
+    {
+      "owner": "69yqz2jXZk4tyoSbRqFHTSR7Gi63SmvVu2M4X8d3SPSv",
+      "snapshotRawBalance": "424071494917",
+      "snapshotUiBalance": "424071.494917"
+    },
+    {
+      "owner": "HGTAxeUS666DKJVA7JVMPcaFBmj3eAFjosy1jXHudT6W",
+      "snapshotRawBalance": "412527344817",
+      "snapshotUiBalance": "412527.344817"
+    },
+    {
+      "owner": "4cqQTaVbDe2apMNaMQ2WW9Jp3qwnV3oqpoTd5NWAKJbQ",
+      "snapshotRawBalance": "410580022792",
+      "snapshotUiBalance": "410580.022792"
+    },
+    {
+      "owner": "2BcaiiigLwJwaksZzZq3vQaRph2PNUWvWLmeb8hzvXh7",
+      "snapshotRawBalance": "409775524255",
+      "snapshotUiBalance": "409775.524255"
+    },
+    {
+      "owner": "C7AoGUvQHeFAxX6nV5Vo1gS2ftNxT5Fi6hQ8Gzy626wz",
+      "snapshotRawBalance": "408048080588",
+      "snapshotUiBalance": "408048.080588"
+    },
+    {
+      "owner": "Ac4Rxr53zZb9T8DMof8xX1mmVR34PKeqZYC6RLF2afF6",
+      "snapshotRawBalance": "405732789552",
+      "snapshotUiBalance": "405732.789552"
+    },
+    {
+      "owner": "4pq7erDPq65znL3fMNG2bXT6fVYrrpXnB69k7KcLtYyp",
+      "snapshotRawBalance": "400536915959",
+      "snapshotUiBalance": "400536.915959"
+    },
+    {
+      "owner": "66fbufbZQL8cUtGBaxU9HSNukSTWjMcfuRWB63mseQ3k",
+      "snapshotRawBalance": "400412057651",
+      "snapshotUiBalance": "400412.057651"
+    },
+    {
+      "owner": "67tmm7Aj14rkWkghv7BZHqkv3pY5ZydEAonNKmhivcT1",
+      "snapshotRawBalance": "398648270343",
+      "snapshotUiBalance": "398648.270343"
+    },
+    {
+      "owner": "DqVh3S427h3bTMuEx4JXF9d7kTkJ8SNvZG63P8bDXC6D",
+      "snapshotRawBalance": "397993315508",
+      "snapshotUiBalance": "397993.315508"
+    },
+    {
+      "owner": "GFt4fQbhnmfbZAfyGnaTSWR1JZeARiQrL3ibrYU8ziDf",
+      "snapshotRawBalance": "397164161305",
+      "snapshotUiBalance": "397164.161305"
+    },
+    {
+      "owner": "9wJcHs1WqmuVc7Bp6B8pq4pUm37gH8TxnfJifZm45e3A",
+      "snapshotRawBalance": "396366363087",
+      "snapshotUiBalance": "396366.363087"
+    },
+    {
+      "owner": "AgnnGbcgVusThrN7AXaUB6qt7BPt4fv3mEGyb7WdyJMX",
+      "snapshotRawBalance": "395408300114",
+      "snapshotUiBalance": "395408.300114"
+    },
+    {
+      "owner": "4kutkm7sB55LgM4KasjZbUTPT8R6hEFVLCAV32FAvtvm",
+      "snapshotRawBalance": "392910082206",
+      "snapshotUiBalance": "392910.082206"
+    },
+    {
+      "owner": "A1tYQLopgjyZepcaV54V9MnkJSGsWN92kVae5YRdcquk",
+      "snapshotRawBalance": "388780238228",
+      "snapshotUiBalance": "388780.238228"
+    },
+    {
+      "owner": "KLC3UZLV4KCoNGwn8A1NMSnnZ11awGVKGW7n1EwrVQs",
+      "snapshotRawBalance": "385348704209",
+      "snapshotUiBalance": "385348.704209"
+    },
+    {
+      "owner": "E8ZbkKZQ67dpbqqfazbEoaNYUvqrW2qBHQenB9y3wK3Y",
+      "snapshotRawBalance": "383545383679",
+      "snapshotUiBalance": "383545.383679"
+    },
+    {
+      "owner": "FoYWVY3E1qPpwmvLjKUgZtCx6GWeSw6XjsA713d21zpN",
+      "snapshotRawBalance": "380249670317",
+      "snapshotUiBalance": "380249.670317"
+    },
+    {
+      "owner": "72Z8pka3Zng897bvEWvqJVtkqADYNkAMZxJJBsuz9ofc",
+      "snapshotRawBalance": "378204196935",
+      "snapshotUiBalance": "378204.196935"
+    },
+    {
+      "owner": "HH6Rj2wq116CGEVjep2HAMEmVNXnMxZpXQMxm2nDnACq",
+      "snapshotRawBalance": "374473964650",
+      "snapshotUiBalance": "374473.964650"
+    },
+    {
+      "owner": "DJZNUmhZmxgJ8Ad95eyj6jUegSvwAGkJGxhhwpHXUL3d",
+      "snapshotRawBalance": "371255080521",
+      "snapshotUiBalance": "371255.080521"
+    },
+    {
+      "owner": "5F5fYy6bw5cU5tCenFX7LSkryegD5JJc4vNj5DpwiMaB",
+      "snapshotRawBalance": "370924175846",
+      "snapshotUiBalance": "370924.175846"
+    },
+    {
+      "owner": "4xRewkAqV6hexpzguiStEUkYaa6pjxj15Nv9bnfUEwwL",
+      "snapshotRawBalance": "365154747023",
+      "snapshotUiBalance": "365154.747023"
+    },
+    {
+      "owner": "EM1tNeUYk3LLH9CUiiojMK9Dofi3ntrZzHwc4KtxReEZ",
+      "snapshotRawBalance": "362688054453",
+      "snapshotUiBalance": "362688.054453"
+    },
+    {
+      "owner": "BYtsmGB5zDwGqG1icDzXwCwZBrwnLPY9tkRTEhADbx9S",
+      "snapshotRawBalance": "351042916396",
+      "snapshotUiBalance": "351042.916396"
+    },
+    {
+      "owner": "2xrBS18pHuunLzWfSZq7udhh73frw78GGMvKtc5A1wx8",
+      "snapshotRawBalance": "349440466454",
+      "snapshotUiBalance": "349440.466454"
+    },
+    {
+      "owner": "E2kcWgVVbB7Ruh3VMmjnJ1NSFFMVHm7ZsLJcyBP9gYfc",
+      "snapshotRawBalance": "348384423138",
+      "snapshotUiBalance": "348384.423138"
+    },
+    {
+      "owner": "DzectVc7W67aPxiAQcEQN2wsCTMpqLgkk3QLWb4gq7LM",
+      "snapshotRawBalance": "346438427487",
+      "snapshotUiBalance": "346438.427487"
+    },
+    {
+      "owner": "2LPDKnbggTcvf3ZVq2eMzKhxr8DiQqRT4Zmq2KXA6886",
+      "snapshotRawBalance": "345977801237",
+      "snapshotUiBalance": "345977.801237"
+    },
+    {
+      "owner": "yYrkGfTdgCibPRVvvPyqxuZNvHLy5GKs2Ej6Wr653dN",
+      "snapshotRawBalance": "342192801883",
+      "snapshotUiBalance": "342192.801883"
+    },
+    {
+      "owner": "7juTimo8WM76zA2hom8i7N9BqqpmGQL1t64FvNeyw9Hf",
+      "snapshotRawBalance": "334733129548",
+      "snapshotUiBalance": "334733.129548"
+    },
+    {
+      "owner": "HzC4tANvL9wJVqcL8YD6pkg1Aqxjxs95yjswvRHwepmu",
+      "snapshotRawBalance": "333981898008",
+      "snapshotUiBalance": "333981.898008"
+    },
+    {
+      "owner": "B2rcpd2MvQRVagv2Y3YopiopDTh45EMjcbq54GPkqBqk",
+      "snapshotRawBalance": "332149355620",
+      "snapshotUiBalance": "332149.355620"
+    },
+    {
+      "owner": "93sRwsbRWWEveUsxBSKtKTzrytGCZbdpBRbGSQP8xbT2",
+      "snapshotRawBalance": "329389458443",
+      "snapshotUiBalance": "329389.458443"
+    },
+    {
+      "owner": "Dcbcg7DWcYwfunUPWZRqqsFDEj3KBqqFw1SgQBQedLzE",
+      "snapshotRawBalance": "328766131884",
+      "snapshotUiBalance": "328766.131884"
+    },
+    {
+      "owner": "D3tr9TztUFhN8wB5QHGdwgeJKxw32brD8egDUHHbFFQr",
+      "snapshotRawBalance": "327726632949",
+      "snapshotUiBalance": "327726.632949"
+    },
+    {
+      "owner": "De8DMJon3UbarSMCkyFG2LxbwbPYTuaNhSTymyCfsoBM",
+      "snapshotRawBalance": "327331819541",
+      "snapshotUiBalance": "327331.819541"
+    },
+    {
+      "owner": "9gXjbDT6Ax1KdaSViSMCdhuMfnY4PKqjbdKHeRdEXoWW",
+      "snapshotRawBalance": "323314964398",
+      "snapshotUiBalance": "323314.964398"
+    },
+    {
+      "owner": "5iSgtVfZgfDkJykGsUW3JDRmXVQiH8H6XxZH636EUk3t",
+      "snapshotRawBalance": "322411173793",
+      "snapshotUiBalance": "322411.173793"
+    },
+    {
+      "owner": "B42XYRunZdkASC8Dej4F8sgh9v1JRawNiKh5PvNcvSJA",
+      "snapshotRawBalance": "319977605464",
+      "snapshotUiBalance": "319977.605464"
+    },
+    {
+      "owner": "H1vFdwCxpN4xWsfzuWHtLuvhSGHhgigeoM5C4kUfU4nE",
+      "snapshotRawBalance": "315172101007",
+      "snapshotUiBalance": "315172.101007"
+    },
+    {
+      "owner": "67Fm9cErgVJdd7VxzKTPW6cMMYVbrnBwPHimYxYuRHKP",
+      "snapshotRawBalance": "312837181696",
+      "snapshotUiBalance": "312837.181696"
+    },
+    {
+      "owner": "FveM6MArtgQatkay9FKVd3k8GmuTbQ5zNNL5qYVC1F48",
+      "snapshotRawBalance": "310661945320",
+      "snapshotUiBalance": "310661.945320"
+    },
+    {
+      "owner": "HhReCzhKwScLySMcsryAgr218fHS7svshbRkdpK7hpt1",
+      "snapshotRawBalance": "308969493402",
+      "snapshotUiBalance": "308969.493402"
+    },
+    {
+      "owner": "3maGk8KZzojq3ggFRWJKurZCjTEpUmr6V7rzuTSZoFLH",
+      "snapshotRawBalance": "308463888571",
+      "snapshotUiBalance": "308463.888571"
+    },
+    {
+      "owner": "7AEUmAvTQb8ZZY3PmeUSVbNYyvJtwwXoEG4sfd8QbyAu",
+      "snapshotRawBalance": "305000000000",
+      "snapshotUiBalance": "305000.000000"
+    },
+    {
+      "owner": "AchtyWtkjPYQJwDVJQDTK8EBnwBfu3yFL85oDnpkfXSo",
+      "snapshotRawBalance": "302433454259",
+      "snapshotUiBalance": "302433.454259"
+    },
+    {
+      "owner": "HNDjTPuwHxVSq5QJbT7ctZj8Ds6Ez695699RRr7rSude",
+      "snapshotRawBalance": "301418829816",
+      "snapshotUiBalance": "301418.829816"
+    },
+    {
+      "owner": "2jyzWdSrTcTynrWR5GqPjH8psNM5Dehs3rT4vycKbADY",
+      "snapshotRawBalance": "300988933322",
+      "snapshotUiBalance": "300988.933322"
+    },
+    {
+      "owner": "4SkiC553qbpMzwqiyFnBHfpB7TGW7UUaaZwPAeEyjsF1",
+      "snapshotRawBalance": "300862801172",
+      "snapshotUiBalance": "300862.801172"
+    }
+  ]
+}

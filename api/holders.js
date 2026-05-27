@@ -18,7 +18,7 @@ export default async function handler(req, res) {
     const limit = Math.min(200, Math.max(1, safeInteger(url.searchParams.get("limit"), 50)));
     const payload = await getLivePayload();
     const stats = payload?.stats ?? {};
-    const minimumTokens = safeInteger(stats.holderMinTokens ?? 300000, 300000);
+    const minimumTokens = Math.max(500000, safeInteger(stats.holderMinTokens ?? 500000, 500000));
     const btcPrice = resolveBtcPrice(stats);
     const holders = (payload?.holders ?? [])
       .map((holder) => mapLeaderboardHolder(holder, minimumTokens, btcPrice))

@@ -16,6 +16,7 @@ import {
 import { config } from "./config.js";
 import { sendDistributionBatch } from "./lib/distributor.js";
 import { chunk, formatSol, formatTokenAmount, formatUsd, shorten, toLamports } from "./lib/format.js";
+import { loadGrandfatherSnapshot } from "./lib/grandfather.js";
 import { HoldTrackingStore } from "./lib/holdTracking.js";
 import { getHolderSummary } from "./lib/holders.js";
 import { quoteTokenToUsd, swapSolForToken } from "./lib/jupiter.js";
@@ -62,6 +63,7 @@ let lastPublicSitePayloadJson: string | null = null;
 let publicSitePublishReadyLogged = false;
 let lastPublicSitePublishError: string | null = null;
 let lastBtcUsdCache: number | null = null;
+let grandfatherOwnerCache: { fetchedAt: number; owners: Set<string>; minTokens: number } | null = null;
 
 const HOUR_MS = 60 * 60 * 1000;
 const DAY_MS = 24 * HOUR_MS;
@@ -79,11 +81,12 @@ const MAX_REPLAY_BATCHES_PER_CYCLE = Number(process.env.MAX_REPLAY_BATCHES_PER_C
 const MAX_REPLAY_BATCHES_PER_CATCHUP = Number(process.env.MAX_REPLAY_BATCHES_PER_CATCHUP ?? "64");
 const REPLAY_CATCHUP_DELAY_MS = 250;
 const SWAP_RETRY_COOLDOWN_MS = 30_000;
-const NO_WBTC_ACCOUNT_RETRY_COOLDOWN_MS = 60 * 60 * 1000;
+const NO_WBTC_ACCOUNT_RETRY_COOLDOWN_MS = Number(process.env.NO_WBTC_ACCOUNT_RETRY_COOLDOWN_MS ?? "300000");
 const LOW_SOL_RETRY_COOLDOWN_MS = 60_000;
 const HOLD_MESSAGE_COOLDOWN_MS = 60_000;
 const REPLAY_HEARTBEAT_COOLDOWN_MS = 60_000;
 const ELIGIBLE_OWNER_CACHE_MS = 60_000;
+const GRANDFATHER_CACHE_MS = 60_000;
 const REPLAY_PASS_TIMEOUT_MS = Number(process.env.REPLAY_PASS_TIMEOUT_MS ?? "240000");
 const HOLDER_SCAN_TIMEOUT_MS = 60_000;
 const REWARD_ACCOUNT_SCAN_TIMEOUT_MS = 60_000;
@@ -102,6 +105,7 @@ type EligibleHolderWithTier = {
   holdTierLabel: string;
   holdMultiplierBps: number;
   weightUnits: bigint;
+  isGrandfathered: boolean;
 };
 
 type RewardAccountPayability = {
@@ -262,6 +266,7 @@ async function getCurrentEligibleOwnerSet(): Promise<Set<string>> {
     treasury.toBase58(),
     ...config.excludedHolderAddresses,
   ]);
+  const grandfatherEligibility = await getGrandfatherEligibility();
 
   const holderSummary = await withTimeout(
     "Replay holder scan",
@@ -272,6 +277,8 @@ async function getCurrentEligibleOwnerSet(): Promise<Set<string>> {
         config.holderMinTokens,
         excludedOwners,
         config.skipOffCurveOwners,
+        grandfatherEligibility.owners,
+        grandfatherEligibility.minTokens,
       ),
     ),
     HOLDER_SCAN_TIMEOUT_MS,
@@ -283,6 +290,37 @@ async function getCurrentEligibleOwnerSet(): Promise<Set<string>> {
     owners,
   };
   return owners;
+}
+
+async function getGrandfatherEligibility(): Promise<{ owners: Set<string>; minTokens: number }> {
+  const now = Date.now();
+  if (grandfatherOwnerCache && now - grandfatherOwnerCache.fetchedAt < GRANDFATHER_CACHE_MS) {
+    return {
+      owners: grandfatherOwnerCache.owners,
+      minTokens: grandfatherOwnerCache.minTokens,
+    };
+  }
+
+  const snapshot = await loadGrandfatherSnapshot(config.grandfatherFilePath);
+  const minTokens = config.grandfatherMinTokens;
+  const owners = new Set<string>();
+
+  if (snapshot?.holderMint === holderMint.toBase58()) {
+    for (const wallet of snapshot.wallets ?? []) {
+      const snapshotBalance = Number(wallet.snapshotUiBalance);
+      if (Number.isFinite(snapshotBalance) && snapshotBalance >= minTokens) {
+        owners.add(wallet.owner);
+      }
+    }
+  }
+
+  grandfatherOwnerCache = {
+    fetchedAt: now,
+    owners,
+    minTokens,
+  };
+
+  return { owners, minTokens };
 }
 
 function getPendingRecipientCount(round: PayoutRoundState): number {
@@ -595,6 +633,7 @@ async function executeCycle(): Promise<void> {
     treasury.toBase58(),
     ...config.excludedHolderAddresses,
   ]);
+  const grandfatherEligibility = await getGrandfatherEligibility();
 
   logger.section("Main Check");
   const awaitingSwapSummary = await withTimeout(
@@ -642,6 +681,8 @@ async function executeCycle(): Promise<void> {
         config.holderMinTokens,
         excludedOwners,
         config.skipOffCurveOwners,
+        grandfatherEligibility.owners,
+        grandfatherEligibility.minTokens,
       ),
     ),
     HOLDER_SCAN_TIMEOUT_MS,
@@ -865,6 +906,7 @@ async function executeCycle(): Promise<void> {
       holdMultiplierBps: holder.holdMultiplierBps,
       holdTierLabel: holder.holdTierLabel,
       eligibleSince: holder.eligibleSince,
+      isGrandfathered: holder.isGrandfathered,
       weightUnitsRaw: holder.weightUnits.toString(),
       amountRaw: "0",
       status: "pending" as const,
@@ -1146,6 +1188,9 @@ async function finalizeRoundAsDust(roundId: string, params: {
 
   for (const recipient of round.recipients) {
     recipient.amountRaw = "0";
+    recipient.status = "dropped";
+    recipient.droppedAt = round.completedAt;
+    recipient.dropReason = params.note;
     recipient.lastError = params.note;
   }
 
@@ -1660,6 +1705,7 @@ type PublicSiteHolder = {
   holdAge: string;
   holdTier: string;
   holdMultiplier: string;
+  isGrandfathered: boolean;
   eligibleSince: string | null;
   hasWbtcAccount: boolean;
   payableNow: boolean;
@@ -1698,6 +1744,8 @@ type PublicSitePayload = {
   updatedAt: number;
   stats: {
     holderMinTokens: number;
+    grandfatherMinTokens: number;
+    grandfatheredEligible: number;
     holderMint: string;
     rewardMint: string;
     allTimeUsd: number;
@@ -1960,6 +2008,7 @@ async function buildPublicSitePayload(): Promise<PublicSitePayload> {
   const ledgerStats = await getLedgerStatsFromState(state);
   const rewardDecimals = await getRewardMintDecimals();
   const excludedOwners = getExcludedOwners();
+  const grandfatherEligibility = await getGrandfatherEligibility();
   const holderSummary = await withTimeout(
     "Public site holder scan",
     rpcPool.withFailover((rpc) =>
@@ -1969,6 +2018,8 @@ async function buildPublicSitePayload(): Promise<PublicSitePayload> {
         config.holderMinTokens,
         excludedOwners,
         config.skipOffCurveOwners,
+        grandfatherEligibility.owners,
+        grandfatherEligibility.minTokens,
       )
     ),
     HOLDER_SCAN_TIMEOUT_MS,
@@ -2027,6 +2078,7 @@ async function buildPublicSitePayload(): Promise<PublicSitePayload> {
       holdAge: formatHoldAge(holder.holdDurationMs),
       holdTier: holder.holdTierLabel,
       holdMultiplier: formatMultiplier(holder.holdMultiplierBps),
+      isGrandfathered: holder.isGrandfathered,
       eligibleSince: holder.eligibleSince,
       hasWbtcAccount,
       payableNow: hasWbtcAccount,
@@ -2047,6 +2099,8 @@ async function buildPublicSitePayload(): Promise<PublicSitePayload> {
     updatedAt: Date.now(),
     stats: {
       holderMinTokens: config.holderMinTokens,
+      grandfatherMinTokens: config.grandfatherMinTokens,
+      grandfatheredEligible: holderSummary.grandfatheredEligibleCount,
       holderMint: holderMint.toBase58(),
       rewardMint: rewardMint.toBase58(),
       allTimeUsd: ledgerStats.totalPaidUsd ?? 0,
@@ -2199,6 +2253,7 @@ async function annotateEligibleHolders(
     owner: PublicKey;
     rawBalance: bigint;
     shareCount: bigint;
+    isGrandfathered: boolean;
   }>,
 ): Promise<EligibleHolderWithTier[]> {
   const now = new Date();
@@ -2220,7 +2275,7 @@ async function annotateEligibleHolders(
     nextHolders[owner] = {
       eligibleSince,
       lastSeenAt: nowIso,
-      isGrandfathered: false,
+      isGrandfathered: holder.isGrandfathered,
     };
 
     return {
@@ -2232,6 +2287,7 @@ async function annotateEligibleHolders(
       holdTierLabel: tier.label,
       holdMultiplierBps: tier.multiplierBps,
       weightUnits,
+      isGrandfathered: holder.isGrandfathered,
     };
   });
 

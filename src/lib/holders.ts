@@ -28,6 +28,8 @@ export async function getHolderSummary(
   minimumUiTokens: number,
   excludedOwners: Set<string>,
   skipOffCurveOwners: boolean,
+  grandfatheredOwners: Set<string> = new Set(),
+  grandfatherMinimumUiTokens = minimumUiTokens,
 ): Promise<HolderSummary> {
   const mintAccountInfo = await connection.getAccountInfo(mint, "confirmed");
   if (!mintAccountInfo) {
@@ -40,6 +42,7 @@ export async function getHolderSummary(
 
   const mintInfo = await getMint(connection, mint, "confirmed", tokenProgram);
   const minimumRawBalance = BigInt(Math.floor(minimumUiTokens * 10 ** mintInfo.decimals));
+  const grandfatherMinimumRawBalance = BigInt(Math.floor(grandfatherMinimumUiTokens * 10 ** mintInfo.decimals));
 
   const accounts = await connection.getParsedProgramAccounts(tokenProgram, {
     commitment: "confirmed",
@@ -100,15 +103,20 @@ export async function getHolderSummary(
 
   const eligible = [...ownerBalances.entries()]
     .map(([owner, rawBalance]) => {
-      if (rawBalance < minimumRawBalance) {
+      const isGrandfathered = grandfatheredOwners.has(owner);
+      const qualifiesByNormalLine = rawBalance >= minimumRawBalance;
+      const qualifiesByGrandfatherLine = isGrandfathered && rawBalance >= grandfatherMinimumRawBalance;
+
+      if (!qualifiesByNormalLine && !qualifiesByGrandfatherLine) {
         return null;
       }
 
+      const normalShares = rawBalance / minimumRawBalance;
       return {
         owner: new PublicKey(owner),
         rawBalance,
-        shareCount: rawBalance / minimumRawBalance,
-        isGrandfathered: false,
+        shareCount: normalShares > 0n ? normalShares : 1n,
+        isGrandfathered: qualifiesByGrandfatherLine && !qualifiesByNormalLine,
       };
     })
     .filter((holder): holder is {

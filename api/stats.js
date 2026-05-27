@@ -13,6 +13,9 @@ export default async function handler(req, res) {
       stats: {
         holderMint: stats.holderMint ?? "",
         rewardMint: stats.rewardMint ?? "",
+        holderMinTokens: Math.max(500000, safeInteger(stats.holderMinTokens ?? 500000, 500000)),
+        grandfatherMinTokens: safeInteger(stats.grandfatherMinTokens ?? 300000, 300000),
+        grandfatheredEligible: safeInteger(stats.grandfatheredEligible ?? 0, 0),
         allTimeUsd: safeNumber(stats.allTimeUsd, 0),
         allTimeWbtc: safeNumber(stats.allTimeWbtc, 0),
         holdersPaid: safeInteger(stats.holdersPaid, 0),

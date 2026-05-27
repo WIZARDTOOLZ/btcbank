@@ -15,7 +15,9 @@ export const TIER_DEFS = [
 export const FALLBACK_LIVE_PAYLOAD = {
   updatedAt: 0,
   stats: {
-    holderMinTokens: 300000,
+    holderMinTokens: 500000,
+    grandfatherMinTokens: 300000,
+    grandfatheredEligible: 0,
     holderMint: "9s96G11xGsHczudfJqKQzQxzvubQgJXSySJ1wRgxpump",
     rewardMint: "5XZw2LKTyrfvfiskJ78AMpackRjPcyCif1WhUsPDuVqQ",
     allTimeUsd: 20474.79,
@@ -155,14 +157,14 @@ export function getHolderTokens(holder) {
   return safeNumber(holder?.balanceTokens ?? holder?.tokens ?? holder?.balance ?? 0, 0);
 }
 
-export function holderQualifies(holder, minimumTokens = 300000) {
+export function holderQualifies(holder, minimumTokens = 500000) {
   if (typeof holder?.qualified === "boolean") {
     return holder.qualified;
   }
   return getHolderTokens(holder) >= minimumTokens;
 }
 
-export function getHolderShares(holder, minimumTokens = 300000) {
+export function getHolderShares(holder, minimumTokens = 500000) {
   const explicit = holder?.shareCount ?? holder?.shares;
   if (explicit !== undefined && explicit !== null && explicit !== "") {
     return Math.max(0, safeInteger(explicit, 0));
@@ -254,7 +256,7 @@ export function getHolderMultiplier(holder) {
   return holderQualifies(holder) ? 1 : 0;
 }
 
-export function getHolderTier(holder, minimumTokens = 300000) {
+export function getHolderTier(holder, minimumTokens = 500000) {
   const explicitTier = getTierByLabel(holder?.holdTier ?? holder?.holdTierLabel ?? holder?.tier);
   if (explicitTier) {
     return explicitTier;
@@ -281,7 +283,7 @@ export function findHolderByWallet(holders, wallet) {
   return holders.find((holder) => getHolderWallet(holder).toLowerCase() === normalized) ?? null;
 }
 
-export function buildWalletCheckResult(holder, wallet, minimumTokens = 300000) {
+export function buildWalletCheckResult(holder, wallet, minimumTokens = 500000) {
   if (!holder) {
     return {
       found: false,
@@ -350,7 +352,7 @@ export function buildWalletCheckResult(holder, wallet, minimumTokens = 300000) {
   };
 }
 
-export function mapLeaderboardHolder(holder, minimumTokens = 300000, btcPrice = 0) {
+export function mapLeaderboardHolder(holder, minimumTokens = 500000, btcPrice = 0) {
   const tier = getHolderTier(holder, minimumTokens);
   const totalWbtcEarned = safeNumber(holder?.totalWbtcEarned ?? holder?.wbtcEarned ?? holder?.earnedWbtc ?? 0, 0);
   const price = safeNumber(btcPrice, 0);

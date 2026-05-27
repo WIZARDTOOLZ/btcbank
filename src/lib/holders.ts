@@ -44,7 +44,7 @@ export async function getHolderSummary(
   const minimumRawBalance = BigInt(Math.floor(minimumUiTokens * 10 ** mintInfo.decimals));
   const grandfatherMinimumRawBalance = BigInt(Math.floor(grandfatherMinimumUiTokens * 10 ** mintInfo.decimals));
 
-  const accounts = await connection.getParsedProgramAccounts(tokenProgram, {
+  const accounts = await connection.getProgramAccounts(tokenProgram, {
     commitment: "confirmed",
     filters: tokenProgram.equals(TOKEN_PROGRAM_ID)
       ? [
@@ -64,29 +64,22 @@ export async function getHolderSummary(
             },
           },
         ],
+    dataSlice: {
+      offset: 32,
+      length: 40,
+    },
   });
 
   const ownerBalances = new Map<string, bigint>();
 
   for (const account of accounts) {
-    const parsed = account.account.data;
-    if (!("parsed" in parsed)) {
+    const data = account.account.data;
+    if (!Buffer.isBuffer(data) || data.length < 40) {
       continue;
     }
 
-    const info = parsed.parsed.info as {
-      owner?: string;
-      tokenAmount?: {
-        amount?: string;
-      };
-    };
-
-    const owner = info.owner;
-    const amount = info.tokenAmount?.amount;
-
-    if (!owner || !amount) {
-      continue;
-    }
+    const owner = new PublicKey(data.subarray(0, 32)).toBase58();
+    const amount = data.readBigUInt64LE(32);
 
     if (excludedOwners.has(owner)) {
       continue;
@@ -98,7 +91,7 @@ export async function getHolderSummary(
     }
 
     const current = ownerBalances.get(owner) ?? 0n;
-    ownerBalances.set(owner, current + BigInt(amount));
+    ownerBalances.set(owner, current + amount);
   }
 
   const eligible = [...ownerBalances.entries()]

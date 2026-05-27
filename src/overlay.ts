@@ -276,7 +276,7 @@ const HOLD_TIERS = [
   { label: "24h+", minMs: DAY_MS, multiplierBps: 10_100, plain: "tiny loyalty bonus" },
   { label: "<24h", minMs: 0, multiplierBps: 10_000, plain: "base reward, no bonus yet" },
 ] as const;
-const OVERLAY_PAYLOAD_CACHE_MS = 3_000;
+const OVERLAY_PAYLOAD_CACHE_MS = 1_000;
 const QUALIFICATION_CACHE_MS = 30_000;
 const MARKET_CACHE_MS = 15_000;
 const MARKET_HTTP_TIMEOUT_MS = 8_000;
@@ -1735,7 +1735,7 @@ async function broadcastUpdate(): Promise<void> {
 function startHeartbeat(): void {
   heartbeatTimer = setInterval(() => {
     void broadcastUpdate();
-  }, 10_000);
+  }, 3_000);
 }
 
 function startFileWatch(filePath: string): void {
@@ -2522,15 +2522,15 @@ function renderOverlayHtml(): string {
     connectLive();
     setInterval(() => {
       loadOnce().catch(() => {});
-    }, 5000);
+    }, 2000);
     setInterval(() => {
       if (!lastPushMs) return;
       const ageMs = Date.now() - lastPushMs;
-      if (ageMs < 15000) return;
-      if (Date.now() - staleRecoverAt < 5000) return;
+      if (ageMs < 6000) return;
+      if (Date.now() - staleRecoverAt < 2000) return;
       staleRecoverAt = Date.now();
       loadOnce().catch(() => {});
-    }, 3000);
+    }, 2000);
   </script>
 </body>
 </html>`;
@@ -3753,11 +3753,11 @@ function renderPaidSummaryHtml(): string {
       const syncEl = document.getElementById("syncText");
       const syncSuffix = syncAge === 0 ? "just now" : syncAge === 1 ? "1s ago" : syncAge + "s ago";
       if (syncAge >= 15) {
-        liveEl.textContent = "SYNC STALE | reconnecting | last sync " + syncSuffix + " | poll 5s";
+        liveEl.textContent = "SYNC STALE | reconnecting | last sync " + syncSuffix + " | poll 2s";
         liveEl.className = "live stale";
         syncEl.textContent = "STALE | last sync " + syncSuffix;
       } else {
-        liveEl.textContent = "SYNC OK | last sync " + syncSuffix + " | poll 5s | push " + packetCount;
+        liveEl.textContent = "SYNC OK | last sync " + syncSuffix + " | poll 2s | push " + packetCount;
         liveEl.className = "live good";
         syncEl.textContent = "LIVE | last sync " + syncSuffix;
       }
@@ -3911,15 +3911,15 @@ function renderPaidSummaryHtml(): string {
     connectLive();
     setInterval(() => {
       loadOnce().catch(() => {});
-    }, 5000);
+    }, 2000);
     setInterval(() => {
       if (!lastPushMs) return;
       const ageMs = Date.now() - lastPushMs;
-      if (ageMs < 15000) return;
-      if (Date.now() - staleRecoverAt < 5000) return;
+      if (ageMs < 6000) return;
+      if (Date.now() - staleRecoverAt < 2000) return;
       staleRecoverAt = Date.now();
       loadOnce().catch(() => {});
-    }, 3000);
+    }, 2000);
   </script>
 </body>
 </html>`;
@@ -4425,7 +4425,7 @@ function renderOpsHtml(): string {
     refresh().catch(() => {});
     setInterval(() => {
       refresh().catch(() => {});
-    }, 4000);
+    }, 3000);
   </script>
 </body>
 </html>`;
@@ -5086,7 +5086,7 @@ function renderDashboardHtml(): string {
     refresh().catch(() => {});
     setInterval(() => {
       refresh().catch(() => {});
-    }, 5000);
+    }, 2000);
   </script>
 </body>
 </html>`;

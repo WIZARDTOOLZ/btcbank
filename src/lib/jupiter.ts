@@ -11,6 +11,8 @@ const JUPITER_API_BASES = [
 ] as const;
 const JUPITER_HTTP_TIMEOUT_MS = 20_000;
 const JUPITER_TX_TIMEOUT_MS = 45_000;
+const JUPITER_SKIP_PREFLIGHT =
+  (process.env.JUPITER_SKIP_PREFLIGHT ?? process.env.TX_SKIP_PREFLIGHT ?? "true").toLowerCase() !== "false";
 
 export interface SwapResult {
   signature: string;
@@ -50,7 +52,7 @@ export async function swapSolForToken({
     const signature = await withTxTimeout(
       "send Jupiter swap",
       connection.sendTransaction(transaction, {
-        skipPreflight: false,
+        skipPreflight: JUPITER_SKIP_PREFLIGHT,
         maxRetries: 3,
       }),
     );

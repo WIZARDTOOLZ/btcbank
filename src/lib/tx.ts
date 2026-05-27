@@ -8,6 +8,7 @@ import {
 } from "@solana/web3.js";
 
 const TX_STEP_TIMEOUT_MS = Number(process.env.TX_STEP_TIMEOUT_MS ?? "60000");
+const TX_SKIP_PREFLIGHT = (process.env.TX_SKIP_PREFLIGHT ?? "true").toLowerCase() !== "false";
 
 export interface SentTransaction {
   signature: string;
@@ -53,7 +54,7 @@ export async function sendInstructions(
   const signature = await withTimeout(
     "send transaction",
     connection.sendTransaction(transaction, {
-      skipPreflight: false,
+      skipPreflight: TX_SKIP_PREFLIGHT,
       maxRetries: 5,
     }),
   );

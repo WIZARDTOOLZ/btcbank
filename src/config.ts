@@ -58,7 +58,7 @@ export const config = {
   pollIntervalMs: parseNumber("POLL_INTERVAL_MS", "180000"),
   minClaimSol: parseNumber("MIN_CLAIM_SOL", "0.01"),
   minSwapSol: parseNumber("MIN_SWAP_SOL", "0.005"),
-  minPayoutRoundUsd: parseNumber("MIN_PAYOUT_ROUND_USD", "10"),
+  minPayoutRoundUsd: parseNumber("MIN_PAYOUT_ROUND_USD", "2.5"),
   holderMinTokens: parseNumber("HOLDER_MIN_TOKENS", "500000"),
   grandfatherMinTokens: parseNumber("GRANDFATHER_MIN_TOKENS", "300000"),
   treasuryBps: parseNumber("TREASURY_BPS", "2000"),

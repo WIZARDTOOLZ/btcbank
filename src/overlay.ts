@@ -3604,7 +3604,7 @@ function renderPaidSummaryHtml(): string {
             <div class="round-now-main" id="heroRoundMain">Waiting for live round data</div>
             <div class="round-now-sub" id="heroRoundSub">The current round status, value, and queue pressure show here in one clean block.</div>
             <div class="round-now-grid">
-              <div class="round-now-card"><div class="k">Round Value</div><div class="v" id="heroRoundValue">-</div></div>
+              <div class="round-now-card"><div class="k">Round Paid Value</div><div class="v" id="heroRoundValue">-</div></div>
               <div class="round-now-card"><div class="k">Still Owed</div><div class="v" id="heroRoundOwed">-</div></div>
               <div class="round-now-card"><div class="k">BTC</div><div class="v" id="marketBtc">-</div></div>
               <div class="round-now-card"><div class="k">WBTC</div><div class="v" id="marketWbtc">-</div></div>
@@ -3669,7 +3669,7 @@ function renderPaidSummaryHtml(): string {
     <div class="rail-panel rules-panel">
       <div class="panel-head">
         <div class="panel-title">Round Details</div>
-        <div class="panel-sub">Only the live round numbers the stream actually needs.</div>
+        <div class="panel-sub">Whole-round WBTC paid, USD value, and holder progress.</div>
       </div>
       <div class="meta-row">
         <div class="meta-pill"><div class="k">Round</div><div class="v" id="detailRoundId">-</div></div>
@@ -3677,8 +3677,8 @@ function renderPaidSummaryHtml(): string {
       </div>
       <div class="round-grid">
         <div class="fact"><div class="fact-label">Claimed</div><div class="fact-value" id="detailClaimed">-</div></div>
-        <div class="fact"><div class="fact-label">Reward</div><div class="fact-value gold" id="detailReward">-</div></div>
-        <div class="fact"><div class="fact-label">Value</div><div class="fact-value gold" id="detailValue">-</div></div>
+        <div class="fact"><div class="fact-label">Round WBTC Paid</div><div class="fact-value gold" id="detailReward">-</div></div>
+        <div class="fact"><div class="fact-label">Round USD Paid</div><div class="fact-value gold" id="detailValue">-</div></div>
         <div class="fact"><div class="fact-label">Progress</div><div class="fact-value cyan" id="detailProgress">-</div></div>
         <div class="fact"><div class="fact-label">Paid Now</div><div class="fact-value green" id="detailPaid">-</div></div>
         <div class="fact"><div class="fact-label">Paid Total</div><div class="fact-value green" id="detailPaidTotal">-</div></div>

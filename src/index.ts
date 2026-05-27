@@ -1521,6 +1521,7 @@ async function resumePendingRounds(maxBatchesToProcess = Number.POSITIVE_INFINIT
         logger.tx("Payout signature", result.signature);
       } catch (error) {
         const message = formatDistributionError(error);
+        rpcPool.rotate();
         if (message.startsWith("Payout hold:")) {
           const now = Date.now();
           if (message.includes("no-WBTC accounts")) {

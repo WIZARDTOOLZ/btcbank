@@ -739,7 +739,7 @@ async function computeOverlayPayload(): Promise<OverlayPayload> {
         : 0;
     const completeRounds = state.rounds.filter((round) => round.status === "complete").length;
     const recentTxs = buildRecentTransactions(rounds);
-    const activeSource = rounds.find((round) => round.status !== "complete") ?? rounds[0];
+    const activeSource = rounds[0];
     const recentRoundSources = rounds.slice(0, 3);
     const recentRounds = await Promise.all(
       recentRoundSources.map(async (round) => buildRoundView(round, await getRoundRewardUsd(round))),
